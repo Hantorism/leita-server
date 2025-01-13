@@ -43,6 +43,8 @@ dependencies {
 	implementation("org.hibernate:hibernate-core:6.5.0.Final")
 	implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
 
+	implementation("org.springframework.boot:spring-boot-starter-mail")
+
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
