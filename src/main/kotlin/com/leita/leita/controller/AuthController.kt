@@ -1,8 +1,10 @@
 package com.leita.leita.controller
 
+import com.leita.leita.controller.dto.auth.request.LoginRequest
 import com.leita.leita.controller.dto.auth.request.RegisterRequest
 import com.leita.leita.controller.dto.auth.request.SendVerifyRequest
 import com.leita.leita.controller.dto.auth.request.VerifyRequest
+import com.leita.leita.controller.dto.auth.response.LoginResponse
 import com.leita.leita.controller.dto.auth.response.RegisterResponse
 import com.leita.leita.controller.dto.auth.response.SendVerifyResponse
 import com.leita.leita.controller.dto.auth.response.VerifyResponse
@@ -32,6 +34,12 @@ class AuthController(private val authService: AuthService) {
     @PostMapping("/send-verify")
     fun sendVerify(request: SendVerifyRequest): ResponseEntity<SendVerifyResponse> {
         val response = authService.sendVerify(request)
+        return ResponseEntity.ok(response)
+    }
+
+    @PostMapping("/login")
+    fun register(request: LoginRequest): ResponseEntity<LoginResponse> {
+        val response = authService.login(request)
         return ResponseEntity.ok(response)
     }
 }
