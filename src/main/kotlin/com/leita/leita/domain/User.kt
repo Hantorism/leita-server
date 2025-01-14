@@ -1,5 +1,6 @@
 package com.leita.leita.domain
 
+import com.leita.leita.controller.dto.auth.request.LoginRequest
 import com.leita.leita.controller.dto.auth.request.RegisterRequest
 import com.leita.leita.repository.BaseEntity
 import jakarta.persistence.*
@@ -15,11 +16,4 @@ data class User(
 
     @Column(nullable = false)
     val password: String,
-) : BaseEntity() {
-
-    companion object {
-        fun register(request: RegisterRequest): User {
-            return User( request.username, request.email, request.password )
-        }
-    }
-}
+) : BaseEntity()
