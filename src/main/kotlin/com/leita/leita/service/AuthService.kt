@@ -1,15 +1,13 @@
 package com.leita.leita.service
 
+import com.leita.leita.common.security.SecurityRole
 import com.leita.leita.common.security.jwt.JwtUtils
 import com.leita.leita.controller.dto.auth.AuthMapper
 import com.leita.leita.controller.dto.auth.request.LoginRequest
 import com.leita.leita.controller.dto.auth.request.RegisterRequest
 import com.leita.leita.controller.dto.auth.request.SendVerifyRequest
 import com.leita.leita.controller.dto.auth.request.VerifyRequest
-import com.leita.leita.controller.dto.auth.response.LoginResponse
-import com.leita.leita.controller.dto.auth.response.RegisterResponse
-import com.leita.leita.controller.dto.auth.response.SendVerifyResponse
-import com.leita.leita.controller.dto.auth.response.VerifyResponse
+import com.leita.leita.controller.dto.auth.response.*
 import com.leita.leita.domain.User
 import com.leita.leita.port.cache.CachePort
 import com.leita.leita.port.gmail.GmailPort
@@ -34,6 +32,7 @@ class AuthService(
             email = request.email,
             password = passwordEncoder.encode(request.password),
             username = request.username,
+            role = SecurityRole.USER,
         )
 
         if(userRepository.findByEmail(user.email) != null) {
@@ -79,6 +78,12 @@ class AuthService(
         gmailPort.send(request.email, code)
         cachePort.set("EMAIL_"+request.email, code)
         return AuthMapper.toSendVerifyResponse(request.email)
+    }
+
+    fun info(): InfoResponse {
+        val email: String = jwtUtils.extractEmail()
+        val user = userRepository.findByEmail(email) ?: throw IllegalArgumentException("User not found")
+        return AuthMapper.toInfoResponse(user)
     }
 
     private fun isAjouEmail(email: String) {

@@ -59,15 +59,15 @@ class JwtUtils(
     }
 
     fun extractEmail(): String {
-        return extractAllClaims().getSubject()
+        return extractAllClaims().subject
     }
 
     private fun extractJTI(): String {
-        return extractAllClaims().getId()
+        return extractAllClaims().id
     }
 
     private fun extractExpirationTime(): Date {
-        return extractAllClaims().getExpiration()
+        return extractAllClaims().expiration
     }
 
     private val remainingTime: Long
@@ -79,13 +79,12 @@ class JwtUtils(
         }
 
     private fun extractAllClaims(): Claims {
-        val token = token
         val secretKey: SecretKey = Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray(StandardCharsets.UTF_8))
         return Jwts.parserBuilder()
             .setSigningKey(secretKey)
             .build()
             .parseClaimsJws(token)
-            .getBody()
+            .body
     }
 
     fun isValidateToken(email: String): Boolean {
@@ -95,7 +94,7 @@ class JwtUtils(
 
     val isTokenExpired: Boolean
         get() {
-            return extractAllClaims().getExpiration().before(Date()) ||
+            return extractExpirationTime().before(Date(System.currentTimeMillis())) ||
                     cachePort.get(extractJTI()) != null
         }
 

@@ -30,10 +30,11 @@ class JwtRequestFilter(
         try {
             val authorizationHeader = request.getHeader("Authorization")
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                if (isAuthenticated(path, authorizationHeader)) {
+                if (isAuthenticated(path)) {
                     val userDetails: UserDetails = customUserDetailsService.loadUserByUsername(
                         jwtUtil.extractEmail()
                     )
+
                     val usernamePasswordAuthenticationToken =
                         UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
                     usernamePasswordAuthenticationToken.details = WebAuthenticationDetailsSource().buildDetails(request)
@@ -41,19 +42,13 @@ class JwtRequestFilter(
                 }
             }
         } catch (e: Exception) {
-            response.status = 401
-            val responseDto = BasicResponse("Invalid JWT token")
-            val objectMapper = com.fasterxml.jackson.databind.ObjectMapper()
-            val jsonResponse = objectMapper.writeValueAsString(responseDto)
-
-            response.contentType = "application/json"
-            response.writer.write(jsonResponse)
+            throw Exception(e)
         } finally {
             chain.doFilter(request, response)
         }
     }
 
-    private fun isAuthenticated(path: String, authorizationHeader: String): Boolean {
+    private fun isAuthenticated(path: String): Boolean {
         return ApiPaths.AUTHENTICATED_ENDPOINTS.any { regex ->
             path.matches(regex.toRegex())
         } && SecurityContextHolder.getContext().authentication == null && !jwtUtil.isTokenExpired

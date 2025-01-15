@@ -12,12 +12,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-open class SecurityConfig(
+class SecurityConfig(
     private val jwtRequestFilter: JwtRequestFilter,
 ) {
 
     @Bean
-    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
+    fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http.csrf { it.disable() }
             .httpBasic { it.disable() }
             .formLogin { it.disable() }
@@ -31,5 +31,5 @@ open class SecurityConfig(
     }
 
     @Bean
-    open fun passwordEncoder(): BCryptPasswordEncoder = BCryptPasswordEncoder()
+    fun passwordEncoder(): BCryptPasswordEncoder = BCryptPasswordEncoder()
 }

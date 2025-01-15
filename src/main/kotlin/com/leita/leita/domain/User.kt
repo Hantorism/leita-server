@@ -1,5 +1,6 @@
 package com.leita.leita.domain
 
+import com.leita.leita.common.security.SecurityRole
 import com.leita.leita.controller.dto.auth.request.LoginRequest
 import com.leita.leita.controller.dto.auth.request.RegisterRequest
 import com.leita.leita.repository.BaseEntity
@@ -16,4 +17,8 @@ data class User(
 
     @Column(nullable = false)
     val password: String,
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    val role: SecurityRole,
 ) : BaseEntity()
