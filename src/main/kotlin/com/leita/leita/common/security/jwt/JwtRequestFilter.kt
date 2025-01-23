@@ -3,7 +3,6 @@ package com.leita.leita.common.security.jwt
 import com.leita.leita.common.config.WebConfig
 import com.leita.leita.common.security.ApiPaths
 import com.leita.leita.common.security.CustomUserDetailsService
-import com.leita.leita.controller.dto.BasicResponse
 import jakarta.servlet.ServletException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder

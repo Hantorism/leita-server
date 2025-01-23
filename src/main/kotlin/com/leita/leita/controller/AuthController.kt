@@ -1,9 +1,6 @@
 package com.leita.leita.controller
 
-import com.leita.leita.controller.dto.auth.request.LoginRequest
-import com.leita.leita.controller.dto.auth.request.RegisterRequest
-import com.leita.leita.controller.dto.auth.request.SendVerifyRequest
-import com.leita.leita.controller.dto.auth.request.VerifyRequest
+import com.leita.leita.controller.dto.auth.request.*
 import com.leita.leita.controller.dto.auth.response.*
 import com.leita.leita.service.AuthService
 import org.springframework.http.ResponseEntity

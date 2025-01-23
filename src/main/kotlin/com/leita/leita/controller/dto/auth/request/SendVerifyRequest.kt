@@ -1,5 +1,5 @@
 package com.leita.leita.controller.dto.auth.request
 
-class SendVerifyRequest(
+data class SendVerifyRequest(
     val email: String,
 )

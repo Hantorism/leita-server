@@ -1,5 +1,5 @@
 package com.leita.leita.controller.dto.auth.response
 
-class RegisterResponse(
+data class RegisterResponse(
     val username: String,
 )
