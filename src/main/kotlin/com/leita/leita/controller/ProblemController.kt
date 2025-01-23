@@ -1,12 +1,11 @@
 package com.leita.leita.controller
 
+import com.leita.leita.controller.dto.auth.request.SubmitRequest
+import com.leita.leita.controller.dto.auth.request.SubmitResponse
 import com.leita.leita.controller.dto.auth.response.*
 import com.leita.leita.service.ProblemService
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/problem")
@@ -21,6 +20,12 @@ class ProblemController(private val problemService: ProblemService) {
     @GetMapping("/{id}")
     fun getProblem(@PathVariable id: Long): ResponseEntity<ProblemDetailResponse> {
         val response = problemService.getProblem(id)
+        return ResponseEntity.ok(response)
+    }
+
+    @PostMapping("/submit")
+    fun submit(@RequestBody request: SubmitRequest): ResponseEntity<SubmitResponse> {
+        val response = problemService.submit(request)
         return ResponseEntity.ok(response)
     }
 }
