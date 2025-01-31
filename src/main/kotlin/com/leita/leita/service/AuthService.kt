@@ -17,7 +17,7 @@ import java.util.*
 class AuthService(
     private val userRepository: UserRepository,
     private val cachePort: CachePort,
-    private val gmailPort: GmailPort,
+    private val mailPort: GmailPort,
     private val jwtUtils: JwtUtils,
     private val passwordEncoder: PasswordEncoder
 ) {
@@ -72,7 +72,7 @@ class AuthService(
     fun sendVerify(request: SendVerifyRequest): SendVerifyResponse {
         isAjouEmail(request.email)
         val code = createCode()
-        gmailPort.send(request.email, code)
+        mailPort.send(request.email, code)
         cachePort.set("EMAIL_"+request.email, code)
         return AuthMapper.toSendVerifyResponse(request.email)
     }

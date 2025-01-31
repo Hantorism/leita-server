@@ -1,5 +1,6 @@
 package com.leita.leita.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.leita.leita.common.security.SecurityRole
 import com.leita.leita.repository.BaseEntity
 import jakarta.persistence.*
@@ -13,6 +14,7 @@ class User(
     @Column(nullable = false, unique = true)
     val email: String,
 
+    @JsonIgnore
     @Column(nullable = false)
     val password: String,
 

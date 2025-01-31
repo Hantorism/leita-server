@@ -1,6 +1,7 @@
 package com.leita.leita.repository
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -11,9 +12,11 @@ abstract class BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L
 
+    @JsonIgnore
     @Column(nullable = false, updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now()
 
+    @JsonIgnore
     @Column(nullable = false)
     var updatedAt: LocalDateTime = LocalDateTime.now()
 

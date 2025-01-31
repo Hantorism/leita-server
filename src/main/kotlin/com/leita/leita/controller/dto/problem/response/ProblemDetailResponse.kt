@@ -1,4 +1,4 @@
-package com.leita.leita.controller.dto.auth.response
+package com.leita.leita.controller.dto.problem.response
 
 import com.leita.leita.domain.problem.TestCase
 

@@ -1,8 +1,7 @@
 package com.leita.leita.controller.dto.auth
 
-import com.leita.leita.controller.dto.auth.request.SubmitRequest
-import com.leita.leita.controller.dto.auth.request.SubmitResponse
-import com.leita.leita.controller.dto.auth.response.*
+import com.leita.leita.controller.dto.problem.response.SubmitResponse
+import com.leita.leita.controller.dto.problem.response.ProblemDetailResponse
 import com.leita.leita.domain.problem.Problem
 
 class ProblemMapper {

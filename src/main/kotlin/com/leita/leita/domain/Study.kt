@@ -27,11 +27,29 @@ class Study(
         joinColumns = [JoinColumn(name = "study_id")],
         inverseJoinColumns = [JoinColumn(name = "user_id")]
     )
-    val participants: MutableList<User> = mutableListOf()
+    val participants: MutableList<User> = mutableListOf(),
+
+    @OneToMany
+    @JoinTable(
+        name = "study_pendings",
+        joinColumns = [JoinColumn(name = "study_id")],
+        inverseJoinColumns = [JoinColumn(name = "user_id")]
+    )
+    val pending: MutableList<User> = mutableListOf()
+
 ) : BaseEntity() {
 
     fun join(user: User) {
+        pending.add(user)
+    }
+
+    fun approve(user: User) {
+        pending.remove(user)
         participants.add(user)
+    }
+
+    fun deny(user: User) {
+        pending.remove(user)
     }
 
     fun leave(user: User) {
@@ -44,5 +62,9 @@ class Study(
 
     fun removeAdmin(user: User) {
         admins.remove(user)
+    }
+
+    fun isAdminByEmail(email: String): Boolean {
+        return admins.any { it.email == email }
     }
 }

@@ -2,14 +2,12 @@ package com.leita.leita.service
 
 import com.leita.leita.controller.dto.auth.ProblemMapper
 import com.leita.leita.controller.dto.auth.request.SubmitRequest
-import com.leita.leita.controller.dto.auth.request.SubmitResponse
-import com.leita.leita.controller.dto.auth.response.*
+import com.leita.leita.controller.dto.problem.response.SubmitResponse
+import com.leita.leita.controller.dto.problem.response.ProblemDetailResponse
 import com.leita.leita.domain.problem.Problem
 import com.leita.leita.port.judge.JudgePort
 import com.leita.leita.repository.ProblemRepository
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class ProblemService(
@@ -19,7 +17,7 @@ class ProblemService(
 
     fun getProblems(): List<ProblemDetailResponse> {
         val problems: List<Problem> = problemRepository.findAll()
-        return problems.map{ProblemMapper.toProblemDetailResponse(it)}
+        return problems.map{ ProblemMapper.toProblemDetailResponse(it) }
     }
 
     fun getProblem(id: Long): ProblemDetailResponse {

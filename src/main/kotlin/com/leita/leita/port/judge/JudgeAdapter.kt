@@ -2,7 +2,7 @@ package com.leita.leita.port.judge
 
 import com.leita.leita.common.config.RestConfig
 import com.leita.leita.controller.dto.auth.request.SubmitRequest
-import com.leita.leita.controller.dto.auth.request.SubmitResponse
+import com.leita.leita.controller.dto.problem.response.SubmitResponse
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
