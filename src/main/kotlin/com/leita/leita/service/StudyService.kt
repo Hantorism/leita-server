@@ -6,6 +6,8 @@ import com.leita.leita.controller.dto.study.request.StudyCreateRequest
 import com.leita.leita.controller.dto.study.response.*
 import com.leita.leita.domain.Study
 import com.leita.leita.domain.User
+import com.leita.leita.port.mail.MailPort
+import com.leita.leita.port.mail.MailType
 import com.leita.leita.repository.StudyRepository
 import com.leita.leita.repository.UserRepository
 import org.springframework.stereotype.Service
@@ -15,7 +17,7 @@ class StudyService(
     private val studyRepository: StudyRepository,
     private val userRepository: UserRepository,
     private val jwtUtils: JwtUtils,
-//    private val mailPort: GmailPort
+    private val mailPort: MailPort
 ) {
 
     fun getStudies(): List<StudyDetailResponse> {
@@ -29,28 +31,22 @@ class StudyService(
     }
 
     fun create(request: StudyCreateRequest): StudyCreateResponse {
-        val admins: MutableList<User> = request.adminEmails.map {
-            userRepository.findByEmail(it)!!
-        }.toMutableList()
+        val admins = request.adminEmails.mapNotNull(userRepository::findByEmail)
+        val pending = request.pendingEmails.mapNotNull(userRepository::findByEmail)
 
-        val pending: MutableList<User> = request.pendingEmails.map {
-            userRepository.findByEmail(it)!!
-        }.toMutableList()
-
-        val study = Study(
-            admins,
-            title = request.title,
-            description = request.description,
-            pending,
+        val study = studyRepository.save(
+            Study(
+                admins,
+                title = request.title,
+                description = request.description,
+                pending
+            )
         )
 
-        val id: Long = studyRepository.save(study).id
+        request.adminEmails.forEach { mailPort.send(MailType.STUDY_ADMIN_INVITE, it) }
+        request.pendingEmails.forEach { mailPort.send(MailType.STUDY_MEMBER_INVITE, it) }
 
-        // 초대 요청 메일 전송
-        // request.adminEmails.map {}
-        // request.pendingEmails.map {}
-
-        return StudyMapper.toStudyCreateResponse(id)
+        return StudyMapper.toStudyCreateResponse(study.id)
     }
 
     fun join(id: Long): StudyJoinResponse {

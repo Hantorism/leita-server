@@ -1,29 +1,30 @@
-package com.leita.leita.port.gmail
+package com.leita.leita.port.mail
 
 import jakarta.mail.internet.InternetAddress
 import jakarta.mail.internet.MimeMessage
-import org.springframework.mail.javamail.JavaMailSenderImpl
+import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 
 @Component
-class GmailAdapter(
-    private val mailSender: JavaMailSenderImpl,
-) : GmailPort {
+class MailAdapter(
+    private val mailSender: JavaMailSender,
+) : MailPort {
 
     @Async
-    override fun send(email: String, code: String) {
+    override fun send(mailType: MailType, email: String, vararg args: String) {
         val message: MimeMessage = mailSender.createMimeMessage()
 
-        //  TODO: 메일 필요가 늘어나면 enum으로 타입화
         try {
             val sender = InternetAddress("leita@leita.kr", "LEITA", "utf-8")
             message.setFrom(sender)
             message.setRecipients(MimeMessage.RecipientType.TO, email)
-            message.subject = "[LEITA] 이메일 인증"
-            message.setText("인증 코드: $code")
+
+            message.subject = mailType.title
+            message.setText(mailType.formatMessage(*args))
+
         } catch (e: Exception) {
-            throw RuntimeException(e)
+            throw RuntimeException("메일 전송 실패: ${e.message}", e)
         }
 
         mailSender.send(message)

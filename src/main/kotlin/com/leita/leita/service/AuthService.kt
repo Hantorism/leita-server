@@ -7,7 +7,8 @@ import com.leita.leita.controller.dto.auth.request.*
 import com.leita.leita.controller.dto.auth.response.*
 import com.leita.leita.domain.User
 import com.leita.leita.port.cache.CachePort
-import com.leita.leita.port.gmail.GmailPort
+import com.leita.leita.port.mail.MailPort
+import com.leita.leita.port.mail.MailType
 import com.leita.leita.repository.UserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -17,7 +18,7 @@ import java.util.*
 class AuthService(
     private val userRepository: UserRepository,
     private val cachePort: CachePort,
-    private val mailPort: GmailPort,
+    private val mailPort: MailPort,
     private val jwtUtils: JwtUtils,
     private val passwordEncoder: PasswordEncoder
 ) {
@@ -72,7 +73,7 @@ class AuthService(
     fun sendVerify(request: SendVerifyRequest): SendVerifyResponse {
         isAjouEmail(request.email)
         val code = createCode()
-        mailPort.send(request.email, code)
+        mailPort.send(MailType.EMAIL_VERIFICATION, request.email, code)
         cachePort.set("EMAIL_"+request.email, code)
         return AuthMapper.toSendVerifyResponse(request.email)
     }
