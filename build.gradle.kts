@@ -37,7 +37,7 @@ dependencies {
 
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 
-	implementation("org.mariadb.jdbc:mariadb-java-client")
+	implementation("mysql:mysql-connector-java:8.0.33")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.hibernate:hibernate-core:6.5.0.Final")
 	implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
