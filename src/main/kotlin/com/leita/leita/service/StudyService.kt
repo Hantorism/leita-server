@@ -31,8 +31,8 @@ class StudyService(
     }
 
     fun create(request: StudyCreateRequest): StudyCreateResponse {
-        val admins = request.adminEmails.mapNotNull(userRepository::findByEmail)
-        val pending = request.pendingEmails.mapNotNull(userRepository::findByEmail)
+        val admins = request.adminEmails.mapNotNull(userRepository::findByEmail).toMutableList()
+        val pending = request.pendingEmails.mapNotNull(userRepository::findByEmail).toMutableList()
 
         val study = studyRepository.save(
             Study(

@@ -11,7 +11,7 @@ class StudyMapper {
                 admins = study.admins,
                 title = study.title,
                 description = study.description,
-                participants = study.participants
+                members = study.members
             )
         }
 

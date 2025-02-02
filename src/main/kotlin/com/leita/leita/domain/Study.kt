@@ -23,11 +23,11 @@ class Study(
 
     @ManyToMany
     @JoinTable(
-        name = "study_participants",
+        name = "study_members",
         joinColumns = [JoinColumn(name = "study_id")],
         inverseJoinColumns = [JoinColumn(name = "user_id")]
     )
-    val participants: MutableList<User> = mutableListOf(),
+    val members: MutableList<User> = mutableListOf(),
 
     @OneToMany
     @JoinTable(
@@ -45,7 +45,7 @@ class Study(
 
     fun approve(user: User) {
         pending.remove(user)
-        participants.add(user)
+        members.add(user)
     }
 
     fun deny(user: User) {
@@ -53,7 +53,7 @@ class Study(
     }
 
     fun leave(user: User) {
-        participants.remove(user)
+        members.remove(user)
     }
 
     fun addAdmin(user: User) {
