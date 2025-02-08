@@ -33,7 +33,6 @@ class JwtRequestFilter(
                     val userDetails: UserDetails = customUserDetailsService.loadUserByUsername(
                         jwtUtil.extractEmail()
                     )
-
                     val usernamePasswordAuthenticationToken =
                         UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
                     usernamePasswordAuthenticationToken.details = WebAuthenticationDetailsSource().buildDetails(request)
