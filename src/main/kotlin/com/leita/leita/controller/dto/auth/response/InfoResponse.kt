@@ -4,6 +4,6 @@ import com.leita.leita.common.security.SecurityRole
 
 data class InfoResponse(
     val email: String,
-    val username: String,
+    val name: String,
     val role: SecurityRole,
 )

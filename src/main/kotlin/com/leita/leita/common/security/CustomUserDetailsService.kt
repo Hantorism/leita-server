@@ -16,6 +16,6 @@ class CustomUserDetailsService(
     override fun loadUserByUsername(username: String): UserDetails {
         val user: User = userRepository.findByEmail(username)
             ?: throw UsernameNotFoundException("User not found with email: $username")
-        return CustomUserDetails(user.username, user.password, SecurityRole.USER)
+        return CustomUserDetails(user.name, user.sub, SecurityRole.USER)
     }
 }
