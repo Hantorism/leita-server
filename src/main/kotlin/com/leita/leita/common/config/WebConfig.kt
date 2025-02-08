@@ -1,6 +1,5 @@
 package com.leita.leita.common.config
 
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.CorsRegistry
@@ -14,7 +13,7 @@ class WebConfig : WebMvcConfigurer {
     val contextPath: String = "/api"
 
     override fun addCorsMappings(registry: CorsRegistry) {
-        val allowedOrigins = allowedOrigins!!.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val allowedOrigins = allowedOrigins.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         registry.addMapping("/**")
             .allowedOriginPatterns(*allowedOrigins)
             .allowedMethods("GET", "POST", "PUT", "DELETE")

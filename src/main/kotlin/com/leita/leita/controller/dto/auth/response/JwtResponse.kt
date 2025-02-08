@@ -1,6 +1,6 @@
 package com.leita.leita.controller.dto.auth.response
 
-data class LoginResponse(
+data class JwtResponse(
     val accessToken: String,
     val refreshToken: String,
 )

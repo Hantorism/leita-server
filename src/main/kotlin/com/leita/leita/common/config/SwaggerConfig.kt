@@ -9,7 +9,6 @@ import io.swagger.v3.oas.models.servers.Server
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
-import java.util.List
 
 @Configuration
 class SwaggerConfig {
@@ -27,7 +26,7 @@ class SwaggerConfig {
             .`in`(SecurityScheme.In.HEADER)
             .name(HttpHeaders.AUTHORIZATION)
 
-        val servers = List.of(
+        val servers = listOf(
             Server().url("https://dev-server.leita.dev/api").description("Dev Server"),
             Server().url("https://server.leita.dev/api").description("Prod Server"),
             Server().url("http://localhost:8080/api").description("Local Server")

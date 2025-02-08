@@ -1,7 +1,7 @@
 package com.leita.leita.common.security.jwt
 
 import com.leita.leita.common.config.JwtConfig
-import com.leita.leita.controller.dto.auth.response.LoginResponse
+import com.leita.leita.controller.dto.auth.response.JwtResponse
 import com.leita.leita.port.cache.CachePort
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.Claims
@@ -24,7 +24,7 @@ class JwtUtils(
     private val request: HttpServletRequest
 ) {
 
-    fun generateToken(email: String): LoginResponse {
+    fun generateToken(email: String): JwtResponse {
         val jti = UUID.randomUUID().toString()
         val key: Key = SecretKeySpec(jwtProperties.secret.toByteArray(), SignatureAlgorithm.HS512.getJcaName())
 
@@ -44,7 +44,7 @@ class JwtUtils(
             .setId(jti)
             .compact()
 
-        return LoginResponse(accessToken, refreshToken)
+        return JwtResponse(accessToken, refreshToken)
     }
 
     fun disableToken(): Boolean {
