@@ -1,33 +1,33 @@
 package com.leita.leita.port.judge
 
 import com.leita.leita.common.config.RestConfig
-import com.leita.leita.controller.dto.auth.request.SubmitRequest
-import com.leita.leita.controller.dto.problem.response.SubmitResponse
+import com.leita.leita.controller.dto.problem.request.SubmitRequest
+import com.leita.leita.port.judge.dto.response.JudgeSubmitResponse
+import org.springframework.http.MediaType
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.reactive.function.client.WebClient
 
 @Component
 class JudgeAdapter(
-    private val restTemplate: RestTemplate,
-    private val restConfig: RestConfig
+    private val restConfig: RestConfig,
+    private val webClient: WebClient
 ) : JudgePort {
 
     @Async
-    override fun submit(request: SubmitRequest): Boolean {
+    override fun submit(id: Long, request: SubmitRequest): Boolean {
         try {
-            val response = restTemplate.postForObject(
-                restConfig.judge + "/judge",
-                request,
-                SubmitResponse::class.java
-            )
+            val response = webClient.post()
+                .uri(request.language.getUrl(restConfig.judge) + "/problem/" + id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(JudgeSubmitResponse::class.java)
+                .block()!!
 
-            println("Judge server responded: $response")
-            
-            if (response != null) {
-                return response.isSubmit
-            }
+            println("Judge server responded: ${request.language.getUrl(restConfig.judge) + "/problem/" + id} / $response")
+            return response.isSuccessful
         } catch (ex: HttpClientErrorException) {
             println("Error while submitting to Judge server: ${ex.statusCode} - ${ex.responseBodyAsString}")
         } catch (ex: Exception) {

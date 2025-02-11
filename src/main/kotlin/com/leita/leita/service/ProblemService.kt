@@ -1,7 +1,7 @@
 package com.leita.leita.service
 
 import com.leita.leita.controller.dto.auth.ProblemMapper
-import com.leita.leita.controller.dto.auth.request.SubmitRequest
+import com.leita.leita.controller.dto.problem.request.SubmitRequest
 import com.leita.leita.controller.dto.problem.response.SubmitResponse
 import com.leita.leita.controller.dto.problem.response.ProblemDetailResponse
 import com.leita.leita.domain.problem.Problem
@@ -25,8 +25,8 @@ class ProblemService(
         return ProblemMapper.toProblemDetailResponse(problem)
     }
 
-    fun submit(request: SubmitRequest): SubmitResponse {
-        val isSubmit: Boolean = judgePort.submit(request);
+    fun submit(id: Long, request: SubmitRequest): SubmitResponse {
+        val isSubmit: Boolean = judgePort.submit(id, request);
         return ProblemMapper.toSubmitResponse(isSubmit)
     }
 }
