@@ -1,7 +1,7 @@
 package com.leita.leita.port.judge
 
-import com.leita.leita.controller.dto.auth.request.SubmitRequest
+import com.leita.leita.controller.dto.problem.request.SubmitRequest
 
 interface JudgePort {
-    fun submit(request: SubmitRequest): Boolean
+    fun submit(id: Long, request: SubmitRequest): Boolean
 }
