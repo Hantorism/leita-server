@@ -15,10 +15,10 @@ import org.springframework.web.reactive.function.client.WebClient
 class AuthService(
     private val userRepository: UserRepository,
     private val jwtUtils: JwtUtils,
-    private val webClient: WebClient.Builder
+    private val webClient: WebClient
 ) {
     fun oauth(request: OAuthRequest): JwtResponse {
-        val userInfo = webClient.build()
+        val userInfo = webClient
             .get()
             .uri("https://www.googleapis.com/oauth2/v3/userinfo")
             .header("Authorization", "Bearer ${request.accessToken}")
