@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @ConfigurationProperties(prefix = "server.servlet")
 class WebConfig : WebMvcConfigurer {
 
-    private val allowedOrigins: String = "*"
+    var allowedOrigins: String = "*"
     val contextPath: String = "/api"
 
     override fun addCorsMappings(registry: CorsRegistry) {
@@ -18,7 +18,8 @@ class WebConfig : WebMvcConfigurer {
             .allowedOriginPatterns(*allowedOrigins)
             .allowedMethods("*")
             .allowedHeaders("*")
-            .allowCredentials(true)
+//            TODO: 개발 기간 임시
+//            .allowCredentials(true)
             .maxAge(3000)
     }
 }
