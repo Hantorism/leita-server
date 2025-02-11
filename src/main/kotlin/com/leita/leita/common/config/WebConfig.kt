@@ -18,8 +18,7 @@ class WebConfig : WebMvcConfigurer {
             .allowedOriginPatterns(*allowedOrigins)
             .allowedMethods("*")
             .allowedHeaders("*")
-//            TODO: 개발 기간 임시
-//            .allowCredentials(true)
+            .allowCredentials(true)
             .maxAge(3000)
     }
 }
