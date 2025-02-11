@@ -16,7 +16,7 @@ class WebConfig : WebMvcConfigurer {
         val allowedOrigins = allowedOrigins.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         registry.addMapping("/**")
             .allowedOriginPatterns(*allowedOrigins)
-            .allowedMethods("GET", "POST", "PUT", "DELETE")
+            .allowedMethods("*")
             .allowedHeaders("*")
             .allowCredentials(true)
             .maxAge(3000)
