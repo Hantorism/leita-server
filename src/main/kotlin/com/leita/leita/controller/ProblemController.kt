@@ -1,6 +1,6 @@
 package com.leita.leita.controller
 
-import com.leita.leita.controller.dto.auth.request.SubmitRequest
+import com.leita.leita.controller.dto.problem.request.SubmitRequest
 import com.leita.leita.controller.dto.problem.response.SubmitResponse
 import com.leita.leita.controller.dto.problem.response.ProblemDetailResponse
 import com.leita.leita.service.ProblemService
@@ -23,9 +23,9 @@ class ProblemController(private val problemService: ProblemService) {
         return ResponseEntity.ok(response)
     }
 
-    @PostMapping("/submit")
-    fun submit(@RequestBody request: SubmitRequest): ResponseEntity<SubmitResponse> {
-        val response = problemService.submit(request)
+    @PostMapping("/{id}/submit")
+    fun submit(@PathVariable id: Long, @RequestBody request: SubmitRequest): ResponseEntity<SubmitResponse> {
+        val response = problemService.submit(id, request)
         return ResponseEntity.ok(response)
     }
 }
