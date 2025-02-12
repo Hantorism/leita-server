@@ -8,10 +8,10 @@ import jakarta.persistence.*
 class TestCase(
 
     @Column(nullable = false)
-    val request: String,
+    val input: String,
 
     @Column(nullable = false)
-    val response: String,
+    val output: String,
 
     @ManyToOne
     @JoinColumn(name = "problem_id", nullable = false)
