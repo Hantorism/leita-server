@@ -7,6 +7,8 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "submits")
 class Submit(
+
+    @Column(nullable = false)
     val problemId: Long,
 
     @ManyToOne
