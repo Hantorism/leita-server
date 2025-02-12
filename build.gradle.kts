@@ -4,6 +4,7 @@ plugins {
 	id("org.springframework.boot") version "3.4.1"
 	id("io.spring.dependency-management") version "1.1.7"
 	id("org.jetbrains.kotlin.plugin.noarg") version "1.9.0"
+	id("org.jetbrains.kotlin.plugin.jpa") version "1.9.0"
 }
 
 noArg {
