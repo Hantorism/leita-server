@@ -7,7 +7,7 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "users")
 class User(
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     val name: String,
 
     @Column(nullable = false, unique = true)

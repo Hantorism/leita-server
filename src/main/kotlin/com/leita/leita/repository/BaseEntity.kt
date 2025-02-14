@@ -10,7 +10,7 @@ abstract class BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0L
+    var id: Long = 0L
 
     @JsonIgnore
     @Column(nullable = false, updatable = false)

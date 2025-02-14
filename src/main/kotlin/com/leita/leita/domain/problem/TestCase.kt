@@ -1,10 +1,11 @@
 package com.leita.leita.domain.problem
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.leita.leita.repository.BaseEntity
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "test_cases")
+@Table(name = "problem_test_cases")
 class TestCase(
 
     @Column(nullable = false)
@@ -13,7 +14,13 @@ class TestCase(
     @Column(nullable = false)
     val output: String,
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "problem_id", nullable = false)
     var problem: Problem? = null
-): BaseEntity()
+): BaseEntity() {
+    fun createTestCase(problem: Problem): TestCase {
+        this.problem = problem
+        return this
+    }
+}

@@ -5,7 +5,7 @@ import com.leita.leita.repository.BaseEntity
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "problems")
+@Table(name = "problem")
 class Problem(
 
     @Column(nullable = false)
@@ -22,7 +22,7 @@ class Problem(
     val limit: Limit,
 
     @OneToMany(mappedBy = "problem", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val testCases: List<TestCase> = mutableListOf(),
+    var testCases: List<TestCase> = mutableListOf(),
 
     @Column
     val source: String,
@@ -35,4 +35,14 @@ class Problem(
     @Column
     val category: List<String>,
 
-) : BaseEntity()
+) : BaseEntity() {
+    fun addTestCases(testCases: List<TestCase>): Problem {
+        this.testCases += testCases
+        return this
+    }
+
+    fun update(id: Long): Problem {
+        this.id = id
+        return this
+    }
+}
