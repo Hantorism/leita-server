@@ -2,7 +2,10 @@ package com.leita.leita.service
 
 import com.leita.leita.common.security.jwt.JwtUtils
 import com.leita.leita.controller.dto.auth.ProblemMapper
+import com.leita.leita.controller.dto.problem.request.CreateProblemRequest
 import com.leita.leita.controller.dto.problem.request.SubmitRequest
+import com.leita.leita.controller.dto.problem.response.CreateProblemResponse
+import com.leita.leita.controller.dto.problem.response.DeleteProblemResponse
 import com.leita.leita.controller.dto.problem.response.SubmitResponse
 import com.leita.leita.controller.dto.problem.response.ProblemDetailResponse
 import com.leita.leita.domain.problem.Problem
@@ -22,6 +25,48 @@ class ProblemService(
     private val jwtUtils: JwtUtils,
     private val userRepository: UserRepository
 ) {
+    fun createProblem(request: CreateProblemRequest): CreateProblemResponse {
+        val email = jwtUtils.extractEmail()
+        val user = userRepository.findByEmail(email)
+            ?: throw UsernameNotFoundException("User not found with email: $email")
+
+        val problem = ProblemMapper.fromCreateProblemRequest(user, request)
+        val problemId = problemRepository.save(problem).id
+        return CreateProblemResponse(problemId)
+    }
+
+    fun updateProblem(problemId: Long, request: CreateProblemRequest): CreateProblemResponse {
+        val email = jwtUtils.extractEmail()
+        val user = userRepository.findByEmail(email)
+            ?: throw UsernameNotFoundException("User not found with email: $email")
+
+        val problem = problemRepository.findById(problemId)
+            ?: throw Exception("Problem with id: $problemId not found")
+
+        if(problem.get().author.id != user.id) {
+            throw Exception("Permission denied: $email")
+        }
+
+        val updatedProblem = ProblemMapper.fromCreateProblemRequest(user, request)
+            .update(problemId)
+        problemRepository.save(updatedProblem)
+        return CreateProblemResponse(problemId)
+    }
+
+    fun deleteProblem(problemId: Long): DeleteProblemResponse {
+        val email = jwtUtils.extractEmail()
+        val user = userRepository.findByEmail(email)
+            ?: throw UsernameNotFoundException("User not found with email: $email")
+
+        val problem = problemRepository.findById(problemId)
+            ?: throw Exception("Problem with id: $problemId not found")
+
+        if(problem.get().author.id != user.id) {
+            throw Exception("Permission denied: $email")
+        }
+        problemRepository.deleteById(problemId)
+        return DeleteProblemResponse(true)
+    }
 
     fun getProblems(): List<ProblemDetailResponse> {
         val problems: List<Problem> = problemRepository.findAll()
