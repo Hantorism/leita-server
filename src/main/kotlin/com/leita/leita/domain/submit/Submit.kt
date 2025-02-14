@@ -2,6 +2,7 @@ package com.leita.leita.domain.submit
 
 import com.leita.leita.domain.User
 import com.leita.leita.repository.BaseEntity
+import jakarta.annotation.Nullable
 import jakarta.persistence.*
 
 @Entity
@@ -15,11 +16,19 @@ class Submit(
     @JoinColumn(name = "user_id", nullable = false)
     val user: User,
 
+    @Nullable
     @Enumerated(EnumType.STRING)
-    val result: Result,
+    @Column(nullable = true)
+    val result: Result? = null,
 
+    @Nullable
     @Embedded
-    val used: UsedInfo,
+    @Column(nullable = true)
+    val used: UsedInfo? = null,
 
-    val sizeOfCode: Long,
-) : BaseEntity()
+    @Nullable
+    @Column(nullable = true)
+    val sizeOfCode: Long? = null,
+) : BaseEntity() {
+
+}
