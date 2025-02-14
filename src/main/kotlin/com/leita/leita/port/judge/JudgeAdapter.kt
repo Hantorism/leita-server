@@ -2,6 +2,7 @@ package com.leita.leita.port.judge
 
 import com.leita.leita.common.config.RestConfig
 import com.leita.leita.controller.dto.problem.request.SubmitRequest
+import com.leita.leita.port.judge.dto.request.JudgeSubmitRequest
 import com.leita.leita.port.judge.dto.response.JudgeSubmitResponse
 import org.springframework.http.MediaType
 import org.springframework.scheduling.annotation.Async
@@ -16,17 +17,23 @@ class JudgeAdapter(
 ) : JudgePort {
 
     @Async
-    override fun submit(id: Long, request: SubmitRequest): Boolean {
+    override fun submit(problemId: Long, submitId: Long,  request: SubmitRequest): Boolean {
         try {
+            val judgeRequest = JudgeSubmitRequest(
+                submitId,
+                code = request.code,
+                language = request.language,
+            )
+            println(judgeRequest)
             val response = webClient.post()
-                .uri(request.language.getUrl(restConfig.judge) + "/problem/" + id)
+                .uri(request.language.getUrl(restConfig.judge) + "/problem/" + problemId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(request)
+                .bodyValue(judgeRequest)
                 .retrieve()
                 .bodyToMono(JudgeSubmitResponse::class.java)
                 .block()!!
 
-            println("Judge server responded: ${request.language.getUrl(restConfig.judge) + "/problem/" + id} / $response")
+            println("Judge server responded: ${request.language.getUrl(restConfig.judge) + "/problem/" + problemId} / $response")
             return response.isSuccessful
         } catch (ex: HttpClientErrorException) {
             println("Error while submitting to Judge server: ${ex.statusCode} - ${ex.responseBodyAsString}")
