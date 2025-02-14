@@ -8,7 +8,9 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
+import org.springframework.web.server.ResponseStatusException
 import java.nio.charset.StandardCharsets
 import java.security.Key
 import java.time.Instant
@@ -100,7 +102,8 @@ class JwtUtils(
 
     private val token: String
         get() {
-            val token = request.getHeader("Authorization") ?: throw Exception("토큰 정보를 확인해주세요!")
+            val token = request.getHeader("Authorization")
+                ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "토큰 정보를 확인해주세요!")
 
             if (token.startsWith("Bearer ")) {
                 return token.substring(7).trim { it <= ' ' }

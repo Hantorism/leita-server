@@ -8,8 +8,10 @@ import com.leita.leita.controller.dto.auth.request.*
 import com.leita.leita.controller.dto.auth.response.*
 import com.leita.leita.domain.User
 import com.leita.leita.repository.UserRepository
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.server.ResponseStatusException
 
 @Service
 class AuthService(
@@ -18,28 +20,33 @@ class AuthService(
     private val webClient: WebClient
 ) {
     fun oauth(request: OAuthRequest): JwtResponse {
-        val userInfo = webClient
-            .get()
-            .uri("https://www.googleapis.com/oauth2/v3/userinfo")
-            .header("Authorization", "Bearer ${request.accessToken}")
-            .retrieve()
-            .bodyToMono(OAutheUserInfo::class.java)
-            .block()!!
+        try {
+            val userInfo = webClient
+                .get()
+                .uri("https://www.googleapis.com/oauth2/v3/userinfo")
+                .header("Authorization", "Bearer ${request.accessToken}")
+                .retrieve()
+                .bodyToMono(OAutheUserInfo::class.java)
+                .block()!!
 
-        isAjouEmail(userInfo.email)
+            isAjouEmail(userInfo.email)
 
-        if(userRepository.findByEmail(userInfo.email) == null) {
-            val user = User(
-                email = userInfo.email,
-                name = userInfo.name,
-                profileImage = userInfo.picture,
-                sub = userInfo.sub,
-                role = SecurityRole.USER,
-            )
-            userRepository.save(user)
+            if(userRepository.findByEmail(userInfo.email) == null) {
+                val user = User(
+                    email = userInfo.email,
+                    name = userInfo.name,
+                    profileImage = userInfo.picture,
+                    sub = userInfo.sub,
+                    role = SecurityRole.USER,
+                )
+                userRepository.save(user)
+            }
+
+            return jwtUtils.generateToken(userInfo.email)
+        } catch (e: Exception) {
+//            TODO: Exception + Slack 알림
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "OAuth 인증 실패")
         }
-
-        return jwtUtils.generateToken(userInfo.email)
     }
 
     fun info(): InfoResponse {
