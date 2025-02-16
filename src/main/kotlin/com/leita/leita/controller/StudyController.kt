@@ -1,5 +1,6 @@
 package com.leita.leita.controller
 
+import com.leita.leita.controller.dto.problem.response.StudiesResponse
 import com.leita.leita.controller.dto.study.request.StudyCreateRequest
 import com.leita.leita.controller.dto.study.response.*
 import com.leita.leita.service.StudyService
@@ -11,8 +12,10 @@ import org.springframework.web.bind.annotation.*
 class StudyController(private val studyService: StudyService) {
 
     @GetMapping
-    fun getStudies(): ResponseEntity<List<StudyDetailResponse>> {
-        val response = studyService.getStudies()
+    fun getStudies(
+        @RequestParam page: Int = 0, @RequestParam size: Int = 10
+    ): ResponseEntity<StudiesResponse> {
+        val response = studyService.getStudies(page, size)
         return ResponseEntity.ok(response)
     }
 
