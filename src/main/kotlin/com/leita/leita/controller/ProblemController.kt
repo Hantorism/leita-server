@@ -2,10 +2,7 @@ package com.leita.leita.controller
 
 import com.leita.leita.controller.dto.problem.request.CreateProblemRequest
 import com.leita.leita.controller.dto.problem.request.SubmitRequest
-import com.leita.leita.controller.dto.problem.response.CreateProblemResponse
-import com.leita.leita.controller.dto.problem.response.DeleteProblemResponse
-import com.leita.leita.controller.dto.problem.response.SubmitResponse
-import com.leita.leita.controller.dto.problem.response.ProblemDetailResponse
+import com.leita.leita.controller.dto.problem.response.*
 import com.leita.leita.service.ProblemService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -32,20 +29,16 @@ class ProblemController(private val problemService: ProblemService) {
     }
 
     @GetMapping
-    fun getProblems(): ResponseEntity<List<ProblemDetailResponse>> {
-        val response = problemService.getProblems()
+    fun getProblems(
+        @RequestParam page: Int = 0, @RequestParam size: Int = 10
+    ): ResponseEntity<ProblemsResponse> {
+        val response = problemService.getProblems(page, size)
         return ResponseEntity.ok(response)
     }
 
     @GetMapping("/{id}")
     fun getProblem(@PathVariable id: Long): ResponseEntity<ProblemDetailResponse> {
         val response = problemService.getProblem(id)
-        return ResponseEntity.ok(response)
-    }
-
-    @PostMapping("/{id}/submit")
-    fun submit(@PathVariable id: Long, @RequestBody request: SubmitRequest): ResponseEntity<SubmitResponse> {
-        val response = problemService.submit(id, request)
         return ResponseEntity.ok(response)
     }
 }
