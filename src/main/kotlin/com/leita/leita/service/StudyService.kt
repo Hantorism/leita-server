@@ -2,6 +2,7 @@ package com.leita.leita.service
 
 import com.leita.leita.common.security.jwt.JwtUtils
 import com.leita.leita.controller.dto.auth.StudyMapper
+import com.leita.leita.controller.dto.problem.response.StudiesResponse
 import com.leita.leita.controller.dto.study.request.StudyCreateRequest
 import com.leita.leita.controller.dto.study.response.*
 import com.leita.leita.domain.Study
@@ -10,6 +11,8 @@ import com.leita.leita.port.mail.MailPort
 import com.leita.leita.port.mail.MailType
 import com.leita.leita.repository.StudyRepository
 import com.leita.leita.repository.UserRepository
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
@@ -20,9 +23,10 @@ class StudyService(
     private val mailPort: MailPort
 ) {
 
-    fun getStudies(): List<StudyDetailResponse> {
-        val studies: List<Study> = studyRepository.findAll()
-        return studies.map{ StudyMapper.toStudyDetailResponse(it)}
+    fun getStudies(page: Int, size: Int): StudiesResponse {
+        val pageable: Pageable = PageRequest.of(page, size)
+        val studies = studyRepository.findAll(pageable)
+        return StudyMapper.toStudiesResponse(studies)
     }
 
     fun getStudy(id: Long): StudyDetailResponse {

@@ -3,9 +3,11 @@ package com.leita.leita.controller.dto.auth
 import com.leita.leita.controller.dto.problem.request.CreateProblemRequest
 import com.leita.leita.controller.dto.problem.response.SubmitResponse
 import com.leita.leita.controller.dto.problem.response.ProblemDetailResponse
+import com.leita.leita.controller.dto.problem.response.ProblemsResponse
 import com.leita.leita.domain.User
 import com.leita.leita.domain.problem.Problem
 import com.leita.leita.domain.problem.Solved
+import org.springframework.data.domain.Page
 
 class ProblemMapper {
     companion object {
@@ -22,6 +24,16 @@ class ProblemMapper {
 
             val testCases = request.testCases.map { it.createTestCase(problem) }
             return problem.addTestCases(testCases)
+        }
+
+        fun toProblemsResponse(problems: Page<Problem>): ProblemsResponse {
+            return ProblemsResponse(
+                content = problems.content.map { toProblemDetailResponse(it) },
+                currentPage = problems.number,
+                totalPages = problems.totalPages,
+                totalElements = problems.totalElements,
+                size = problems.size
+            )
         }
 
         fun toProblemDetailResponse(problem: Problem): ProblemDetailResponse {

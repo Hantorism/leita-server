@@ -9,6 +9,7 @@ import java.time.LocalDateTime
 abstract class BaseEntity {
 
     @Id
+    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0L
 
