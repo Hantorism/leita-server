@@ -1,9 +1,11 @@
 package com.leita.leita.common.security.jwt
 
 import com.leita.leita.common.config.WebConfig
+import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.ApiPaths
 import com.leita.leita.common.security.CustomUserDetailsService
 import jakarta.servlet.ServletException
+import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
@@ -40,7 +42,7 @@ class JwtRequestFilter(
                 }
             }
         } catch (e: Exception) {
-            throw Exception(e)
+            throw CustomException("인증 실패", HttpStatus.UNAUTHORIZED)
         } finally {
             chain.doFilter(request, response)
         }

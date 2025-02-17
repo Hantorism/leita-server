@@ -1,5 +1,6 @@
 package com.leita.leita.service
 
+import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.OAutheUserInfo
 import com.leita.leita.common.security.SecurityRole
 import com.leita.leita.common.security.jwt.JwtUtils
@@ -44,20 +45,19 @@ class AuthService(
 
             return jwtUtils.generateToken(userInfo.email)
         } catch (e: Exception) {
-//            TODO: Exception + Slack 알림
-            throw ResponseStatusException(HttpStatus.FORBIDDEN, "OAuth 인증 실패")
+            throw CustomException("OAuth 인증 실패", HttpStatus.UNAUTHORIZED)
         }
     }
 
     fun info(): InfoResponse {
         val email: String = jwtUtils.extractEmail()
-        val user = userRepository.findByEmail(email) ?: throw IllegalArgumentException("User not found")
+        val user = userRepository.findByEmail(email) ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
         return AuthMapper.toInfoResponse(user)
     }
 
     private fun isAjouEmail(email: String) {
         if(!email.endsWith("@ajou.ac.kr")) {
-            throw IllegalArgumentException("Use only Ajou Univ. email address")
+            throw CustomException("Use only Ajou Univ. email address", HttpStatus.BAD_REQUEST)
         }
     }
 }

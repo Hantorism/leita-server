@@ -1,7 +1,9 @@
 package com.leita.leita.port.mail
 
+import com.leita.leita.common.exception.CustomException
 import jakarta.mail.internet.InternetAddress
 import jakarta.mail.internet.MimeMessage
+import org.springframework.http.HttpStatus
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
@@ -24,7 +26,7 @@ class MailAdapter(
             message.setText(mailType.formatMessage(*args))
 
         } catch (e: Exception) {
-            throw RuntimeException("메일 전송 실패: ${e.message}", e)
+            throw CustomException("메일 전송 실패: ${e.message}", HttpStatus.INTERNAL_SERVER_ERROR)
         }
 
         mailSender.send(message)
