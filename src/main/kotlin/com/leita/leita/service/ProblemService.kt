@@ -1,20 +1,16 @@
 package com.leita.leita.service
 
+import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.jwt.JwtUtils
 import com.leita.leita.controller.dto.auth.ProblemMapper
 import com.leita.leita.controller.dto.problem.request.CreateProblemRequest
-import com.leita.leita.controller.dto.problem.request.SubmitRequest
 import com.leita.leita.controller.dto.problem.response.*
 import com.leita.leita.domain.problem.Problem
-import com.leita.leita.domain.submit.Submit
-import com.leita.leita.port.judge.JudgePort
 import com.leita.leita.repository.ProblemRepository
-import com.leita.leita.repository.SubmitRepository
 import com.leita.leita.repository.UserRepository
-import org.hibernate.query.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
-import org.springframework.security.core.userdetails.UsernameNotFoundException
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
 @Service
@@ -26,7 +22,7 @@ class ProblemService(
     fun createProblem(request: CreateProblemRequest): CreateProblemResponse {
         val email = jwtUtils.extractEmail()
         val user = userRepository.findByEmail(email)
-            ?: throw UsernameNotFoundException("User not found with email: $email")
+            ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
 
         val problem = ProblemMapper.fromCreateProblemRequest(user, request)
         val problemId = problemRepository.save(problem).id
@@ -36,13 +32,13 @@ class ProblemService(
     fun updateProblem(problemId: Long, request: CreateProblemRequest): CreateProblemResponse {
         val email = jwtUtils.extractEmail()
         val user = userRepository.findByEmail(email)
-            ?: throw UsernameNotFoundException("User not found with email: $email")
+            ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
 
         val problem = problemRepository.findById(problemId)
-            ?: throw Exception("Problem with id: $problemId not found")
+            ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
         if(problem.get().author.id != user.id) {
-            throw Exception("Permission denied: $email")
+            throw CustomException("Permission denied: $email", HttpStatus.FORBIDDEN)
         }
 
         val updatedProblem = ProblemMapper.fromCreateProblemRequest(user, request)
@@ -54,13 +50,13 @@ class ProblemService(
     fun deleteProblem(problemId: Long): DeleteProblemResponse {
         val email = jwtUtils.extractEmail()
         val user = userRepository.findByEmail(email)
-            ?: throw UsernameNotFoundException("User not found with email: $email")
+            ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
 
         val problem = problemRepository.findById(problemId)
-            ?: throw Exception("Problem with id: $problemId not found")
+            ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
         if(problem.get().author.id != user.id) {
-            throw Exception("Permission denied: $email")
+            throw CustomException("Permission denied: $email", HttpStatus.FORBIDDEN)
         }
         problemRepository.deleteById(problemId)
         return DeleteProblemResponse(true)
