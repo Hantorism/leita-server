@@ -8,7 +8,8 @@ import org.springframework.web.client.RestTemplate
 @Configuration
 @ConfigurationProperties(prefix = "external-server")
 class RestConfig(
-    var judge: String = ""
+    var judge: String = "",
+    var slack: String = ""
 ) {
     @Bean
     fun restTemplate(): RestTemplate {
