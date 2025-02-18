@@ -23,6 +23,10 @@ class SlackAdapter(
         label: SlackLabel
     ): Boolean {
         try {
+            if(springEnv.isLocalProfile()) {
+                return false
+            }
+
             val formattedMsg = createMessage(
                 timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
                 label.title, description, logLevel, label
@@ -36,7 +40,7 @@ class SlackAdapter(
                 .bodyToMono(String::class.java)
                 .block()!!
 
-            return true;
+            return true
         } catch (e: Exception) {
             throw CustomException("An error occurred while sending the message to Slack", HttpStatus.INTERNAL_SERVER_ERROR)
         }
