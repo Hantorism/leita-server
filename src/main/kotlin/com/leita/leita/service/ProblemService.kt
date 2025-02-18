@@ -69,7 +69,9 @@ class ProblemService(
     }
 
     fun getProblem(id: Long): ProblemDetailResponse {
-        val problem: Problem = problemRepository.findById(id).get()
+        val problem = problemRepository.findById(id)
+            .orElseThrow { CustomException("Problem with id: $id not found", HttpStatus.NOT_FOUND) }
+
         return ProblemMapper.toProblemDetailResponse(problem)
     }
 }

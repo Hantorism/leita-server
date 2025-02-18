@@ -1,5 +1,6 @@
 package com.leita.leita.service
 
+import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.jwt.JwtUtils
 import com.leita.leita.controller.dto.auth.StudyMapper
 import com.leita.leita.controller.dto.problem.response.StudiesResponse
@@ -13,6 +14,7 @@ import com.leita.leita.repository.StudyRepository
 import com.leita.leita.repository.UserRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
 @Service
@@ -30,7 +32,8 @@ class StudyService(
     }
 
     fun getStudy(id: Long): StudyDetailResponse {
-        val study: Study = studyRepository.findById(id).get()
+        val study: Study = studyRepository.findById(id)
+            .orElseThrow { CustomException("Study with id: $id not found", HttpStatus.NOT_FOUND) }
         return StudyMapper.toStudyDetailResponse(study)
     }
 
