@@ -5,10 +5,10 @@ import jakarta.persistence.*
 
 @Embeddable
 data class UsedInfo(
-    @Column(name = "used_memory")
-    val memory: Long,
-    @Column(name = "used_time")
-    val time: Long,
+    @Column(name = "used_memory", nullable = true)
+    val memory: Long?,
+    @Column(name = "used_time", nullable = true)
+    val time: Long?,
     @Column(name = "used_language")
     @Enumerated(EnumType.STRING)
     val language: Language
