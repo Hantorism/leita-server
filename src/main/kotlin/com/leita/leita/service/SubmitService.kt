@@ -6,6 +6,7 @@ import com.leita.leita.controller.dto.auth.ProblemMapper
 import com.leita.leita.controller.dto.problem.request.SubmitRequest
 import com.leita.leita.controller.dto.problem.response.SubmitResponse
 import com.leita.leita.domain.submit.Submit
+import com.leita.leita.domain.submit.UsedInfo
 import com.leita.leita.port.judge.JudgePort
 import com.leita.leita.repository.SubmitRepository
 import com.leita.leita.repository.UserRepository
@@ -26,10 +27,16 @@ class SubmitService(
         submitRepository.findById(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
-        val submit = Submit( problemId, user )
+        val submit = Submit( problemId, user,
+            used = UsedInfo(
+                memory = null,
+                time = null,
+                language = request.language,
+            )
+        )
         val submitId = submitRepository.save(submit).id
 
-        val isSubmit: Boolean = judgePort.submit(problemId, submitId, request);
+        val isSubmit: Boolean = judgePort.submit(problemId, submitId, request)
         return ProblemMapper.toSubmitResponse(isSubmit)
     }
 }
