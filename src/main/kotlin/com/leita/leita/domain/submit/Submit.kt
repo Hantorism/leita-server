@@ -29,6 +29,7 @@ class Submit(
     @Nullable
     @Column(nullable = true)
     val sizeOfCode: Long? = null,
-) : BaseEntity() {
 
-}
+    @Column(nullable = false)
+    val type: SubmitType
+) : BaseEntity()
