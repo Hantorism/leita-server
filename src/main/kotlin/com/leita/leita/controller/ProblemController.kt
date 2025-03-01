@@ -1,7 +1,6 @@
 package com.leita.leita.controller
 
 import com.leita.leita.controller.dto.problem.request.CreateProblemRequest
-import com.leita.leita.controller.dto.problem.request.SubmitRequest
 import com.leita.leita.controller.dto.problem.response.*
 import com.leita.leita.service.ProblemService
 import org.springframework.http.ResponseEntity
