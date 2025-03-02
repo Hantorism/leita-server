@@ -1,5 +1,7 @@
 package com.leita.leita.controller
 
+import com.leita.leita.controller.dto.BaseResponse
+import com.leita.leita.controller.dto.auth.response.JwtResponse
 import com.leita.leita.controller.dto.problem.request.CreateProblemRequest
 import com.leita.leita.controller.dto.problem.response.*
 import com.leita.leita.service.ProblemService
@@ -10,34 +12,39 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/problem")
 class ProblemController(private val problemService: ProblemService) {
     @PostMapping
-    fun createProblem(@RequestBody request: CreateProblemRequest): ResponseEntity<CreateProblemResponse> {
+    fun createProblem(@RequestBody request: CreateProblemRequest): ResponseEntity<BaseResponse<CreateProblemResponse>> {
         val response = problemService.createProblem(request)
-        return ResponseEntity.ok(response)
+        val wrappedResponse: BaseResponse<CreateProblemResponse> = BaseResponse("문제 추가 완료", response)
+        return ResponseEntity.ok(wrappedResponse)
     }
 
     @PatchMapping("/{id}")
-    fun updateProblem(@PathVariable id: Long, @RequestBody request: CreateProblemRequest): ResponseEntity<CreateProblemResponse> {
+    fun updateProblem(@PathVariable id: Long, @RequestBody request: CreateProblemRequest): ResponseEntity<BaseResponse<CreateProblemResponse>> {
         val response = problemService.updateProblem(id, request)
-        return ResponseEntity.ok(response)
+        val wrappedResponse: BaseResponse<CreateProblemResponse> = BaseResponse("문제 추가 완료", response)
+        return ResponseEntity.ok(wrappedResponse)
     }
 
     @DeleteMapping("/{id}")
-    fun deleteProblem(@PathVariable id: Long): ResponseEntity<DeleteProblemResponse> {
+    fun deleteProblem(@PathVariable id: Long): ResponseEntity<BaseResponse<DeleteProblemResponse>> {
         val response = problemService.deleteProblem(id)
-        return ResponseEntity.ok(response)
+        val wrappedResponse: BaseResponse<DeleteProblemResponse> = BaseResponse("문제 삭제 완료", response)
+        return ResponseEntity.ok(wrappedResponse)
     }
 
     @GetMapping
     fun getProblems(
         @RequestParam page: Int = 0, @RequestParam size: Int = 10
-    ): ResponseEntity<ProblemsResponse> {
+    ): ResponseEntity<BaseResponse<ProblemsResponse>> {
         val response = problemService.getProblems(page, size)
-        return ResponseEntity.ok(response)
+        val wrappedResponse: BaseResponse<ProblemsResponse> = BaseResponse("문제 불러오기 완료", response)
+        return ResponseEntity.ok(wrappedResponse)
     }
 
     @GetMapping("/{id}")
-    fun getProblem(@PathVariable id: Long): ResponseEntity<ProblemDetailResponse> {
+    fun getProblem(@PathVariable id: Long): ResponseEntity<BaseResponse<ProblemDetailResponse>> {
         val response = problemService.getProblem(id)
-        return ResponseEntity.ok(response)
+        val wrappedResponse: BaseResponse<ProblemDetailResponse> = BaseResponse("문제 불러오기 완료", response)
+        return ResponseEntity.ok(wrappedResponse)
     }
 }
