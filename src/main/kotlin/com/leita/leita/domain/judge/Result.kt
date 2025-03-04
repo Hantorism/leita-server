@@ -1,4 +1,4 @@
-package com.leita.leita.domain.submit
+package com.leita.leita.domain.judge
 
 enum class Result(val message: String) {
     CORRECT("맞았습니다"),

@@ -1,8 +1,8 @@
-package com.leita.leita.controller.dto.submit.request
+package com.leita.leita.controller.dto.judge.request
 
 import com.leita.leita.domain.enum.Language
 
-data class JudgeSubmitRequest(
+data class SubmitRequest(
     val code: String,
     val language: Language
 )
