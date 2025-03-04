@@ -1,12 +1,12 @@
-package com.leita.leita.port.submit
+package com.leita.leita.port.judge
 
 import com.leita.leita.common.config.RestConfig
 import com.leita.leita.common.exception.CustomException
-import com.leita.leita.controller.dto.submit.request.JudgeSubmitRequest
-import com.leita.leita.controller.dto.submit.request.RunSubmitRequest
-import com.leita.leita.port.submit.dto.request.JudgeSubmitWCRequest
-import com.leita.leita.port.submit.dto.request.RunSubmitWCRequest
-import com.leita.leita.port.submit.dto.response.JudgeSubmitWCResponse
+import com.leita.leita.controller.dto.judge.request.SubmitRequest
+import com.leita.leita.controller.dto.judge.request.RunRequest
+import com.leita.leita.port.judge.dto.request.SubmitWCRequest
+import com.leita.leita.port.judge.dto.request.RunWCRequest
+import com.leita.leita.port.judge.dto.response.SubmitWCResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.scheduling.annotation.Async
@@ -14,27 +14,27 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 
 @Component
-class SubmitAdapter(
+class JudgeAdapter(
     private val restConfig: RestConfig,
     private val webClient: WebClient
-) : SubmitPort {
+) : JudgePort {
 
     @Async
-    override fun judgeSubmit(problemId: Long, submitId: Long, request: JudgeSubmitRequest): Boolean {
+    override fun submit(problemId: Long, submitId: Long, request: SubmitRequest): Boolean {
         try {
-            val judgeRequest = JudgeSubmitWCRequest(
+            val submitRequest = SubmitWCRequest(
                 submitId,
                 code = request.code,
                 language = request.language,
             )
-            println(judgeRequest)
+            println(submitRequest)
 
             val response = webClient.post()
-                .uri(request.language.getUrl(restConfig.judge) + "/judge/" + problemId)
+                .uri(request.language.getUrl(restConfig.judge) + "/problem/submit/" + problemId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(judgeRequest)
+                .bodyValue(submitRequest)
                 .retrieve()
-                .bodyToMono(JudgeSubmitWCResponse::class.java)
+                .bodyToMono(SubmitWCResponse::class.java)
                 .block()!!
 
             println("Judge server responded: ${request.language.getUrl(restConfig.judge) + "/judge/" + problemId} / $response")
@@ -46,25 +46,26 @@ class SubmitAdapter(
     }
 
     @Async
-    override fun runSubmit(problemId: Long, submitId: Long, request: RunSubmitRequest): Boolean {
+    override fun run(problemId: Long, submitId: Long, request: RunRequest): Boolean {
         try {
-            val judgeRequest = RunSubmitWCRequest(
+            val runRequest = RunWCRequest(
                 code = request.code,
                 language = request.language,
                 testCases = request.testCases
             )
-            println(judgeRequest)
+            println(runRequest)
 
             val response = webClient.post()
-                .uri(request.language.getUrl(restConfig.judge) + "/run/" + problemId)
+                .uri(request.language.getUrl(restConfig.judge) + "/problem/run/" + problemId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(judgeRequest)
+                .bodyValue(runRequest)
                 .retrieve()
-                .bodyToMono(JudgeSubmitWCResponse::class.java)
+                .bodyToFlux(SubmitWCResponse::class.java)
+                .collectList()
                 .block()!!
 
             println("Judge server responded: ${request.language.getUrl(restConfig.judge) + "/run/" + problemId} / $response")
-            return response.isSuccessful
+            return !response.any { !it.isSuccessful }
         } catch (ex: Exception) {
             println(ex.message)
             throw CustomException("제출 실패", HttpStatus.INTERNAL_SERVER_ERROR)
