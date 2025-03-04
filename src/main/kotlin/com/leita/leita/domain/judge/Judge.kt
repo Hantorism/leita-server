@@ -1,4 +1,4 @@
-package com.leita.leita.domain.submit
+package com.leita.leita.domain.judge
 
 import com.leita.leita.domain.User
 import com.leita.leita.repository.BaseEntity
@@ -6,8 +6,8 @@ import jakarta.annotation.Nullable
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "submits")
-class Submit(
+@Table(name = "judges")
+class Judge(
 
     @Column(nullable = false)
     val problemId: Long,
@@ -31,5 +31,6 @@ class Submit(
     val sizeOfCode: Long? = null,
 
     @Column(nullable = false)
-    val type: SubmitType
+    @Enumerated(EnumType.STRING)
+    val type: JudgeType
 ) : BaseEntity()

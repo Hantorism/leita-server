@@ -1,4 +1,4 @@
-package com.leita.leita.domain.submit
+package com.leita.leita.domain.judge
 
 import com.leita.leita.domain.enum.Language
 import jakarta.persistence.*
