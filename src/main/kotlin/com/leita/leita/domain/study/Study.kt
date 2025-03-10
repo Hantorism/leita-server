@@ -1,13 +1,14 @@
-package com.leita.leita.domain
+package com.leita.leita.domain.study
 
+import com.leita.leita.domain.User
 import com.leita.leita.repository.BaseEntity
 import jakarta.persistence.*
 
 @Entity
 @Table(name = "study")
-class Study(
+open class Study(
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "study_admins",
         joinColumns = [JoinColumn(name = "study_id")],
@@ -21,7 +22,7 @@ class Study(
     @Column(nullable = false)
     val description: String,
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "study_members",
         joinColumns = [JoinColumn(name = "study_id")],
@@ -29,7 +30,7 @@ class Study(
     )
     val members: MutableList<User> = mutableListOf(),
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "study_pendings",
         joinColumns = [JoinColumn(name = "study_id")],
@@ -66,5 +67,25 @@ class Study(
 
     fun isAdminByEmail(email: String): Boolean {
         return admins.any { it.email == email }
+    }
+
+    fun isMemberByEmail(email: String): Boolean {
+        return admins.any { it.email == email }
+    }
+
+    fun changeRole(user: User, newRole: StudyRole): Boolean {
+        val roleMap = mapOf(
+            StudyRole.ADMIN to Pair(admins, members),
+            StudyRole.MEMBER to Pair(members, admins)
+        )
+
+        roleMap[newRole]?.let { (addTo, removeFrom) ->
+            addTo.add(user)
+            if (removeFrom.contains(user)) {
+                removeFrom.remove(user)
+            }
+            return true
+        }
+        return false
     }
 }
