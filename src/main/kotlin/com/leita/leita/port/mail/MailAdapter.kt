@@ -26,7 +26,7 @@ class MailAdapter(
     }
 
     @Async
-    override fun sendAll(mailType: MailType, emails: List<String>, vararg args: String) {
+    override fun sendAll(mailType: MailType, emails: Collection<String>, vararg args: String) {
         emails.forEach { email ->
             CompletableFuture.runAsync {
                 try {
