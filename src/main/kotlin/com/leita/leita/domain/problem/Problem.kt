@@ -6,7 +6,7 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "problem")
-class Problem(
+open class Problem(
 
     @Column(nullable = false)
     val title: String,

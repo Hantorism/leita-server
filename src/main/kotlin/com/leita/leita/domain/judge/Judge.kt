@@ -7,7 +7,7 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "judges")
-class Judge(
+open class Judge(
 
     @Column(nullable = false)
     val problemId: Long,

@@ -37,14 +37,14 @@ class ProblemController(private val problemService: ProblemService) {
         @RequestParam page: Int = 0, @RequestParam size: Int = 10
     ): ResponseEntity<BaseResponse<ProblemsResponse>> {
         val response = problemService.getProblems(page, size)
-        val wrappedResponse: BaseResponse<ProblemsResponse> = BaseResponse("문제 불러오기 완료", response)
+        val wrappedResponse: BaseResponse<ProblemsResponse> = BaseResponse("문제 조회 완료", response)
         return ResponseEntity.ok(wrappedResponse)
     }
 
     @GetMapping("/{id}")
     fun getProblem(@PathVariable id: Long): ResponseEntity<BaseResponse<ProblemDetailResponse>> {
         val response = problemService.getProblem(id)
-        val wrappedResponse: BaseResponse<ProblemDetailResponse> = BaseResponse("문제 불러오기 완료", response)
+        val wrappedResponse: BaseResponse<ProblemDetailResponse> = BaseResponse("문제 조회 완료", response)
         return ResponseEntity.ok(wrappedResponse)
     }
 }

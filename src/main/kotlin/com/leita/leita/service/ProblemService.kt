@@ -38,7 +38,7 @@ class ProblemService(
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
         if(problem.get().author.id != user.id) {
-            throw CustomException("Permission denied: $email", HttpStatus.FORBIDDEN)
+            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
         }
 
         val updatedProblem = ProblemMapper.fromCreateProblemRequest(user, request)
@@ -56,7 +56,7 @@ class ProblemService(
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
         if(problem.get().author.id != user.id) {
-            throw CustomException("Permission denied: $email", HttpStatus.FORBIDDEN)
+            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
         }
         problemRepository.deleteById(problemId)
         return DeleteProblemResponse(true)

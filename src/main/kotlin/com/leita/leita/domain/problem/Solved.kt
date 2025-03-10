@@ -3,7 +3,7 @@ package com.leita.leita.domain.problem
 import jakarta.persistence.*
 
 @Embeddable
-data class Solved(
+open class Solved(
 
     @Column(name = "solved_count")
     val count: Long,

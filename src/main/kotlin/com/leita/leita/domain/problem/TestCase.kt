@@ -6,7 +6,7 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "problem_test_cases")
-class TestCase(
+open class TestCase(
 
     @Column(nullable = false)
     val input: String,
