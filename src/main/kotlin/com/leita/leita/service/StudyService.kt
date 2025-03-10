@@ -72,19 +72,19 @@ class StudyService(
 
     fun create(request: StudyCreateRequest): StudyCreateResponse {
         val admins = request.adminEmails.mapNotNull(userRepository::findByEmail).toMutableList()
-        val pending = request.pendingEmails.mapNotNull(userRepository::findByEmail).toMutableList()
+//        val pending = request.pendingEmails.mapNotNull(userRepository::findByEmail).toMutableList()
 
         val study = studyRepository.save(
             Study(
                 admins,
                 title = request.title,
                 description = request.description,
-                pending
+//                pending
             )
         )
 
         request.adminEmails.forEach { mailPort.send(MailType.STUDY_ADMIN_INVITE, it) }
-        request.pendingEmails.forEach { mailPort.send(MailType.STUDY_MEMBER_INVITE, it) }
+//        request.pendingEmails.forEach { mailPort.send(MailType.STUDY_MEMBER_JOIN, it) }
 
         return StudyMapper.toStudyCreateResponse(study.id)
     }
@@ -97,6 +97,7 @@ class StudyService(
 
         if(user != null) {
             study.join(user)
+            mailPort.sendAll(MailType.STUDY_MEMBER_JOIN, study.admins.map { it.email })
             return StudyJoinResponse(true)
         }
         return StudyJoinResponse(false)
