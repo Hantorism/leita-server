@@ -3,7 +3,7 @@ package com.leita.leita.domain.problem
 import jakarta.persistence.*
 
 @Embeddable
-data class Description(
+open class Description(
 
     @Column(name = "description_problem")
     val problem: String,

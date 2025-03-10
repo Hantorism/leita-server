@@ -3,7 +3,7 @@ package com.leita.leita.domain.problem
 import jakarta.persistence.*
 
 @Embeddable
-data class Limit(
+open class Limit(
 
     @Column(name = "limit_memory")
     val memory: Long,

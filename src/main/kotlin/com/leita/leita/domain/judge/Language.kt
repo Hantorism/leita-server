@@ -1,4 +1,4 @@
-package com.leita.leita.domain.enum
+package com.leita.leita.domain.judge
 
 import lombok.Getter
 
