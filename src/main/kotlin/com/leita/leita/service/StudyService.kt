@@ -9,7 +9,6 @@ import com.leita.leita.controller.dto.study.request.StudyRoleChangeRequest
 import com.leita.leita.controller.dto.study.response.*
 import com.leita.leita.domain.study.Study
 import com.leita.leita.domain.User
-import com.leita.leita.domain.study.StudyRole
 import com.leita.leita.port.mail.MailPort
 import com.leita.leita.port.mail.MailType
 import com.leita.leita.repository.MemberRepository
