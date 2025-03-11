@@ -6,18 +6,19 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "problem_test_cases")
+@Access(AccessType.FIELD)
 open class TestCase(
 
     @Column(nullable = false)
-    val input: String,
+    open val input: String,
 
     @Column(nullable = false)
-    val output: String,
+    open val output: String,
 
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "problem_id", nullable = false)
-    var problem: Problem? = null
+    open var problem: Problem? = null
 ): BaseEntity() {
     fun createTestCase(problem: Problem): TestCase {
         this.problem = problem

@@ -7,22 +7,23 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "users")
+@Access(AccessType.FIELD)
 open class User(
     @Column(nullable = false, unique = true)
-    val name: String,
+    open val name: String,
 
     @Column(nullable = false, unique = true)
-    val email: String,
+    open val email: String,
 
     @Column(nullable = true)
-    val profileImage: String?,
+    open val profileImage: String?,
 
     @JsonIgnore
     @Column(nullable = false)
-    val sub: String,
+    open val sub: String,
 
     @JsonIgnore
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    val role: SecurityRole,
+    open val role: SecurityRole,
 ) : BaseEntity()

@@ -6,31 +6,32 @@ import jakarta.annotation.Nullable
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "judges")
+@Table(name = "judge")
+@Access(AccessType.FIELD)
 open class Judge(
 
     @Column(nullable = false)
-    val problemId: Long,
+    open val problemId: Long,
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    val user: User,
+    open val user: User,
 
     @Nullable
     @Enumerated(EnumType.STRING)
     @Column(nullable = true)
-    val result: Result? = null,
+    open val result: Result? = null,
 
     @Nullable
     @Embedded
     @Column(nullable = true)
-    val used: UsedInfo? = null,
+    open val used: UsedInfo? = null,
 
     @Nullable
     @Column(nullable = true)
-    val sizeOfCode: Long? = null,
+    open val sizeOfCode: Long? = null,
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    val type: JudgeType
+    open val type: JudgeType
 ) : BaseEntity()
