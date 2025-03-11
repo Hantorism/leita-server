@@ -6,34 +6,35 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "problem")
+@Access(AccessType.FIELD)
 open class Problem(
 
     @Column(nullable = false)
-    val title: String,
+    open val title: String,
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    val author: User,
+    open val author: User,
 
     @Column(nullable = false)
-    val description: Description,
+    open val description: Description,
 
     @Column(nullable = false)
-    val limit: Limit,
+    open val limit: Limit,
 
     @OneToMany(mappedBy = "problem", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    var testCases: List<TestCase> = mutableListOf(),
+    open val testCases: MutableList<TestCase> = mutableListOf(),
 
     @Column
-    val source: String,
+    open val source: String,
 
     @Column(nullable = false)
-    val solved: Solved,
+    open val solved: Solved,
 
     @ElementCollection
     @CollectionTable(name = "problem_category", joinColumns = [JoinColumn(name = "problem_id")])
     @Column
-    val category: List<String>,
+    open val category: List<String>,
 
 ) : BaseEntity() {
     fun addTestCases(testCases: List<TestCase>): Problem {

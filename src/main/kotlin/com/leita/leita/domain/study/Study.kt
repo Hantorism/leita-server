@@ -6,6 +6,7 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "study")
+@Access(AccessType.FIELD)
 open class Study(
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -14,13 +15,13 @@ open class Study(
         joinColumns = [JoinColumn(name = "study_id")],
         inverseJoinColumns = [JoinColumn(name = "user_id")]
     )
-    val admins: MutableList<User> = mutableListOf(),
+    open val admins: MutableList<User> = mutableListOf(),
 
     @Column(nullable = false, unique = true)
-    val title: String,
+    open val title: String,
 
     @Column(nullable = false)
-    val description: String,
+    open val description: String,
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -28,15 +29,15 @@ open class Study(
         joinColumns = [JoinColumn(name = "study_id")],
         inverseJoinColumns = [JoinColumn(name = "user_id")]
     )
-    val members: MutableList<User> = mutableListOf(),
+    open val members: MutableList<User> = mutableListOf(),
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "study_pendings",
         joinColumns = [JoinColumn(name = "study_id")],
         inverseJoinColumns = [JoinColumn(name = "user_id")]
     )
-    val pending: MutableList<User> = mutableListOf()
+    open val pending: MutableList<User> = mutableListOf()
 
 ) : BaseEntity() {
 
