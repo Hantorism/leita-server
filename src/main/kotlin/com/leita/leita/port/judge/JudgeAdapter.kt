@@ -6,12 +6,12 @@ import com.leita.leita.controller.dto.judge.request.SubmitRequest
 import com.leita.leita.controller.dto.judge.request.RunRequest
 import com.leita.leita.port.judge.dto.request.SubmitWCRequest
 import com.leita.leita.port.judge.dto.request.RunWCRequest
-import com.leita.leita.port.judge.dto.response.SubmitWCResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Mono
 
 @Component
 class JudgeAdapter(
@@ -33,12 +33,13 @@ class JudgeAdapter(
                 .uri(request.language.getUrl(restConfig.judge) + "/problem/submit/" + problemId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(submitRequest)
-                .retrieve()
-                .bodyToMono(SubmitWCResponse::class.java)
+                .exchangeToMono { response ->
+                    println("Judge server responded: ${request.language.getUrl(restConfig.judge) + "/problem/submit/" + problemId} / ${response.statusCode()}")
+                    Mono.just(response.statusCode())
+                }
                 .block()!!
 
-            println("Judge server responded: ${request.language.getUrl(restConfig.judge) + "/judge/" + problemId} / $response")
-            return response.isSuccessful
+            return response.is2xxSuccessful
         } catch (ex: Exception) {
             println(ex.message)
             throw CustomException("제출 실패", HttpStatus.INTERNAL_SERVER_ERROR)
@@ -59,13 +60,13 @@ class JudgeAdapter(
                 .uri(request.language.getUrl(restConfig.judge) + "/problem/run/" + problemId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(runRequest)
-                .retrieve()
-                .bodyToFlux(SubmitWCResponse::class.java)
-                .collectList()
+                .exchangeToMono { response ->
+                    println("Judge server responded: ${request.language.getUrl(restConfig.judge) + "/problem/run/" + problemId} / ${response.statusCode()}")
+                    Mono.just(response.statusCode())
+                }
                 .block()!!
 
-            println("Judge server responded: ${request.language.getUrl(restConfig.judge) + "/run/" + problemId} / $response")
-            return !response.any { !it.isSuccessful }
+            return response.is2xxSuccessful
         } catch (ex: Exception) {
             println(ex.message)
             throw CustomException("제출 실패", HttpStatus.INTERNAL_SERVER_ERROR)
