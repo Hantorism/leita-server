@@ -1,9 +1,10 @@
 package com.leita.leita.controller
 
 import com.leita.leita.controller.dto.BaseResponse
-import com.leita.leita.controller.dto.problem.response.SubmitResponse
+import com.leita.leita.controller.dto.judge.response.SubmitResponse
 import com.leita.leita.controller.dto.judge.request.SubmitRequest
 import com.leita.leita.controller.dto.judge.request.RunRequest
+import com.leita.leita.controller.dto.judge.response.RunResponse
 import com.leita.leita.service.JudgeService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -19,9 +20,9 @@ class JudgeController(private val judgeService: JudgeService) {
     }
 
     @PostMapping("/run/{problemId}")
-    fun run(@PathVariable problemId: Long, @RequestBody request: RunRequest): ResponseEntity<BaseResponse<SubmitResponse>> {
+    fun run(@PathVariable problemId: Long, @RequestBody request: RunRequest): ResponseEntity<BaseResponse<List<RunResponse>>> {
         val response = judgeService.run(problemId, request)
-        val wrappedResponse: BaseResponse<SubmitResponse> = BaseResponse("제출 완료", response)
+        val wrappedResponse: BaseResponse<List<RunResponse>> = BaseResponse("제출 완료", response)
         return ResponseEntity.ok(wrappedResponse)
     }
 }

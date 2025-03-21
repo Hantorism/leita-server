@@ -2,14 +2,16 @@ package com.leita.leita.service
 
 import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.jwt.JwtUtils
-import com.leita.leita.controller.dto.auth.ProblemMapper
+import com.leita.leita.controller.dto.auth.JudgeMapper
 import com.leita.leita.controller.dto.judge.request.SubmitRequest
-import com.leita.leita.controller.dto.problem.response.SubmitResponse
+import com.leita.leita.controller.dto.judge.response.SubmitResponse
 import com.leita.leita.controller.dto.judge.request.RunRequest
+import com.leita.leita.controller.dto.judge.response.RunResponse
 import com.leita.leita.domain.judge.Judge
 import com.leita.leita.domain.judge.JudgeType
 import com.leita.leita.domain.judge.UsedInfo
 import com.leita.leita.port.judge.JudgePort
+import com.leita.leita.port.judge.dto.response.RunWCResponse
 import com.leita.leita.repository.JudgeRepository
 import com.leita.leita.repository.UserRepository
 import org.springframework.http.HttpStatus
@@ -42,10 +44,10 @@ class JudgeService(
         val submitId = judgeRepository.save(submit).id
 
         val isSubmit: Boolean = judgePort.submit(problemId, submitId, request)
-        return ProblemMapper.toSubmitResponse(isSubmit)
+        return JudgeMapper.toSubmitResponse(isSubmit)
     }
 
-    fun run(problemId: Long, request: RunRequest): SubmitResponse {
+    fun run(problemId: Long, request: RunRequest): List<RunResponse> {
         val email = jwtUtils.extractEmail()
         val user = userRepository.findByEmail(email)
             ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
@@ -64,7 +66,7 @@ class JudgeService(
         )
         val submitId = judgeRepository.save(submit).id
 
-        val isSubmit: Boolean = judgePort.run(problemId, submitId, request)
-        return ProblemMapper.toSubmitResponse(isSubmit)
+        val response: List<RunWCResponse> = judgePort.run(problemId, submitId, request)
+        return JudgeMapper.toRunResponse(response)
     }
 }

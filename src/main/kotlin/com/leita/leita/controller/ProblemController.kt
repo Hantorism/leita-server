@@ -1,7 +1,6 @@
 package com.leita.leita.controller
 
 import com.leita.leita.controller.dto.BaseResponse
-import com.leita.leita.controller.dto.auth.response.JwtResponse
 import com.leita.leita.controller.dto.problem.request.CreateProblemRequest
 import com.leita.leita.controller.dto.problem.response.*
 import com.leita.leita.service.ProblemService
