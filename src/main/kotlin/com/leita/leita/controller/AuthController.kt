@@ -3,7 +3,6 @@ package com.leita.leita.controller
 import com.leita.leita.controller.dto.BaseResponse
 import com.leita.leita.controller.dto.auth.request.*
 import com.leita.leita.controller.dto.auth.response.*
-import com.leita.leita.controller.dto.problem.response.SubmitResponse
 import com.leita.leita.service.AuthService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*

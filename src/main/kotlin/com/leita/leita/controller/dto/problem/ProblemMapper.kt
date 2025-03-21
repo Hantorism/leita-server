@@ -1,7 +1,6 @@
-package com.leita.leita.controller.dto.auth
+package com.leita.leita.controller.dto.problem
 
 import com.leita.leita.controller.dto.problem.request.CreateProblemRequest
-import com.leita.leita.controller.dto.problem.response.SubmitResponse
 import com.leita.leita.controller.dto.problem.response.ProblemDetailResponse
 import com.leita.leita.controller.dto.problem.response.ProblemsResponse
 import com.leita.leita.domain.User
@@ -37,6 +36,7 @@ class ProblemMapper {
         }
 
         fun toProblemDetailResponse(problem: Problem): ProblemDetailResponse {
+            println(problem.testCases)
             return ProblemDetailResponse(
                 problemId = problem.id,
                 title = problem.title,
@@ -47,12 +47,6 @@ class ProblemMapper {
                 source = problem.source,
                 solved = problem.solved,
                 category = problem.category,
-            )
-        }
-
-        fun toSubmitResponse(isSubmit: Boolean): SubmitResponse {
-            return SubmitResponse(
-                isSubmit = isSubmit,
             )
         }
     }
