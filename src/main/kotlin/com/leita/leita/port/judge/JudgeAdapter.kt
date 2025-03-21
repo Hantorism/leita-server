@@ -6,11 +6,13 @@ import com.leita.leita.controller.dto.judge.request.SubmitRequest
 import com.leita.leita.controller.dto.judge.request.RunRequest
 import com.leita.leita.port.judge.dto.request.SubmitWCRequest
 import com.leita.leita.port.judge.dto.request.RunWCRequest
+import com.leita.leita.port.judge.dto.response.RunWCResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 
 @Component
@@ -47,26 +49,24 @@ class JudgeAdapter(
     }
 
     @Async
-    override fun run(problemId: Long, submitId: Long, request: RunRequest): Boolean {
+    override fun run(problemId: Long, submitId: Long, request: RunRequest): List<RunWCResponse> {
         try {
             val runRequest = RunWCRequest(
                 code = request.code,
                 language = request.language,
-                testCases = request.testCases
+                testCases = request.testCases,
             )
-            println(runRequest)
 
-            val response = webClient.post()
+            return webClient.post()
                 .uri(request.language.getUrl(restConfig.judge) + "/problem/run/" + problemId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(runRequest)
-                .exchangeToMono { response ->
-                    println("Judge server responded: ${request.language.getUrl(restConfig.judge) + "/problem/run/" + problemId} / ${response.statusCode()}")
-                    Mono.just(response.statusCode())
+                .retrieve()
+                .bodyToMono<List<RunWCResponse>>()
+                .doOnSuccess {
+                    println("Judge server responded: ${request.language.getUrl(restConfig.judge) + "/problem/run/" + problemId} / $it")
                 }
                 .block()!!
-
-            return response.is2xxSuccessful
         } catch (ex: Exception) {
             println(ex.message)
             throw CustomException("제출 실패", HttpStatus.INTERNAL_SERVER_ERROR)
