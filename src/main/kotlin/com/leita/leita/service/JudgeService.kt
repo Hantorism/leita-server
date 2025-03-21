@@ -37,7 +37,7 @@ class JudgeService(
                 time = null,
                 language = request.language,
             ),
-            type = JudgeType.JUDGE
+            type = JudgeType.SUBMIT
         )
         val submitId = judgeRepository.save(submit).id
 
