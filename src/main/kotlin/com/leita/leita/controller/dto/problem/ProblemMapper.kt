@@ -17,7 +17,7 @@ class ProblemMapper {
                 description = request.description,
                 limit = request.limit,
                 source = request.source,
-                solved = Solved(0, 0),
+                solved = Solved(0, 0.0),
                 category = request.category
             )
 

@@ -1,5 +1,6 @@
 package com.leita.leita.controller.dto.judge.response
 
 data class SubmitResponse(
-    val isSubmit: Boolean,
+    val result: String,
+    val error: String,
 )
