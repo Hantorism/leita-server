@@ -6,14 +6,13 @@ import com.leita.leita.controller.dto.judge.request.SubmitRequest
 import com.leita.leita.controller.dto.judge.request.RunRequest
 import com.leita.leita.port.judge.dto.request.SubmitWCRequest
 import com.leita.leita.port.judge.dto.request.RunWCRequest
-import com.leita.leita.port.judge.dto.response.RunWCResponse
+import com.leita.leita.port.judge.dto.response.JudgeWCResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
-import reactor.core.publisher.Mono
 
 @Component
 class JudgeAdapter(
@@ -22,7 +21,7 @@ class JudgeAdapter(
 ) : JudgePort {
 
     @Async
-    override fun submit(problemId: Long, submitId: Long, request: SubmitRequest): Boolean {
+    override fun submit(problemId: Long, submitId: Long, request: SubmitRequest): JudgeWCResponse {
         try {
             val submitRequest = SubmitWCRequest(
                 submitId,
@@ -31,17 +30,16 @@ class JudgeAdapter(
             )
             println(submitRequest)
 
-            val response = webClient.post()
+            return webClient.post()
                 .uri(request.language.getUrl(restConfig.judge) + "/problem/submit/" + problemId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(submitRequest)
-                .exchangeToMono { response ->
-                    println("Judge server responded: ${request.language.getUrl(restConfig.judge) + "/problem/submit/" + problemId} / ${response.statusCode()}")
-                    Mono.just(response.statusCode())
+                .retrieve()
+                .bodyToMono<JudgeWCResponse>()
+                .doOnSuccess {
+                    println("Judge server responded: ${request.language.getUrl(restConfig.judge) + "/problem/submit/" + problemId} / $it")
                 }
                 .block()!!
-
-            return response.is2xxSuccessful
         } catch (ex: Exception) {
             println(ex.message)
             throw CustomException("제출 실패", HttpStatus.INTERNAL_SERVER_ERROR)
@@ -49,7 +47,7 @@ class JudgeAdapter(
     }
 
     @Async
-    override fun run(problemId: Long, submitId: Long, request: RunRequest): List<RunWCResponse> {
+    override fun run(problemId: Long, submitId: Long, request: RunRequest): List<JudgeWCResponse> {
         try {
             val runRequest = RunWCRequest(
                 code = request.code,
@@ -62,7 +60,7 @@ class JudgeAdapter(
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(runRequest)
                 .retrieve()
-                .bodyToMono<List<RunWCResponse>>()
+                .bodyToMono<List<JudgeWCResponse>>()
                 .doOnSuccess {
                     println("Judge server responded: ${request.language.getUrl(restConfig.judge) + "/problem/run/" + problemId} / $it")
                 }

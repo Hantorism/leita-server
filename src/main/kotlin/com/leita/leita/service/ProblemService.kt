@@ -73,4 +73,11 @@ class ProblemService(
 
         return ProblemMapper.toProblemDetailResponse(problem)
     }
+
+    fun updateSolved(problemId: Long, isSolved: Boolean) {
+        val problem = problemRepository.findById(problemId)
+        .orElseThrow { CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND) }
+        problem.solved.updateSolved(isSolved)
+        problemRepository.save(problem)
+    }
 }
