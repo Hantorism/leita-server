@@ -76,4 +76,15 @@ class JudgeService(
         val response: List<JudgeWCResponse> = judgePort.run(problemId, submitId, request)
         return JudgeMapper.toRunResponse(response)
     }
+
+    fun getJudges(problemId: Long?): List<Judge> {
+        if(problemId != null) {
+            return judgeRepository.findAllByProblemIdAndType(problemId, JudgeType.SUBMIT)
+        } else {
+            val email = jwtUtils.extractEmail()
+            val user = userRepository.findByEmail(email)
+                ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
+            return judgeRepository.findAllByUserIdAndType(user.id, JudgeType.SUBMIT)
+        }
+    }
 }
