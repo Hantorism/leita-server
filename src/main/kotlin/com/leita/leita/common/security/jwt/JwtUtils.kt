@@ -49,17 +49,6 @@ class JwtUtils(
         return JwtResponse(accessToken, refreshToken)
     }
 
-    fun disableToken(): Boolean {
-        val token = token
-        val remainingTime = remainingTime
-        if (remainingTime == 0L) {
-            return false
-        }
-
-        cachePort.set(extractJTI(), token)
-        return cachePort.get(extractJTI()) == token
-    }
-
     fun extractEmail(): String {
         return extractAllClaims().subject
     }
@@ -71,14 +60,6 @@ class JwtUtils(
     private fun extractExpirationTime(): Date {
         return extractAllClaims().expiration
     }
-
-    private val remainingTime: Long
-        get() {
-            val currentTimeMillis = Instant.now().toEpochMilli()
-            val expirationTime = extractExpirationTime()
-            val remainingTimeMillis = expirationTime.time - currentTimeMillis
-            return max(remainingTimeMillis.toDouble(), 0.0).toLong()
-        }
 
     private fun extractAllClaims(): Claims {
         val secretKey: SecretKey = Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray(StandardCharsets.UTF_8))
