@@ -36,7 +36,6 @@ class ProblemMapper {
         }
 
         fun toProblemDetailResponse(problem: Problem): ProblemDetailResponse {
-            println(problem.testCases)
             return ProblemDetailResponse(
                 problemId = problem.id,
                 title = problem.title,

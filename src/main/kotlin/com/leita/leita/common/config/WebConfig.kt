@@ -1,24 +1,29 @@
 package com.leita.leita.common.config
 
-import org.springframework.boot.context.properties.ConfigurationProperties
+import com.leita.leita.common.LoggingFilter
+import com.leita.leita.common.LoggingInterceptor
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.CorsRegistry
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
-@ConfigurationProperties(prefix = "server.servlet")
-class WebConfig : WebMvcConfigurer {
-
-    var allowedOrigins: String = "*"
-    val contextPath: String = "/api"
+class WebConfig(
+    private val loggingInterceptor: LoggingInterceptor,
+    private val serverConfig: ServerConfig
+) : WebMvcConfigurer {
 
     override fun addCorsMappings(registry: CorsRegistry) {
-        val allowedOrigins = allowedOrigins.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val allowedOrigins = serverConfig.allowedOrigins.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         registry.addMapping("/**")
             .allowedOriginPatterns(*allowedOrigins)
             .allowedMethods("*")
             .allowedHeaders("*")
             .allowCredentials(true)
             .maxAge(3000)
+    }
+
+    override fun addInterceptors(registry: InterceptorRegistry) {
+        registry.addInterceptor(loggingInterceptor)
     }
 }
