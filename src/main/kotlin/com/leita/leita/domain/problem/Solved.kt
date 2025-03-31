@@ -6,17 +6,22 @@ import jakarta.persistence.*
 open class Solved(
 
     @Column(name = "solved_count")
-    var count: Long,
+    var count: Long = 0,
 
     @Column(name = "solved_rate")
-    var rate: Double,
+    var rate: Double = 0.0,
 ) {
     fun updateSolved(isSolved: Boolean) {
         if (isSolved) {
             this.count++
-            this.rate = (this.rate * count) / count
+        } else if (this.count > 0) {
+            this.count--
+        }
+
+        this.rate = if (this.count > 0) {
+            (this.rate * (this.count - 1) + (if (isSolved) 1 else 0)) / this.count
         } else {
-            this.rate = (this.rate * (count - 1)) / count
+            0.0
         }
     }
 }
