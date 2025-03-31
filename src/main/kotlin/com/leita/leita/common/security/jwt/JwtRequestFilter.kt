@@ -1,5 +1,6 @@
 package com.leita.leita.common.security.jwt
 
+import com.leita.leita.common.config.ServerConfig
 import com.leita.leita.common.config.WebConfig
 import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.ApiPaths
@@ -17,7 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 class JwtRequestFilter(
     private val jwtUtil: JwtUtils,
     private val customUserDetailsService: CustomUserDetailsService,
-    private val webConfig: WebConfig
+    private val serverConfig: ServerConfig
 ) : OncePerRequestFilter() {
 
     @Throws(ServletException::class, java.io.IOException::class)
@@ -26,7 +27,7 @@ class JwtRequestFilter(
         response: jakarta.servlet.http.HttpServletResponse,
         chain: jakarta.servlet.FilterChain
     ) {
-        val path = request.requestURI.replace(webConfig.contextPath, "")
+        val path = request.requestURI.replace(serverConfig.contextPath, "")
 
         try {
             val authorizationHeader = request.getHeader("Authorization")
