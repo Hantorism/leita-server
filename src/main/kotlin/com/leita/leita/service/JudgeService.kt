@@ -13,6 +13,7 @@ import com.leita.leita.domain.judge.Result
 import com.leita.leita.domain.judge.UsedInfo
 import com.leita.leita.port.judge.JudgePort
 import com.leita.leita.port.judge.dto.response.JudgeWCResponse
+import com.leita.leita.port.judge.dto.response.RunWCResponse
 import com.leita.leita.repository.JudgeRepository
 import com.leita.leita.repository.UserRepository
 import jakarta.transaction.Transactional
@@ -48,6 +49,9 @@ class JudgeService(
         val submitId = judgeRepository.save(submit).id
 
         val response: JudgeWCResponse = judgePort.submit(problemId, submitId, request)
+        submit.updateSizeOfCode(request.code)
+        submit.updateSubmitInfo(response)
+
         problemService.updateSolved(problemId, response.result === Result.CORRECT)
 
         return JudgeMapper.toSubmitResponse(response)
@@ -73,7 +77,7 @@ class JudgeService(
         )
         val submitId = judgeRepository.save(submit).id
 
-        val response: List<JudgeWCResponse> = judgePort.run(problemId, submitId, request)
+        val response: List<RunWCResponse> = judgePort.run(problemId, submitId, request)
         return JudgeMapper.toRunResponse(response)
     }
 
