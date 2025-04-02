@@ -1,9 +1,11 @@
 package com.leita.leita.domain.judge
 
 import com.leita.leita.domain.User
+import com.leita.leita.port.judge.dto.response.JudgeWCResponse
 import com.leita.leita.repository.BaseEntity
 import jakarta.annotation.Nullable
 import jakarta.persistence.*
+import java.util.*
 
 @Entity
 @Table(name = "judge")
@@ -20,18 +22,33 @@ open class Judge(
     @Nullable
     @Enumerated(EnumType.STRING)
     @Column(nullable = true)
-    open val result: Result? = null,
+    open var result: Result? = null,
 
     @Nullable
     @Embedded
     @Column(nullable = true)
-    open val used: UsedInfo? = null,
+    open var used: UsedInfo? = null,
 
     @Nullable
     @Column(nullable = true)
-    open val sizeOfCode: Long? = null,
+    open var sizeOfCode: Long? = null,
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     open val type: JudgeType
-) : BaseEntity()
+) : BaseEntity() {
+    fun updateSizeOfCode(code: String) {
+        this.sizeOfCode = Base64.getDecoder().decode(code).toString().length.toLong()
+    }
+
+    fun updateSubmitInfo(response: JudgeWCResponse) {
+        this.result = response.result;
+        this.used = used?.let {
+            UsedInfo(
+                memory = response.usedMemory,
+                time = response.usedTime,
+                language = it.language
+            )
+        };
+    }
+}
