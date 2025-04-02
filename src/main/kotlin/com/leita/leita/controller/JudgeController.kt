@@ -27,7 +27,7 @@ class JudgeController(private val judgeService: JudgeService) {
         return ResponseEntity.ok(wrappedResponse)
     }
 
-    @GetMapping()
+    @GetMapping
     fun getJudges(@RequestParam(required = false) problemId: Long?): ResponseEntity<BaseResponse<List<Judge>>> {
         val response = judgeService.getJudges(problemId)
         val wrappedResponse: BaseResponse<List<Judge>> = BaseResponse("", response)

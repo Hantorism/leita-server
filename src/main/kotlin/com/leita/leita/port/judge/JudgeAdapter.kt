@@ -7,6 +7,7 @@ import com.leita.leita.controller.dto.judge.request.RunRequest
 import com.leita.leita.port.judge.dto.request.SubmitWCRequest
 import com.leita.leita.port.judge.dto.request.RunWCRequest
 import com.leita.leita.port.judge.dto.response.JudgeWCResponse
+import com.leita.leita.port.judge.dto.response.RunWCResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.scheduling.annotation.Async
@@ -47,7 +48,7 @@ class JudgeAdapter(
     }
 
     @Async
-    override fun run(problemId: Long, submitId: Long, request: RunRequest): List<JudgeWCResponse> {
+    override fun run(problemId: Long, submitId: Long, request: RunRequest): List<RunWCResponse> {
         try {
             val runRequest = RunWCRequest(
                 code = request.code,
@@ -60,7 +61,7 @@ class JudgeAdapter(
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(runRequest)
                 .retrieve()
-                .bodyToMono<List<JudgeWCResponse>>()
+                .bodyToMono<List<RunWCResponse>>()
                 .doOnSuccess {
                     println("Judge server responded: ${request.language.getUrl(restConfig.judge) + "/problem/run/" + problemId} / $it")
                 }
