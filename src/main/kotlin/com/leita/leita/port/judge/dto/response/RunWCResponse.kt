@@ -2,9 +2,7 @@ package com.leita.leita.port.judge.dto.response
 
 import com.leita.leita.domain.judge.Result
 
-data class JudgeWCResponse(
+data class RunWCResponse(
     val result: Result,
     val error: String,
-    val usedMemory: Long,
-    val usedTime: Long
 )
