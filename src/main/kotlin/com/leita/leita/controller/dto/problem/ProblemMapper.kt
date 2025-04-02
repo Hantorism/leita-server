@@ -5,19 +5,18 @@ import com.leita.leita.controller.dto.problem.response.ProblemDetailResponse
 import com.leita.leita.controller.dto.problem.response.ProblemsResponse
 import com.leita.leita.domain.User
 import com.leita.leita.domain.problem.Problem
-import com.leita.leita.domain.problem.Solved
 import org.springframework.data.domain.Page
 
 class ProblemMapper {
     companion object {
         fun fromCreateProblemRequest(author: User, request: CreateProblemRequest): Problem {
-            val problem = Problem(
+            val problem = Problem.create(
                 title = request.title,
                 author,
                 description = request.description,
                 limit = request.limit,
+                testCases = request.testCases,
                 source = request.source,
-                solved = Solved(0, 0.0),
                 category = request.category
             )
 
