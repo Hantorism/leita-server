@@ -37,6 +37,23 @@ open class Problem(
     open val category: List<String>,
 
 ) : BaseEntity() {
+
+    companion object {
+        fun create(
+            title: String,
+            author: User,
+            description: Description,
+            limit: Limit,
+            testCases: List<TestCase>,
+            source: String,
+            category: List<String>
+        ): Problem {
+            require(testCases.size >= 5) { "테스트 케이스는 최소 5개 이상이어야 합니다." }
+            val solved = Solved(0, 0.0)
+            return Problem(title, author, description, limit, testCases.toMutableList(), source, solved, category)
+        }
+    }
+
     fun addTestCases(testCases: List<TestCase>): Problem {
         this.testCases += testCases
         return this
