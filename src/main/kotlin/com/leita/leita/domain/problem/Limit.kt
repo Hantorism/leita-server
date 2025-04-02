@@ -9,5 +9,5 @@ open class Limit(
     val memory: Long,
 
     @Column(name = "limit_time")
-    val time: Double,
+    val time: Long,
 )
