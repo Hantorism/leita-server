@@ -19,7 +19,7 @@ open class Solved(
         }
 
         this.rate = if (this.count > 0) {
-            (this.rate * (this.count - 1) + (if (isSolved) 1 else 0)) / this.count
+            ((this.rate * (this.count - 1) + (if (isSolved) 1 else 0)) / this.count) * 100
         } else {
             0.0
         }
