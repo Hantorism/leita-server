@@ -30,7 +30,7 @@ class AuthService(
                 .bodyToMono(OAutheUserInfo::class.java)
                 .block()!!
 
-//            isAjouEmail(userInfo.email)
+            isAjouEmail(userInfo.email)
 
             if(userRepository.findByEmail(userInfo.email) == null) {
                 val user = User(
