@@ -25,5 +25,7 @@ class WebConfig(
 
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(loggingInterceptor)
+            .addPathPatterns("/**")
+            .excludePathPatterns("/v3/**", "/swagger-ui/**", "/swagger-resources/**", "/favicon.ico")
     }
 }
