@@ -39,6 +39,14 @@ class LoggingInterceptor : HandlerInterceptor {
 
     private fun logResponse(request: ContentCachingRequestWrapper?, response: ContentCachingResponseWrapper?) {
         if (response != null) {
+            val contentType = response.contentType ?: ""
+
+            if (contentType.startsWith("image/") || contentType.startsWith("application/octet-stream")) {
+                log.info("[Response] {} {} -> Status: {} (binary content: {})",
+                    request?.method, request?.requestURI, response.status, contentType)
+                return
+            }
+
             val responseBody = formatJson(response.contentAsByteArray.toString(StandardCharsets.UTF_8))
             log.info("[Response] {} {} -> Status: {}\n{}", request?.method, request?.requestURI, response.status, responseBody)
         }
