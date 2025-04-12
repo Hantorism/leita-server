@@ -38,7 +38,7 @@ open class Judge(
     open val type: JudgeType
 ) : BaseEntity() {
     fun updateSizeOfCode(code: String) {
-        this.sizeOfCode = Base64.getDecoder().decode(code).toString().length.toLong()
+        this.sizeOfCode = Base64.getDecoder().decode(code).size.toLong()
     }
 
     fun updateSubmitInfo(response: JudgeWCResponse) {

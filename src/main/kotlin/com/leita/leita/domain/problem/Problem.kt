@@ -49,7 +49,7 @@ open class Problem(
             category: List<String>
         ): Problem {
             require(testCases.size >= 5) { "테스트 케이스는 최소 5개 이상이어야 합니다." }
-            val solved = Solved(0, 0.0)
+            val solved = Solved(0, 0, 0.0)
             return Problem(title, author, description, limit, testCases.toMutableList(), source, solved, category)
         }
     }
