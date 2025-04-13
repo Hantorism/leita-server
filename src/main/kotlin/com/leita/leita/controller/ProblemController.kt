@@ -2,6 +2,7 @@ package com.leita.leita.controller
 
 import com.leita.leita.controller.dto.BaseResponse
 import com.leita.leita.controller.dto.problem.request.CreateProblemRequest
+import com.leita.leita.controller.dto.problem.request.Filter
 import com.leita.leita.controller.dto.problem.response.*
 import com.leita.leita.service.ProblemService
 import org.springframework.http.ResponseEntity
@@ -33,9 +34,11 @@ class ProblemController(private val problemService: ProblemService) {
 
     @GetMapping
     fun getProblems(
-        @RequestParam page: Int = 0, @RequestParam size: Int = 10
+        @RequestParam page: Int = 0, @RequestParam size: Int = 10,
+        @RequestParam(required = false) search: String? = null,
+        @RequestParam(required = false) filter: Filter? = null
     ): ResponseEntity<BaseResponse<ProblemsResponse>> {
-        val response = problemService.getProblems(page, size)
+        val response = problemService.getProblems(page, size, search, filter)
         val wrappedResponse: BaseResponse<ProblemsResponse> = BaseResponse("문제 조회 완료", response)
         return ResponseEntity.ok(wrappedResponse)
     }
