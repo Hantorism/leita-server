@@ -6,6 +6,7 @@ import com.leita.leita.controller.dto.problem.ProblemMapper
 import com.leita.leita.controller.dto.problem.request.CreateProblemRequest
 import com.leita.leita.controller.dto.problem.request.Filter
 import com.leita.leita.controller.dto.problem.response.*
+import com.leita.leita.domain.User
 import com.leita.leita.domain.problem.Problem
 import com.leita.leita.repository.ProblemRepository
 import com.leita.leita.repository.UserRepository
@@ -66,23 +67,21 @@ class ProblemService(
 
     fun getProblems(page: Int, size: Int, search: String?, filter: Filter?): ProblemsResponse {
         val pageable: Pageable = PageRequest.of(page, size)
-        val problems: Page<Problem>
+        var userId: Long? = null
 
         if(filter != null) {
             val email = jwtUtils.extractEmail()
             val user = userRepository.findByEmail(email)
                 ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
-
-            problems = problemRepository.findProblemsByFilter(
-                userId = user.id,
-                search = search,
-                filter = filter.name,
-                pageable = pageable
-            )
-        } else {
-            problems = problemRepository.findAll(pageable)
+            userId = user.id
         }
 
+        val problems = problemRepository.findProblemsByFilter(
+            userId = userId,
+            search = search,
+            filter = filter?.name,
+            pageable = pageable
+        )
         return ProblemMapper.toProblemsResponse(problems)
     }
 
