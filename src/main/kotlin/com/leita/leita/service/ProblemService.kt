@@ -6,11 +6,8 @@ import com.leita.leita.controller.dto.problem.ProblemMapper
 import com.leita.leita.controller.dto.problem.request.CreateProblemRequest
 import com.leita.leita.controller.dto.problem.request.Filter
 import com.leita.leita.controller.dto.problem.response.*
-import com.leita.leita.domain.User
-import com.leita.leita.domain.problem.Problem
 import com.leita.leita.repository.ProblemRepository
 import com.leita.leita.repository.UserRepository
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
