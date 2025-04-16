@@ -14,7 +14,7 @@ interface ProblemRepository : JpaRepository<Problem, Long> {
             SELECT p.*
             FROM problem p
             LEFT JOIN (
-                SELECT problem_id, MAX(result) AS result
+                SELECT problem_id, MAX(CASE WHEN result = 'CORRECT' THEN 1 ELSE 0 END) AS is_solved
                 FROM judge
                 WHERE user_id = :userId
                 GROUP BY problem_id
@@ -30,8 +30,8 @@ interface ProblemRepository : JpaRepository<Problem, Long> {
             AND
                 (
                     :filter IS NULL OR
-                    (:filter = 'SOLVED' AND j.result = 'CORRECT') OR
-                    (:filter = 'UNSOLVED' AND (j.result IS NULL OR j.result != 'CORRECT'))
+                    (:filter = 'SOLVED' AND j.is_solved = 1) OR
+                    (:filter = 'UNSOLVED' AND (j.is_solved IS NULL OR j.is_solved = 0))
                 )
             ORDER BY p.id DESC
             LIMIT :#{#pageable.pageSize} OFFSET :#{#pageable.offset}
@@ -40,7 +40,7 @@ interface ProblemRepository : JpaRepository<Problem, Long> {
             SELECT COUNT(*)
             FROM problem p
             LEFT JOIN (
-                SELECT problem_id, MAX(result) AS result
+                SELECT problem_id, MAX(CASE WHEN result = 'CORRECT' THEN 1 ELSE 0 END) AS is_solved
                 FROM judge
                 WHERE user_id = :userId
                 GROUP BY problem_id
@@ -56,8 +56,8 @@ interface ProblemRepository : JpaRepository<Problem, Long> {
             AND
                 (
                     :filter IS NULL OR
-                    (:filter = 'SOLVED' AND j.result = 'CORRECT') OR
-                    (:filter = 'UNSOLVED' AND (j.result IS NULL OR j.result != 'CORRECT'))
+                    (:filter = 'SOLVED' AND j.is_solved = 1) OR
+                    (:filter = 'UNSOLVED' AND (j.is_solved IS NULL OR j.is_solved = 0))
                 )
         """,
         nativeQuery = true
