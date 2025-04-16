@@ -10,10 +10,10 @@ import java.util.*
 @Access(AccessType.FIELD)
 open class TestCase(
 
-    @Column(nullable = false, columnDefinition = "VARCHAR(500)")
+    @Column(nullable = false, columnDefinition = "TEXT")
     open var input: String,
 
-    @Column(nullable = false, columnDefinition = "VARCHAR(500)")
+    @Column(nullable = false, columnDefinition = "TEXT")
     open var output: String,
 
     @JsonIgnore
