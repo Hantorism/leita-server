@@ -10,8 +10,8 @@ import org.springframework.stereotype.Repository
 @Repository
 interface MemberRepository : JpaRepository<User, Long> {
     @Query(
-        "SELECT u FROM Study s JOIN s.members u WHERE s.id = :studyId",
-        countQuery = "SELECT COUNT(u) FROM Study s JOIN s.members u WHERE s.id = :studyId"
+        "SELECT u FROM StudyClass s JOIN s.members u WHERE s.id = :studyId",
+        countQuery = "SELECT COUNT(u) FROM StudyClass s JOIN s.members u WHERE s.id = :studyId"
     )
     fun findMembersByStudyId(studyId: Long, pageable: Pageable): Page<User>
 }
