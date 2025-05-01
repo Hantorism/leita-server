@@ -9,14 +9,6 @@ import jakarta.persistence.*
 @Access(AccessType.FIELD)
 open class Study(
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "study_admins",
-        joinColumns = [JoinColumn(name = "study_id")],
-        inverseJoinColumns = [JoinColumn(name = "user_id")]
-    )
-    open val admins: MutableList<User> = mutableListOf(),
-
     @Column(nullable = false, unique = true)
     open val title: String,
 
@@ -56,37 +48,5 @@ open class Study(
 
     fun leave(user: User) {
         members.remove(user)
-    }
-
-    fun addAdmin(user: User) {
-        admins.add(user)
-    }
-
-    fun removeAdmin(user: User) {
-        admins.remove(user)
-    }
-
-    fun isAdminByEmail(email: String): Boolean {
-        return admins.any { it.email == email }
-    }
-
-    fun isMemberByEmail(email: String): Boolean {
-        return admins.any { it.email == email }
-    }
-
-    fun changeRole(user: User, newRole: StudyRole): Boolean {
-        val roleMap = mapOf(
-            StudyRole.ADMIN to Pair(admins, members),
-            StudyRole.MEMBER to Pair(members, admins)
-        )
-
-        roleMap[newRole]?.let { (addTo, removeFrom) ->
-            addTo.add(user)
-            if (removeFrom.contains(user)) {
-                removeFrom.remove(user)
-            }
-            return true
-        }
-        return false
     }
 }
