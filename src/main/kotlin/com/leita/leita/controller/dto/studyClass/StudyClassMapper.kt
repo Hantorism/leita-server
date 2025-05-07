@@ -1,16 +1,16 @@
 package com.leita.leita.controller.dto.auth
 
-import com.leita.leita.controller.dto.problem.response.StudyClassesResponse
 import com.leita.leita.controller.dto.studyClass.response.StudyClassCreateResponse
 import com.leita.leita.controller.dto.studyClass.response.StudyClassDetailResponse
 import com.leita.leita.controller.dto.studyClass.response.StudyClassPendingResponse
+import com.leita.leita.controller.dto.studyClass.response.StudyClassesResponse
 import com.leita.leita.domain.study.StudyClass
 import com.leita.leita.domain.User
 import org.springframework.data.domain.Page
 
 class StudyClassMapper {
     companion object {
-        fun toStudyDetailResponse(study: StudyClass): StudyClassDetailResponse {
+        fun toStudyClassDetailResponse(study: StudyClass): StudyClassDetailResponse {
             return StudyClassDetailResponse(
                 id = study.id,
                 title = study.title,
@@ -22,9 +22,9 @@ class StudyClassMapper {
             )
         }
 
-        fun toStudiesResponse(studies: Page<StudyClass>): StudyClassesResponse {
+        fun toStudyClassesResponse(studies: Page<StudyClass>): StudyClassesResponse {
             return StudyClassesResponse(
-                content = studies.content.map { toStudyDetailResponse(it) },
+                content = studies.content.map { toStudyClassDetailResponse(it) },
                 currentPage = studies.number,
                 totalPages = studies.totalPages,
                 totalElements = studies.totalElements,

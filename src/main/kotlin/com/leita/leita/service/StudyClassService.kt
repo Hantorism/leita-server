@@ -3,7 +3,6 @@ package com.leita.leita.service
 import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.jwt.JwtUtils
 import com.leita.leita.controller.dto.auth.StudyClassMapper
-import com.leita.leita.controller.dto.problem.response.StudyClassesResponse
 import com.leita.leita.controller.dto.studyClass.request.StudyClassCreateRequest
 import com.leita.leita.controller.dto.studyClass.request.StudyClassRoleChangeRequest
 import com.leita.leita.controller.dto.studyClass.request.StudyClassUpdateRequest
@@ -34,13 +33,13 @@ class StudyClassService(
     fun getStudyClasses(page: Int, size: Int): StudyClassesResponse {
         val pageable: Pageable = PageRequest.of(page, size)
         val studies = studyClassRepository.findAll(pageable)
-        return StudyClassMapper.toStudiesResponse(studies)
+        return StudyClassMapper.toStudyClassesResponse(studies)
     }
 
     fun getStudyClass(id: Long): StudyClassDetailResponse {
         val study: StudyClass = studyClassRepository.findById(id)
             .orElseThrow { CustomException("Study Class not found", HttpStatus.NOT_FOUND) }
-        return StudyClassMapper.toStudyDetailResponse(study)
+        return StudyClassMapper.toStudyClassDetailResponse(study)
     }
 
     fun updateStudyClass(id: Long, request: StudyClassUpdateRequest): StudyClassDetailResponse {
@@ -53,7 +52,7 @@ class StudyClassService(
 
         studyClass.update(request.title, request.description, request.requirement);
         studyClassRepository.save(studyClass)
-        return StudyClassMapper.toStudyDetailResponse(studyClass)
+        return StudyClassMapper.toStudyClassDetailResponse(studyClass)
     }
 
     fun deleteStudyClass(id: Long) {

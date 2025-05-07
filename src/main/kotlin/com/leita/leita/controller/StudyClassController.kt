@@ -1,7 +1,6 @@
 package com.leita.leita.controller
 
 import com.leita.leita.controller.dto.BaseResponse
-import com.leita.leita.controller.dto.problem.response.StudyClassesResponse
 import com.leita.leita.controller.dto.studyClass.request.StudyClassCreateRequest
 import com.leita.leita.controller.dto.studyClass.request.StudyClassRoleChangeRequest
 import com.leita.leita.controller.dto.studyClass.request.StudyClassUpdateRequest
