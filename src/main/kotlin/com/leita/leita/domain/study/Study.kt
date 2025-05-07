@@ -3,50 +3,52 @@ package com.leita.leita.domain.study
 import com.leita.leita.domain.User
 import com.leita.leita.repository.BaseEntity
 import jakarta.persistence.*
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "study")
 @Access(AccessType.FIELD)
 open class Study(
-
-    @Column(nullable = false, unique = true)
-    open val title: String,
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "study_participants",
+        joinColumns = [JoinColumn(name = "study_id")],
+        inverseJoinColumns = [JoinColumn(name = "user_id")]
+    )
+    open val participants: MutableList<User> = mutableListOf(),
 
     @Column(nullable = false)
-    open val description: String,
+    open var startDateTime: LocalDateTime,
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "study_members",
-        joinColumns = [JoinColumn(name = "study_id")],
-        inverseJoinColumns = [JoinColumn(name = "user_id")]
-    )
-    open val members: MutableList<User> = mutableListOf(),
+    @Column(nullable = false)
+    open var endDateTime: LocalDateTime,
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "study_pendings",
-        joinColumns = [JoinColumn(name = "study_id")],
-        inverseJoinColumns = [JoinColumn(name = "user_id")]
-    )
-    open val pending: MutableList<User> = mutableListOf()
+    @Column(nullable = false)
+    open val studyClassId: Long,
 
-) : BaseEntity() {
+    ) : BaseEntity() {
 
-    fun join(user: User) {
-        pending.add(user)
+    companion object {
+        fun create(
+            startDateTime: LocalDateTime,
+            endDateTime: LocalDateTime,
+            studyClassId: Long
+        ): Study {
+            return Study(
+                participants = mutableListOf(),
+                startDateTime,
+                endDateTime,
+                studyClassId
+            )
+        }
     }
 
-    fun approve(user: User) {
-        pending.remove(user)
-        members.add(user)
+    fun attend(user: User) {
+        participants.add(user)
     }
 
-    fun deny(user: User) {
-        pending.remove(user)
-    }
-
-    fun leave(user: User) {
-        members.remove(user)
+    fun update(startDateTime: LocalDateTime, endDateTime: LocalDateTime) {
+        this.startDateTime = startDateTime
+        this.endDateTime = endDateTime
     }
 }
