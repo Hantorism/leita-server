@@ -19,6 +19,7 @@ class JudgeMapper {
                 RunResponse(
                     result = result.result.message,
                     error = result.error,
+                    output = result.output,
                 )
             }
         }
