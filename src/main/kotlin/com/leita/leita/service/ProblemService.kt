@@ -35,15 +35,16 @@ class ProblemService(
             ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
 
         val problem = problemRepository.findById(problemId)
-            ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
-
-        if(problem.get().author.id != user.id) {
+            .orElseThrow { CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND) }
+        if (problem.author.id != user.id) {
             throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
         }
+        problem.update(
+            request.title, request.description, request.limit,
+            request.testCases, request.source, request.category
+        )
 
-        val updatedProblem = ProblemMapper.fromCreateProblemRequest(user, request)
-            .update(problemId)
-        problemRepository.save(updatedProblem)
+        problemRepository.save(problem)
         return CreateProblemResponse(problemId)
     }
 

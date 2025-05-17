@@ -10,23 +10,23 @@ import jakarta.persistence.*
 open class Problem(
 
     @Column(nullable = false)
-    open val title: String,
+    open var title: String,
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     open val author: User,
 
     @Column(nullable = false)
-    open val description: Description,
+    open var description: Description,
 
     @Column(nullable = false)
-    open val limit: Limit,
+    open var limit: Limit,
 
     @OneToMany(mappedBy = "problem", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    open val testCases: MutableList<TestCase> = mutableListOf(),
+    open var testCases: MutableList<TestCase> = mutableListOf(),
 
     @Column
-    open val source: String,
+    open var source: String,
 
     @Column(nullable = false)
     open val solved: Solved,
@@ -34,9 +34,9 @@ open class Problem(
     @ElementCollection
     @CollectionTable(name = "problem_category", joinColumns = [JoinColumn(name = "problem_id")])
     @Column
-    open val category: List<String>,
+    open var category: List<String>,
 
-) : BaseEntity() {
+    ) : BaseEntity() {
 
     companion object {
         fun create(
@@ -52,6 +52,18 @@ open class Problem(
             val solved = Solved(0, 0, 0.0)
             return Problem(title, author, description, limit, testCases.toMutableList(), source, solved, category)
         }
+    }
+
+    fun update(
+        title: String, description: Description, limit: Limit,
+        testCases: List<TestCase>, source: String, category: List<String>
+    ) {
+        this.title = title
+        this.description = description
+        this.limit = limit
+        this.testCases = testCases.toMutableList()
+        this.source = source
+        this.category = category
     }
 
     fun addTestCases(testCases: List<TestCase>): Problem {
