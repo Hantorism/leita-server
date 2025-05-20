@@ -21,7 +21,7 @@ class ProblemController(private val problemService: ProblemService) {
     @PatchMapping("/{id}")
     fun updateProblem(@PathVariable id: Long, @RequestBody request: CreateProblemRequest): ResponseEntity<BaseResponse<CreateProblemResponse>> {
         val response = problemService.updateProblem(id, request)
-        val wrappedResponse: BaseResponse<CreateProblemResponse> = BaseResponse("문제 추가 완료", response)
+        val wrappedResponse: BaseResponse<CreateProblemResponse> = BaseResponse("문제 수정 완료", response)
         return ResponseEntity.ok(wrappedResponse)
     }
 

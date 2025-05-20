@@ -3,7 +3,6 @@ package com.leita.leita.domain.problem
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.leita.leita.repository.BaseEntity
 import jakarta.persistence.*
-import java.util.*
 
 @Entity
 @Table(name = "problem_test_cases")
