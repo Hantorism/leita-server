@@ -3,6 +3,7 @@ package com.leita.leita.domain.problem
 import com.leita.leita.domain.User
 import com.leita.leita.repository.BaseEntity
 import jakarta.persistence.*
+import kotlin.collections.map
 
 @Entity
 @Table(name = "problem")
@@ -58,10 +59,11 @@ open class Problem(
         title: String, description: Description, limit: Limit,
         testCases: List<TestCase>, source: String, category: List<String>
     ) {
+        val updatedTestCases = testCases.map { it.createTestCase(this) }
         this.title = title
         this.description = description
         this.limit = limit
-        this.testCases = testCases.toMutableList()
+        this.testCases = updatedTestCases.toMutableList()
         this.source = source
         this.category = category
     }
@@ -70,10 +72,4 @@ open class Problem(
         this.testCases += testCases
         return this
     }
-
-    fun update(id: Long): Problem {
-        this.id = id
-        return this
-    }
-
 }
