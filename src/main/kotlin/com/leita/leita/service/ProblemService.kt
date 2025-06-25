@@ -2,10 +2,13 @@ package com.leita.leita.service
 
 import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.jwt.JwtUtils
-import com.leita.leita.controller.dto.problem.ProblemMapper
-import com.leita.leita.controller.dto.problem.request.CreateProblemRequest
-import com.leita.leita.controller.dto.problem.request.Filter
-import com.leita.leita.controller.dto.problem.response.*
+import com.leita.leita.controller.problem.ProblemMapper
+import com.leita.leita.controller.problem.request.CreateProblemRequest
+import com.leita.leita.controller.problem.request.Filter
+import com.leita.leita.controller.problem.response.CreateProblemResponse
+import com.leita.leita.controller.problem.response.DeleteProblemResponse
+import com.leita.leita.controller.problem.response.ProblemDetailResponse
+import com.leita.leita.controller.problem.response.ProblemsResponse
 import com.leita.leita.repository.ProblemRepository
 import com.leita.leita.repository.UserRepository
 import org.springframework.data.domain.PageRequest

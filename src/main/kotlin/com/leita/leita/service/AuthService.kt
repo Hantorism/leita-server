@@ -4,7 +4,10 @@ import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.OAutheUserInfo
 import com.leita.leita.common.security.SecurityRole
 import com.leita.leita.common.security.jwt.JwtUtils
-import com.leita.leita.controller.dto.auth.AuthMapper
+import com.leita.leita.controller.auth.AuthMapper
+import com.leita.leita.controller.auth.request.OAuthRequest
+import com.leita.leita.controller.auth.response.InfoResponse
+import com.leita.leita.controller.auth.response.JwtResponse
 import com.leita.leita.controller.dto.auth.request.*
 import com.leita.leita.controller.dto.auth.response.*
 import com.leita.leita.domain.User
