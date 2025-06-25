@@ -2,12 +2,12 @@ package com.leita.leita.service
 
 import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.jwt.JwtUtils
-import com.leita.leita.controller.dto.study.StudyMapper
-import com.leita.leita.controller.dto.study.request.StudyCreateRequest
-import com.leita.leita.controller.dto.study.request.StudyUpdateRequest
-import com.leita.leita.controller.dto.study.response.StudiesResponse
-import com.leita.leita.controller.dto.study.response.StudyCreateResponse
-import com.leita.leita.controller.dto.study.response.StudyDetailResponse
+import com.leita.leita.controller.study.StudyMapper
+import com.leita.leita.controller.study.request.StudyCreateRequest
+import com.leita.leita.controller.study.request.StudyUpdateRequest
+import com.leita.leita.controller.study.response.StudiesResponse
+import com.leita.leita.controller.study.response.StudyCreateResponse
+import com.leita.leita.controller.study.response.StudyDetailResponse
 import com.leita.leita.domain.study.Study
 import com.leita.leita.repository.StudyClassRepository
 import com.leita.leita.repository.StudyRepository

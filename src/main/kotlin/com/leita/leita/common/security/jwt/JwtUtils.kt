@@ -1,7 +1,7 @@
 package com.leita.leita.common.security.jwt
 
 import com.leita.leita.common.config.JwtConfig
-import com.leita.leita.controller.dto.auth.response.JwtResponse
+import com.leita.leita.controller.auth.response.JwtResponse
 import com.leita.leita.port.cache.CachePort
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.Claims
@@ -13,11 +13,9 @@ import org.springframework.stereotype.Component
 import org.springframework.web.server.ResponseStatusException
 import java.nio.charset.StandardCharsets
 import java.security.Key
-import java.time.Instant
 import java.util.*
 import javax.crypto.SecretKey
 import javax.crypto.spec.SecretKeySpec
-import kotlin.math.max
 
 @Component
 class JwtUtils(
