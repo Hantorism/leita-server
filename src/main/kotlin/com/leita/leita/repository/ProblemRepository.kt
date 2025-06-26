@@ -68,4 +68,6 @@ interface ProblemRepository : JpaRepository<Problem, Long> {
         filter: String?,
         pageable: Pageable
     ): Page<Problem>
+
+    fun findProblemById(problemId: Long): Problem?
 }

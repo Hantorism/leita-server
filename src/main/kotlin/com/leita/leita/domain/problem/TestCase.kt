@@ -5,7 +5,7 @@ import com.leita.leita.repository.BaseEntity
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "problem_test_cases")
+@Table(indexes = [Index(name = "idx_testcase_isshow", columnList = "is_show")], name = "problem_test_cases")
 @Access(AccessType.FIELD)
 open class TestCase(
 
@@ -13,7 +13,11 @@ open class TestCase(
     open var input: String,
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    open var output: String
+    open var output: String,
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    open var isShow: Boolean
 
 ) : BaseEntity() {
 
@@ -26,5 +30,13 @@ open class TestCase(
     fun withProblem(problem: Problem): TestCase {
         this.problem = problem
         return this
+    }
+
+    fun show() {
+        this.isShow = true
+    }
+
+    fun hide() {
+        this.isShow = false
     }
 }

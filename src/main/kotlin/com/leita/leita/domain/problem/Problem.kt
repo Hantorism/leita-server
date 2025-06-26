@@ -7,6 +7,10 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "problem")
 @Access(AccessType.FIELD)
+@NamedEntityGraph(
+    name = "Problem.withTestCases",
+    attributeNodes = [NamedAttributeNode("testCases")]
+)
 open class Problem(
 
     @Column(nullable = false)
@@ -22,24 +26,26 @@ open class Problem(
     @Column(nullable = false)
     open var limit: Limit,
 
-    @OneToMany(mappedBy = "problem", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    private val _testCases: MutableList<TestCase> = mutableListOf(),
-
     @Column
     open var source: String,
 
     @Column(nullable = false)
     open val solved: Solved,
 
+    @OneToMany(
+        mappedBy = "problem",
+        cascade = [CascadeType.ALL],
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
+    open var testCases: MutableList<TestCase> = mutableListOf(),
+
     @ElementCollection
     @CollectionTable(name = "problem_category", joinColumns = [JoinColumn(name = "problem_id")])
     @Column(name = "category")
-    private val _category: MutableList<String> = mutableListOf(),
+    open var category: MutableList<String> = mutableListOf()
 
-    ) : BaseEntity() {
-
-    val testCases: List<TestCase> get() = _testCases
-    val category: List<String> get() = _category
+) : BaseEntity() {
 
     companion object {
         fun create(
@@ -52,10 +58,20 @@ open class Problem(
             category: List<String>
         ): Problem {
             require(testCases.size >= 5) { "테스트 케이스는 최소 5개 이상이어야 합니다." }
-            val solved = Solved(0, 0, 0.0)
-            val problem = Problem(title, author, description, limit, mutableListOf(), source, solved, mutableListOf())
-            problem._testCases.addAll(testCases.map { it.withProblem(problem) })
-            problem._category.addAll(category)
+
+            val problem = Problem(
+                title = title,
+                author = author,
+                description = description,
+                limit = limit,
+                source = source,
+                solved = Solved(0, 0, 0.0)
+            )
+
+            testCases.forEach { it.withProblem(problem) }
+            problem.testCases.addAll(testCases)
+            problem.category.addAll(category)
+
             return problem
         }
     }
@@ -73,15 +89,22 @@ open class Problem(
         this.limit = limit
         this.source = source
 
-        _testCases.clear()
-        _testCases.addAll(testCases.map { it.withProblem(this) })
+        this.testCases.clear()
+        testCases.forEach { it.withProblem(this) }
+        this.testCases.addAll(testCases)
 
-        _category.clear()
-        _category.addAll(category)
+        this.category.clear()
+        this.category.addAll(category)
     }
 
-    fun addTestCases(testCases: List<TestCase>): Problem {
-        _testCases.addAll(testCases.map { it.withProblem(this) })
+    fun addTestCases(newTestCases: List<TestCase>): Problem {
+        newTestCases.forEach { it.withProblem(this) }
+        this.testCases.addAll(newTestCases)
+        return this
+    }
+
+    fun filterVisibleTestCases(): Problem {
+        this.testCases = this.testCases.filter { it.isShow }.toMutableList()
         return this
     }
 }
