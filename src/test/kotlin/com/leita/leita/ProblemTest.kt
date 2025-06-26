@@ -1,20 +1,23 @@
 package com.leita.leita
 
 import com.leita.leita.domain.problem.*
-import com.leita.leita.fixtures.DomainFixtures
+import com.leita.leita.fixtures.DummyDescription
+import com.leita.leita.fixtures.DummyLimit
+import com.leita.leita.fixtures.DummyTestCases
+import com.leita.leita.fixtures.DummyUser
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.assertj.core.api.Assertions.assertThat
 
 class ProblemTest {
 
-    private val author = DomainFixtures.DummyUser()
-    private val description = DomainFixtures.DummyDescription()
-    private val limit = DomainFixtures.DummyLimit()
+    private val author = DummyUser()
+    private val description = DummyDescription()
+    private val limit = DummyLimit()
 
     @Test
     fun `create 메서드는 테스트 케이스 5개 미만이면 예외를 던진다`() {
-        val testCases = List(4) { TestCase("input$it", "output$it") }
+        val testCases = DummyTestCases(4)
 
         val exception = assertThrows<IllegalArgumentException> {
             Problem.create(
@@ -32,14 +35,13 @@ class ProblemTest {
 
     @Test
     fun `create 메서드는 정상적으로 Problem 객체를 생성한다`() {
-        val testCases = List(5) { TestCase("input$it", "output$it") }
 
         val problem = Problem.create(
             title = "Title",
             author = author,
             description = description,
             limit = limit,
-            testCases = testCases,
+            testCases = DummyTestCases(5),
             source = "source",
             category = listOf("cat1", "cat2")
         )
@@ -51,7 +53,7 @@ class ProblemTest {
 
     @Test
     fun `update 메서드는 필드와 테스트 케이스, 카테고리를 갱신한다`() {
-        val initialTestCases = List(5) { TestCase("input$it", "output$it") }
+        val initialTestCases = DummyTestCases(5)
         val problem = Problem.create(
             title = "Old Title",
             author = author,
@@ -62,9 +64,9 @@ class ProblemTest {
             category = listOf("oldCat")
         )
 
-        val newDescription = DomainFixtures.DummyDescription()
-        val newLimit = DomainFixtures.DummyLimit()
-        val newTestCases = List(6) { TestCase("newInput$it", "newOutput$it") }
+        val newDescription = DummyDescription()
+        val newLimit = DummyLimit()
+        val newTestCases = DummyTestCases(6)
         val newCategory = listOf("newCat1", "newCat2")
 
         problem.update(

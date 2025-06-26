@@ -46,7 +46,7 @@ class ProblemService(
             request.title, request.description, request.limit,
             request.testCases, request.source, request.category
         )
-        System.out.println("Updated problem: ${problem.testCases.size}")
+
         problemRepository.save(problem)
         return CreateProblemResponse(problemId)
     }
@@ -83,20 +83,22 @@ class ProblemService(
             filter = filter?.name,
             pageable = pageable
         )
+        problems.forEach { it.filterVisibleTestCases() }
+
         return ProblemMapper.toProblemsResponse(problems)
     }
 
-    fun getProblem(id: Long): ProblemDetailResponse {
-        val problem = problemRepository.findById(id)
-            .orElseThrow { CustomException("Problem with id: $id not found", HttpStatus.NOT_FOUND) }
+    fun getProblem(problemId: Long): ProblemDetailResponse {
+        val problem = problemRepository.findProblemById(problemId)
+            ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
-        return ProblemMapper.toProblemDetailResponse(problem)
+        return ProblemMapper.toProblemDetailResponse(problem.filterVisibleTestCases())
     }
 
     fun updateSolved(problemId: Long, isSolved: Boolean) {
-        val problem = problemRepository.findById(problemId)
-            .orElseThrow { CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND) }
+        val problem = problemRepository.findProblemById(problemId)
+            ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
         problem.solved.updateSolved(isSolved)
-        problemRepository.save(problem)
+        problemRepository.save(problem.filterVisibleTestCases())
     }
 }

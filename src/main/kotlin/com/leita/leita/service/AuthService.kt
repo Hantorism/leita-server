@@ -8,8 +8,6 @@ import com.leita.leita.controller.auth.AuthMapper
 import com.leita.leita.controller.auth.request.OAuthRequest
 import com.leita.leita.controller.auth.response.InfoResponse
 import com.leita.leita.controller.auth.response.JwtResponse
-import com.leita.leita.controller.dto.auth.request.*
-import com.leita.leita.controller.dto.auth.response.*
 import com.leita.leita.domain.User
 import com.leita.leita.repository.UserRepository
 import org.springframework.http.HttpStatus
