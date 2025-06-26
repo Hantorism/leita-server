@@ -5,13 +5,19 @@ import com.leita.leita.controller.auth.response.InfoResponse
 import com.leita.leita.controller.auth.response.JwtResponse
 import com.leita.leita.controller.dto.BaseResponse
 import com.leita.leita.service.AuthService
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/auth")
 class AuthController(private val authService: AuthService) {
 
     @PostMapping("/oauth")
-    fun register(@RequestBody  request: OAuthRequest): ResponseEntity<BaseResponse<JwtResponse>> {
+    fun register(@RequestBody request: OAuthRequest): ResponseEntity<BaseResponse<JwtResponse>> {
         val response = authService.oauth(request)
         val wrappedResponse: BaseResponse<JwtResponse> = BaseResponse("로그인 완료", response)
         return ResponseEntity.ok(wrappedResponse)

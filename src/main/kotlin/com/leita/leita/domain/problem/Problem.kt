@@ -3,7 +3,6 @@ package com.leita.leita.domain.problem
 import com.leita.leita.domain.User
 import com.leita.leita.repository.BaseEntity
 import jakarta.persistence.*
-import kotlin.collections.map
 
 @Entity
 @Table(name = "problem")
@@ -13,7 +12,7 @@ open class Problem(
     @Column(nullable = false)
     open var title: String,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     open val author: User,
 
@@ -23,8 +22,8 @@ open class Problem(
     @Column(nullable = false)
     open var limit: Limit,
 
-    @OneToMany(mappedBy = "problem", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    open var testCases: MutableList<TestCase> = mutableListOf(),
+    @OneToMany(mappedBy = "problem", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    private val _testCases: MutableList<TestCase> = mutableListOf(),
 
     @Column
     open var source: String,
@@ -34,10 +33,13 @@ open class Problem(
 
     @ElementCollection
     @CollectionTable(name = "problem_category", joinColumns = [JoinColumn(name = "problem_id")])
-    @Column
-    open var category: List<String>,
+    @Column(name = "category")
+    private val _category: MutableList<String> = mutableListOf(),
 
     ) : BaseEntity() {
+
+    val testCases: List<TestCase> get() = _testCases
+    val category: List<String> get() = _category
 
     companion object {
         fun create(
@@ -51,25 +53,35 @@ open class Problem(
         ): Problem {
             require(testCases.size >= 5) { "테스트 케이스는 최소 5개 이상이어야 합니다." }
             val solved = Solved(0, 0, 0.0)
-            return Problem(title, author, description, limit, testCases.toMutableList(), source, solved, category)
+            val problem = Problem(title, author, description, limit, mutableListOf(), source, solved, mutableListOf())
+            problem._testCases.addAll(testCases.map { it.withProblem(problem) })
+            problem._category.addAll(category)
+            return problem
         }
     }
 
     fun update(
-        title: String, description: Description, limit: Limit,
-        testCases: List<TestCase>, source: String, category: List<String>
+        title: String,
+        description: Description,
+        limit: Limit,
+        testCases: List<TestCase>,
+        source: String,
+        category: List<String>
     ) {
-        val updatedTestCases = testCases.map { it.createTestCase(this) }
         this.title = title
         this.description = description
         this.limit = limit
-        this.testCases = updatedTestCases.toMutableList()
         this.source = source
-        this.category = category
+
+        _testCases.clear()
+        _testCases.addAll(testCases.map { it.withProblem(this) })
+
+        _category.clear()
+        _category.addAll(category)
     }
 
     fun addTestCases(testCases: List<TestCase>): Problem {
-        this.testCases += testCases
+        _testCases.addAll(testCases.map { it.withProblem(this) })
         return this
     }
 }
