@@ -13,14 +13,17 @@ open class TestCase(
     open var input: String,
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    open var output: String,
+    open var output: String
+
+) : BaseEntity() {
 
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_id", nullable = false)
     open var problem: Problem? = null
-): BaseEntity() {
-    fun createTestCase(problem: Problem): TestCase {
+        protected set
+
+    fun withProblem(problem: Problem): TestCase {
         this.problem = problem
         return this
     }

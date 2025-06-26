@@ -3,8 +3,8 @@ plugins {
 	kotlin("plugin.spring") version "1.9.25"
 	id("org.springframework.boot") version "3.4.1"
 	id("io.spring.dependency-management") version "1.1.7"
-	id("org.jetbrains.kotlin.plugin.noarg") version "1.9.0"
-	id("org.jetbrains.kotlin.plugin.jpa") version "1.9.0"
+	id("org.jetbrains.kotlin.plugin.noarg") version "1.9.25"
+	id("org.jetbrains.kotlin.plugin.jpa") version "1.9.25"
 }
 
 noArg {
@@ -20,10 +20,8 @@ java {
 	}
 }
 
-configurations {
-	compileOnly {
-		extendsFrom(configurations.annotationProcessor.get())
-	}
+configurations.compileOnly {
+	extendsFrom(configurations.annotationProcessor.get())
 }
 
 repositories {
@@ -51,12 +49,12 @@ dependencies {
 
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-	testImplementation("org.springframework.security:spring-security-test")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
+
+	testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+	testImplementation("org.assertj:assertj-core:3.25.3")
+	testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.23")
 }
 
 tasks.withType<Test> {
