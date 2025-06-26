@@ -19,9 +19,7 @@ class ProblemMapper {
                 source = request.source,
                 category = request.category
             )
-
-            val testCases = request.testCases.map { it.createTestCase(problem) }
-            return problem.addTestCases(testCases)
+            return problem.addTestCases(request.testCases)
         }
 
         fun toProblemsResponse(problems: Page<Problem>): ProblemsResponse {

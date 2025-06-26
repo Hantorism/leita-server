@@ -46,7 +46,7 @@ class ProblemService(
             request.title, request.description, request.limit,
             request.testCases, request.source, request.category
         )
-
+        System.out.println("Updated problem: ${problem.testCases.size}")
         problemRepository.save(problem)
         return CreateProblemResponse(problemId)
     }
@@ -57,9 +57,9 @@ class ProblemService(
             ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
 
         val problem = problemRepository.findById(problemId)
-            ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
+            .orElseThrow { CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND) }
 
-        if(problem.get().author.id != user.id) {
+        if(problem.author.id != user.id) {
             throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
         }
         problemRepository.deleteById(problemId)
