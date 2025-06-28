@@ -37,6 +37,27 @@ open class Judge(
     @Enumerated(EnumType.STRING)
     open val type: JudgeType
 ) : BaseEntity() {
+
+    companion object {
+        fun create(
+            problemId: Long,
+            user: User,
+            language: Language,
+            type: JudgeType
+        ): Judge {
+            return Judge(
+                problemId,
+                user,
+                used = UsedInfo(
+                    memory = 0,
+                    time = 0,
+                    language,
+                ),
+                type = type
+            )
+        }
+    }
+
     fun updateSizeOfCode(code: String) {
         this.sizeOfCode = Base64.getDecoder().decode(code).size.toLong()
     }

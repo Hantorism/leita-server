@@ -10,11 +10,11 @@ import com.leita.leita.controller.dto.judge.response.RunResponse
 import com.leita.leita.domain.judge.Judge
 import com.leita.leita.domain.judge.JudgeType
 import com.leita.leita.domain.judge.Result
-import com.leita.leita.domain.judge.UsedInfo
 import com.leita.leita.port.judge.JudgePort
 import com.leita.leita.port.judge.dto.response.JudgeWCResponse
 import com.leita.leita.port.judge.dto.response.RunWCResponse
 import com.leita.leita.repository.JudgeRepository
+import com.leita.leita.repository.ProblemRepository
 import com.leita.leita.repository.UserRepository
 import jakarta.transaction.Transactional
 import org.springframework.http.HttpStatus
@@ -26,26 +26,18 @@ class JudgeService(
     private val judgeRepository: JudgeRepository,
     private val jwtUtils: JwtUtils,
     private val userRepository: UserRepository,
-    private val problemService: ProblemService
+    private val problemService: ProblemService,
+    private val problemRepository: ProblemRepository
 ) {
     @Transactional
     fun submit(problemId: Long, request: SubmitRequest): SubmitResponse {
         val email = jwtUtils.extractEmail()
         val user = userRepository.findByEmail(email)
             ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
-        judgeRepository.findById(problemId)
+        val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
-        val submit = Judge(
-            problemId,
-            user,
-            used = UsedInfo(
-                memory = 0,
-                time = 0,
-                language = request.language,
-            ),
-            type = JudgeType.SUBMIT
-        )
+        val submit = Judge.create(problem.id, user, request.language, JudgeType.SUBMIT)
         val submitId = judgeRepository.save(submit).id
 
         val response: JudgeWCResponse = judgePort.submit(problemId, submitId, request)
@@ -62,20 +54,11 @@ class JudgeService(
         val email = jwtUtils.extractEmail()
         val user = userRepository.findByEmail(email)
             ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
-        judgeRepository.findById(problemId)
+        val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
-        val submit = Judge(
-            problemId,
-            user,
-            used = UsedInfo(
-                memory = 0,
-                time = 0,
-                language = request.language,
-            ),
-            type = JudgeType.RUN
-        )
-        val submitId = judgeRepository.save(submit).id
+        val run = Judge.create(problem.id, user, request.language, JudgeType.RUN)
+        val submitId = judgeRepository.save(run).id
 
         val response: List<RunWCResponse> = judgePort.run(problemId, submitId, request)
         return JudgeMapper.toRunResponse(response)
@@ -83,7 +66,9 @@ class JudgeService(
 
     fun getJudges(problemId: Long?): List<Judge> {
         if(problemId != null) {
-            return judgeRepository.findAllByProblemIdAndType(problemId, JudgeType.SUBMIT)
+            val problem = problemRepository.findProblemByProblemId(problemId)
+                ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
+            return judgeRepository.findAllByProblemIdAndType(problem.id, JudgeType.SUBMIT)
         } else {
             val email = jwtUtils.extractEmail()
             val user = userRepository.findByEmail(email)

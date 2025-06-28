@@ -1,27 +1,12 @@
 package com.leita.leita.controller.problem
 
-import com.leita.leita.controller.problem.request.CreateProblemRequest
 import com.leita.leita.controller.problem.response.ProblemDetailResponse
 import com.leita.leita.controller.problem.response.ProblemsResponse
-import com.leita.leita.domain.User
 import com.leita.leita.domain.problem.Problem
 import org.springframework.data.domain.Page
 
 class ProblemMapper {
     companion object {
-        fun fromCreateProblemRequest(author: User, request: CreateProblemRequest): Problem {
-            val problem = Problem.create(
-                title = request.title,
-                author,
-                description = request.description,
-                limit = request.limit,
-                testCases = request.testCases,
-                source = request.source,
-                category = request.category
-            )
-            return problem.addTestCases(request.testCases)
-        }
-
         fun toProblemsResponse(problems: Page<Problem>): ProblemsResponse {
             return ProblemsResponse(
                 content = problems.content.map { toProblemDetailResponse(it) },
@@ -34,7 +19,7 @@ class ProblemMapper {
 
         fun toProblemDetailResponse(problem: Problem): ProblemDetailResponse {
             return ProblemDetailResponse(
-                problemId = problem.id,
+                problemId = problem.problemId,
                 title = problem.title,
                 authorName = problem.author.name,
                 description = problem.description,
