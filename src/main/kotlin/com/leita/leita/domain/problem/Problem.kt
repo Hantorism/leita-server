@@ -1,8 +1,10 @@
 package com.leita.leita.domain.problem
 
+import com.leita.leita.common.exception.CustomException
 import com.leita.leita.domain.User
 import com.leita.leita.repository.BaseEntity
 import jakarta.persistence.*
+import org.springframework.http.HttpStatus
 import kotlin.random.Random
 
 @Entity
@@ -62,7 +64,9 @@ open class Problem(
             category: List<String>,
             problemId: Long = generateProblemId()
         ): Problem {
-            require(testCases.size >= 5) { "테스트 케이스는 최소 5개 이상이어야 합니다." }
+            if(testCases.size < 5) {
+                throw CustomException("테스트 케이스는 최소 5개 이상이어야 합니다.", HttpStatus.BAD_REQUEST)
+            }
 
             val problem = Problem(
                 title = title,
