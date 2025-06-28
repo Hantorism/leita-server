@@ -1,11 +1,13 @@
 package com.leita.leita.domain.study
 
+import com.leita.leita.common.exception.CustomException
 import com.leita.leita.domain.User
 import com.leita.leita.repository.BaseEntity
 import jakarta.persistence.*
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.http.HttpStatus
 
 @Entity
 @Table(name = "study_class")
@@ -54,8 +56,9 @@ open class StudyClass(
             requirement: String,
             admin: User
         ): StudyClass {
-            require(title.isNotBlank()) { "스터디 제목은 필수입니다." }
-            require(description.isNotBlank()) { "스터디 설명은 필수입니다." }
+            if( requirement.isBlank() || description.isBlank() ) {
+                throw CustomException("스터디 요건은 필수입니다.", HttpStatus.BAD_REQUEST)
+            }
 
             val study = StudyClass(
                 title = title,
