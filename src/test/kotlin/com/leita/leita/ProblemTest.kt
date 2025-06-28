@@ -27,7 +27,7 @@ class ProblemTest {
                 limit = limit,
                 testCases = testCases,
                 source = "source",
-                category = listOf("cat")
+                category = listOf("cat"),
             )
         }
         assertThat(exception.message).isEqualTo("테스트 케이스는 최소 5개 이상이어야 합니다.")
