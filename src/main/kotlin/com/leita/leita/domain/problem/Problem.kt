@@ -3,6 +3,7 @@ package com.leita.leita.domain.problem
 import com.leita.leita.domain.User
 import com.leita.leita.repository.BaseEntity
 import jakarta.persistence.*
+import kotlin.random.Random
 
 @Entity
 @Table(name = "problem")
@@ -43,7 +44,10 @@ open class Problem(
     @ElementCollection
     @CollectionTable(name = "problem_category", joinColumns = [JoinColumn(name = "problem_id")])
     @Column(name = "category")
-    open var category: MutableList<String> = mutableListOf()
+    open var category: MutableList<String> = mutableListOf(),
+
+    @Column(nullable = false)
+    open val problemId: Long
 
 ) : BaseEntity() {
 
@@ -55,7 +59,8 @@ open class Problem(
             limit: Limit,
             testCases: List<TestCase>,
             source: String,
-            category: List<String>
+            category: List<String>,
+            problemId: Long = generateProblemId()
         ): Problem {
             require(testCases.size >= 5) { "테스트 케이스는 최소 5개 이상이어야 합니다." }
 
@@ -65,7 +70,8 @@ open class Problem(
                 description = description,
                 limit = limit,
                 source = source,
-                solved = Solved(0, 0, 0.0)
+                solved = Solved(0, 0, 0.0),
+                problemId = problemId
             )
 
             testCases.forEach { it.withProblem(problem) }
@@ -73,6 +79,21 @@ open class Problem(
             problem.category.addAll(category)
 
             return problem
+        }
+
+        fun generateProblemId(): Long {
+            return Random.nextInt(10000, 100000).toLong()
+        }
+
+        fun generateProblemId(excludeProblemId: Long): Long {
+            val maxAttempts = 10
+            repeat(maxAttempts) {
+                val problemId = Random.nextInt(10000, 100000).toLong()
+                if(!problemId.equals(excludeProblemId)) {
+                    return problemId
+                }
+            }
+            throw IllegalStateException("문제 ID 생성 실패: $maxAttempts 회 시도 중 중복 발생")
         }
     }
 
@@ -95,12 +116,6 @@ open class Problem(
 
         this.category.clear()
         this.category.addAll(category)
-    }
-
-    fun addTestCases(newTestCases: List<TestCase>): Problem {
-        newTestCases.forEach { it.withProblem(this) }
-        this.testCases.addAll(newTestCases)
-        return this
     }
 
     fun filterVisibleTestCases(): Problem {

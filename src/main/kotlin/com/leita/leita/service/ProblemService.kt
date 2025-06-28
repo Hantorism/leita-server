@@ -9,6 +9,7 @@ import com.leita.leita.controller.problem.response.CreateProblemResponse
 import com.leita.leita.controller.problem.response.DeleteProblemResponse
 import com.leita.leita.controller.problem.response.ProblemDetailResponse
 import com.leita.leita.controller.problem.response.ProblemsResponse
+import com.leita.leita.domain.problem.Problem
 import com.leita.leita.repository.ProblemRepository
 import com.leita.leita.repository.UserRepository
 import org.springframework.data.domain.PageRequest
@@ -27,8 +28,23 @@ class ProblemService(
         val user = userRepository.findByEmail(email)
             ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
 
-        val problem = ProblemMapper.fromCreateProblemRequest(user, request)
-        val problemId = problemRepository.save(problem).id
+        var problemId = Problem.generateProblemId()
+        if( problemRepository.existsProblemByProblemId(problemId) ) {
+            problemId = Problem.generateProblemId(problemId)
+        }
+
+        var problem = Problem.create(
+            title = request.title,
+            author = user,
+            description = request.description,
+            limit = request.limit,
+            testCases = request.testCases,
+            source = request.source,
+            category = request.category,
+            problemId
+        )
+        problemRepository.save(problem)
+
         return CreateProblemResponse(problemId)
     }
 
@@ -37,8 +53,8 @@ class ProblemService(
         val user = userRepository.findByEmail(email)
             ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
 
-        val problem = problemRepository.findById(problemId)
-            .orElseThrow { CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND) }
+        val problem = problemRepository.findProblemByProblemId(problemId)
+            ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
         if (problem.author.id != user.id) {
             throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
         }
@@ -56,8 +72,8 @@ class ProblemService(
         val user = userRepository.findByEmail(email)
             ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
 
-        val problem = problemRepository.findById(problemId)
-            .orElseThrow { CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND) }
+        val problem = problemRepository.findProblemByProblemId(problemId)
+            ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
         if(problem.author.id != user.id) {
             throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
@@ -89,14 +105,14 @@ class ProblemService(
     }
 
     fun getProblem(problemId: Long): ProblemDetailResponse {
-        val problem = problemRepository.findProblemById(problemId)
+        val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
         return ProblemMapper.toProblemDetailResponse(problem.filterVisibleTestCases())
     }
 
     fun updateSolved(problemId: Long, isSolved: Boolean) {
-        val problem = problemRepository.findProblemById(problemId)
+        val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
         problem.solved.updateSolved(isSolved)
         problemRepository.save(problem.filterVisibleTestCases())
