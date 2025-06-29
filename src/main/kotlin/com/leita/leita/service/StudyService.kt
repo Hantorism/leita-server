@@ -11,7 +11,6 @@ import com.leita.leita.controller.study.response.StudyDetailResponse
 import com.leita.leita.domain.study.Study
 import com.leita.leita.repository.StudyClassRepository
 import com.leita.leita.repository.StudyRepository
-import com.leita.leita.repository.UserRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service
 class StudyService(
     private val studyRepository: StudyRepository,
     private val studyClassRepository: StudyClassRepository,
-    private val userRepository: UserRepository,
     private val jwtUtils: JwtUtils,
 ) {
 
@@ -76,11 +74,8 @@ class StudyService(
         return StudyMapper.toStudyCreateResponse(studyClass.id)
     }
 
-
     fun attend(id: Long) {
-        val email = jwtUtils.extractEmail()
-        val member = userRepository.findByEmail(email)
-            ?: throw CustomException("Member not found", HttpStatus.NOT_FOUND)
+        val member = jwtUtils.extractUser()
         val study = studyRepository.findById(id)
             .orElseThrow { CustomException("Study not found", HttpStatus.NOT_FOUND) }
         val studyClass = studyClassRepository.findById(study.studyClassId)

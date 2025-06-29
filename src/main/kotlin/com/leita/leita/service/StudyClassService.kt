@@ -93,10 +93,7 @@ class StudyClassService(
     }
 
     fun create(request: StudyClassCreateRequest): StudyClassCreateResponse {
-        val adminEmail = jwtUtils.extractEmail()
-        val admin = userRepository.findByEmail(adminEmail)
-            ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
-
+        val admin = jwtUtils.extractUser()
         val studyClass = StudyClass.create(
             title = request.title,
             description = request.description,
@@ -109,25 +106,12 @@ class StudyClassService(
     }
 
     fun join(id: Long) {
-        val email: String = jwtUtils.extractEmail()
-        val user: User? = userRepository.findByEmail(email)
+        val user = jwtUtils.extractUser()
 
-        val study: StudyClass = studyClassRepository.findById(id).get()
+        val studyClass: StudyClass = studyClassRepository.findById(id).get()
 
-        if(user != null) {
-            study.join(user)
-            mailPort.sendAll(MailType.STUDY_MEMBER_JOIN, study.admins.map { it.email })
-        }
-    }
-
-    fun pending(id: Long): List<User> {
-        val adminEmail: String = jwtUtils.extractEmail()
-
-        val studyClass: StudyClass = studyClassRepository.findById(id).orElseThrow {
-            throw CustomException("Study Class not found", HttpStatus.NOT_FOUND)
-        }
-        studyClass.checkAdminByEmail(adminEmail)
-        return studyClass.pendings
+        studyClass.join(user)
+        mailPort.sendAll(MailType.STUDY_MEMBER_JOIN, studyClass.admins.map { it.email })
     }
 
     fun approve(id: Long, request: StudyClassMemberRequest) {
