@@ -41,8 +41,8 @@ open class StudyClass(
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "study_pendings",
-        joinColumns = [JoinColumn(name = "study_id")],
+        name = "study_class_pendings",
+        joinColumns = [JoinColumn(name = "study_class_id")],
         inverseJoinColumns = [JoinColumn(name = "user_id")]
     )
     open var pendings: MutableList<User> = mutableListOf()
@@ -66,7 +66,6 @@ open class StudyClass(
                 requirement = requirement
             )
             study.admins.add(admin)
-            study.members.add(admin)
             return study
         }
     }
@@ -82,15 +81,24 @@ open class StudyClass(
     }
 
     fun approve(user: User) {
+        if( !pendings.contains(user) ) {
+            throw CustomException("User is not in pending list", HttpStatus.BAD_REQUEST)
+        }
         pendings.remove(user)
         members.add(user)
     }
 
     fun deny(user: User) {
+        if( !pendings.contains(user) ) {
+            throw CustomException("User is not in pending list", HttpStatus.BAD_REQUEST)
+        }
         pendings.remove(user)
     }
 
     fun leave(user: User) {
+        if( !members.contains(user) ) {
+            throw CustomException("User is not a member of the study", HttpStatus.BAD_REQUEST)
+        }
         members.remove(user)
     }
 
@@ -99,6 +107,9 @@ open class StudyClass(
     }
 
     fun removeAdmin(user: User) {
+        if( admins.contains(user) ) {
+            throw CustomException("User is not an admin of the study", HttpStatus.BAD_REQUEST)
+        }
         admins.remove(user)
     }
 
@@ -110,20 +121,26 @@ open class StudyClass(
         return admins.any { it.email == email }
     }
 
-    fun changeRole(user: User, newRole: StudyRole): Boolean {
-        val roleMap = mapOf(
-            StudyRole.ADMIN to Pair(admins, members),
-            StudyRole.MEMBER to Pair(members, admins)
-        )
-
-        roleMap[newRole]?.let { (addTo, removeFrom) ->
-            addTo.add(user)
-            if (removeFrom.contains(user)) {
-                removeFrom.remove(user)
-            }
-            return true
+    fun changeToRoleAdmin(user: User) {
+        if( !members.contains(user) ) {
+            throw CustomException("User is not a member of the study", HttpStatus.BAD_REQUEST)
         }
-        return false
+        if( admins.contains(user) ) {
+            throw CustomException("User is already an admin", HttpStatus.BAD_REQUEST)
+        }
+        members.remove(user)
+        admins.add(user)
+    }
+
+    fun changeToRoleMember(user: User) {
+        if( !admins.contains(user) ) {
+            throw CustomException("User is not an admin of the study", HttpStatus.BAD_REQUEST)
+        }
+        if( members.contains(user) ) {
+            throw CustomException("User is already an member", HttpStatus.BAD_REQUEST)
+        }
+        admins.remove(user)
+        members.add(user)
     }
 
     fun getPendingsPage(pageable: Pageable): Page<User> {
