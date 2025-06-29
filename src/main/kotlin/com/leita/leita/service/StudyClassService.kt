@@ -46,9 +46,7 @@ class StudyClassService(
         val adminEmail = jwtUtils.extractEmail()
         val studyClass = studyClassRepository.findById(id)
             .orElseThrow { CustomException("Study Class not found", HttpStatus.NOT_FOUND) }
-        if (!studyClass.isAdminByEmail(adminEmail)) {
-            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
-        }
+        studyClass.checkAdminByEmail(adminEmail)
 
         studyClass.update(request.title, request.description, request.requirement)
         studyClassRepository.save(studyClass)
@@ -59,9 +57,7 @@ class StudyClassService(
         val adminEmail = jwtUtils.extractEmail()
         val studyClass = studyClassRepository.findById(id)
             .orElseThrow { CustomException("Study Class not found", HttpStatus.NOT_FOUND) }
-        if (!studyClass.isAdminByEmail(adminEmail)) {
-            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
-        }
+        studyClass.checkAdminByEmail(adminEmail)
 
         studyClassRepository.deleteById(id)
     }
@@ -83,17 +79,15 @@ class StudyClassService(
 
     fun changeRole(id: Long, request: StudyClassRoleChangeRequest) {
         val adminEmail = jwtUtils.extractEmail()
-        val study = studyClassRepository.findById(id)
+        val studyClass = studyClassRepository.findById(id)
             .orElseThrow { CustomException("Study Class not found", HttpStatus.NOT_FOUND) }
-        if (!study.isAdminByEmail(adminEmail)) {
-            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
-        }
+        studyClass.checkAdminByEmail(adminEmail)
 
         val user = userRepository.findByEmail(request.email)
             ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
         when (request.newRole) {
-            StudyRole.ADMIN -> study.changeToRoleAdmin(user)
-            StudyRole.MEMBER -> study.changeToRoleMember(user)
+            StudyRole.ADMIN -> studyClass.changeToRoleAdmin(user)
+            StudyRole.MEMBER -> studyClass.changeToRoleMember(user)
             else -> throw CustomException("Invalid Study Role", HttpStatus.BAD_REQUEST)
         }
     }
@@ -127,15 +121,12 @@ class StudyClassService(
     }
 
     fun pending(id: Long): List<User> {
-        val email: String = jwtUtils.extractEmail()
+        val adminEmail: String = jwtUtils.extractEmail()
 
         val studyClass: StudyClass = studyClassRepository.findById(id).orElseThrow {
             throw CustomException("Study Class not found", HttpStatus.NOT_FOUND)
         }
-
-        if (!studyClass.isAdminByEmail(email)) {
-            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
-        }
+        studyClass.checkAdminByEmail(adminEmail)
         return studyClass.pendings
     }
 
@@ -143,38 +134,29 @@ class StudyClassService(
         val adminEmail = jwtUtils.extractEmail()
         val studyClass: StudyClass = studyClassRepository.findById(id).get()
 
-        if(studyClass.isAdminByEmail(adminEmail)) {
-            val user = userRepository.findByEmail(request.email)
-                ?: throw CustomException("User not found", HttpStatus.NOT_FOUND)
-            studyClass.approve(user)
-        } else {
-            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
-        }
+        studyClass.checkAdminByEmail(adminEmail)
+        val user = userRepository.findByEmail(request.email)
+            ?: throw CustomException("User not found", HttpStatus.NOT_FOUND)
+        studyClass.approve(user)
     }
 
     fun deny(id: Long, request: StudyClassMemberRequest) {
         val adminEmail = jwtUtils.extractEmail()
         val studyClass: StudyClass = studyClassRepository.findById(id).get()
 
-        if(studyClass.isAdminByEmail(adminEmail)) {
-            val user = userRepository.findByEmail(request.email)
-                ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
-            studyClass.deny(user)
-        } else {
-            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
-        }
+        studyClass.checkAdminByEmail(adminEmail)
+        val user = userRepository.findByEmail(request.email)
+            ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
+        studyClass.deny(user)
     }
 
     fun leave(id: Long) {
         val memberEmail = jwtUtils.extractEmail()
-        val study: StudyClass = studyClassRepository.findById(id).get()
+        val studyClass: StudyClass = studyClassRepository.findById(id).get()
 
-        if(study.isMemberByEmail(memberEmail)) {
-            val user: User = userRepository.findByEmail(memberEmail)
-                ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
-            study.leave(user)
-        } else {
-            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
-        }
+        studyClass.checkMemberByEmail(memberEmail)
+        val user: User = userRepository.findByEmail(memberEmail)
+            ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
+        studyClass.leave(user)
     }
 }
