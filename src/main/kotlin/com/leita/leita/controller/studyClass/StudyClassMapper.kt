@@ -2,10 +2,8 @@ package com.leita.leita.controller.dto.auth
 
 import com.leita.leita.controller.studyClass.response.StudyClassCreateResponse
 import com.leita.leita.controller.studyClass.response.StudyClassDetailResponse
-import com.leita.leita.controller.studyClass.response.StudyClassPendingResponse
 import com.leita.leita.controller.studyClass.response.StudyClassesResponse
 import com.leita.leita.domain.study.StudyClass
-import com.leita.leita.domain.User
 import org.springframework.data.domain.Page
 
 class StudyClassMapper {
@@ -34,16 +32,6 @@ class StudyClassMapper {
 
         fun toStudyCreateResponse(id: Long): StudyClassCreateResponse {
             return StudyClassCreateResponse(id)
-        }
-
-        fun toStudyPendingResponse(pendings: Page<User>): StudyClassPendingResponse {
-            return StudyClassPendingResponse(
-                content = pendings.content.map { it },
-                currentPage = pendings.number,
-                totalPages = pendings.totalPages,
-                totalElements = pendings.totalElements,
-                size = pendings.size
-            )
         }
     }
 }

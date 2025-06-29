@@ -14,12 +14,11 @@ import com.leita.leita.repository.StudyClassRepository
 import com.leita.leita.repository.UserRepository
 import com.leita.leita.controller.studyClass.response.StudyClassCreateResponse
 import com.leita.leita.controller.studyClass.response.StudyClassDetailResponse
-import com.leita.leita.controller.studyClass.response.StudyClassPendingResponse
 import com.leita.leita.controller.studyClass.response.StudyClassesResponse
 import com.leita.leita.controller.studyClass.StudyRole
+import com.leita.leita.controller.studyClass.request.StudyClassMemberRequest
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
@@ -127,7 +126,7 @@ class StudyClassService(
         }
     }
 
-    fun pending(id: Long, page: Int, size: Int): StudyClassPendingResponse {
+    fun pending(id: Long): List<User> {
         val email: String = jwtUtils.extractEmail()
 
         val studyClass: StudyClass = studyClassRepository.findById(id).orElseThrow {
@@ -137,35 +136,30 @@ class StudyClassService(
         if (!studyClass.isAdminByEmail(email)) {
             throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
         }
-
-        val pageable: Pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"))
-        val pendings = studyClass.getPendingsPage(pageable)
-
-        return StudyClassMapper.toStudyPendingResponse(pendings)
+        return studyClass.pendings
     }
 
-    fun approve(id: Long, email: String) {
+    fun approve(id: Long, request: StudyClassMemberRequest) {
         val adminEmail = jwtUtils.extractEmail()
-        val study: StudyClass = studyClassRepository.findById(id).get()
+        val studyClass: StudyClass = studyClassRepository.findById(id).get()
 
-        if(study.isAdminByEmail(adminEmail)) {
-            val user: User? = userRepository.findByEmail(email)
-            if(user != null) {
-                study.approve(user)
-            }
+        if(studyClass.isAdminByEmail(adminEmail)) {
+            val user = userRepository.findByEmail(request.email)
+                ?: throw CustomException("User not found", HttpStatus.NOT_FOUND)
+            studyClass.approve(user)
         } else {
             throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
         }
     }
 
-    fun deny(id: Long, email: String) {
+    fun deny(id: Long, request: StudyClassMemberRequest) {
         val adminEmail = jwtUtils.extractEmail()
-        val study: StudyClass = studyClassRepository.findById(id).get()
+        val studyClass: StudyClass = studyClassRepository.findById(id).get()
 
-        if(study.isAdminByEmail(adminEmail)) {
-            val user: User = userRepository.findByEmail(email)
+        if(studyClass.isAdminByEmail(adminEmail)) {
+            val user = userRepository.findByEmail(request.email)
                 ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
-            study.deny(user)
+            studyClass.deny(user)
         } else {
             throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
         }
