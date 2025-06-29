@@ -3,11 +3,11 @@ package com.leita.leita.controller.studyClass
 import com.leita.leita.controller.dto.BaseResponse
 import com.leita.leita.service.StudyClassService
 import com.leita.leita.controller.studyClass.request.StudyClassCreateRequest
+import com.leita.leita.controller.studyClass.request.StudyClassMemberRequest
 import com.leita.leita.controller.studyClass.request.StudyClassRoleChangeRequest
 import com.leita.leita.controller.studyClass.request.StudyClassUpdateRequest
 import com.leita.leita.controller.studyClass.response.StudyClassCreateResponse
 import com.leita.leita.controller.studyClass.response.StudyClassDetailResponse
-import com.leita.leita.controller.studyClass.response.StudyClassPendingResponse
 import com.leita.leita.controller.studyClass.response.StudyClassesResponse
 import com.leita.leita.domain.User
 import org.springframework.http.ResponseEntity
@@ -71,7 +71,7 @@ class StudyClassController(private val studyClassService: StudyClassService) {
         return ResponseEntity.ok(wrappedResponse)
     }
 
-    @PostMapping("/{id}/role-change")
+    @PutMapping("/{id}/role-change")
     fun changeRole(
         @PathVariable id: Long, @RequestBody request: StudyClassRoleChangeRequest
     ): ResponseEntity<BaseResponse<Void>> {
@@ -81,24 +81,22 @@ class StudyClassController(private val studyClassService: StudyClassService) {
     }
 
     @GetMapping("/{id}/pendings")
-    fun pending(
-        @PathVariable id: Long, @RequestParam page: Int = 0, @RequestParam size: Int = 10
-    ): ResponseEntity<BaseResponse<StudyClassPendingResponse>> {
-        val response = studyClassService.pending(id, page, size)
-        val wrappedResponse: BaseResponse<StudyClassPendingResponse> = BaseResponse("스터디 참가 조회 완료", response)
+    fun pending(@PathVariable id: Long): ResponseEntity<BaseResponse<List<User>>> {
+        val response = studyClassService.pending(id)
+        val wrappedResponse: BaseResponse<List<User>> = BaseResponse("스터디 참가 조회 완료", response)
         return ResponseEntity.ok(wrappedResponse)
     }
 
-    @GetMapping("/{id}/approve")
-    fun approve(@PathVariable id: Long, @RequestParam email: String): ResponseEntity<BaseResponse<Void>> {
-        studyClassService.approve(id, email)
+    @PutMapping("/{id}/approve")
+    fun approve(@PathVariable id: Long, @RequestBody request: StudyClassMemberRequest): ResponseEntity<BaseResponse<Void>> {
+        studyClassService.approve(id, request)
         val wrappedResponse: BaseResponse<Void> = BaseResponse("스터디 참가 허용 완료", null)
         return ResponseEntity.ok(wrappedResponse)
     }
 
-    @GetMapping("/{id}/deny")
-    fun deny(@PathVariable id: Long, @RequestParam email: String): ResponseEntity<BaseResponse<Void>> {
-        studyClassService.deny(id, email)
+    @PutMapping("/{id}/deny")
+    fun deny(@PathVariable id: Long, @RequestBody request: StudyClassMemberRequest): ResponseEntity<BaseResponse<Void>> {
+        studyClassService.deny(id, request)
         val wrappedResponse: BaseResponse<Void> = BaseResponse("스터디 참가 거절 완료", null)
         return ResponseEntity.ok(wrappedResponse)
     }
