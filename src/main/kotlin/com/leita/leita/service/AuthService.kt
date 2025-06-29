@@ -50,8 +50,7 @@ class AuthService(
     }
 
     fun info(): InfoResponse {
-        val email: String = jwtUtils.extractEmail()
-        val user = userRepository.findByEmail(email) ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
+        val user = jwtUtils.extractUser()
         return AuthMapper.toInfoResponse(user)
     }
 

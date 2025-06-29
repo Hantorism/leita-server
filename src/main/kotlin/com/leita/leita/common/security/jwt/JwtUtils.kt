@@ -1,8 +1,11 @@
 package com.leita.leita.common.security.jwt
 
 import com.leita.leita.common.config.JwtConfig
+import com.leita.leita.common.exception.CustomException
 import com.leita.leita.controller.auth.response.JwtResponse
+import com.leita.leita.domain.User
 import com.leita.leita.port.cache.CachePort
+import com.leita.leita.repository.UserRepository
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.SignatureAlgorithm
@@ -21,7 +24,8 @@ import javax.crypto.spec.SecretKeySpec
 class JwtUtils(
     private val jwtProperties: JwtConfig,
     private val cachePort: CachePort,
-    private val request: HttpServletRequest
+    private val request: HttpServletRequest,
+    private val userRepository: UserRepository
 ) {
 
     fun generateToken(email: String): JwtResponse {
@@ -49,6 +53,13 @@ class JwtUtils(
 
     fun extractEmail(): String {
         return extractAllClaims().subject
+    }
+
+    fun extractUser(): User {
+        val email = extractEmail()
+        val member = userRepository.findByEmail(email)
+            ?: throw CustomException("Member not found", HttpStatus.NOT_FOUND)
+        return member
     }
 
     private fun extractJTI(): String {
