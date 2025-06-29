@@ -10,19 +10,13 @@ import com.leita.leita.domain.study.StudyClass
 import com.leita.leita.domain.User
 import com.leita.leita.port.mail.MailPort
 import com.leita.leita.port.mail.MailType
-import com.leita.leita.repository.MemberRepository
 import com.leita.leita.repository.StudyClassRepository
 import com.leita.leita.repository.UserRepository
-import com.leita.leita.controller.studyClass.response.StudyClassApproveResponse
 import com.leita.leita.controller.studyClass.response.StudyClassCreateResponse
-import com.leita.leita.controller.studyClass.response.StudyClassDenyResponse
 import com.leita.leita.controller.studyClass.response.StudyClassDetailResponse
-import com.leita.leita.controller.studyClass.response.StudyClassJoinResponse
-import com.leita.leita.controller.studyClass.response.StudyClassLeaveResponse
 import com.leita.leita.controller.studyClass.response.StudyClassPendingResponse
-import com.leita.leita.controller.studyClass.response.StudyClassRoleChangeResponse
 import com.leita.leita.controller.studyClass.response.StudyClassesResponse
-import org.springframework.data.domain.Page
+import com.leita.leita.controller.studyClass.StudyRole
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -35,7 +29,6 @@ class StudyClassService(
     private val userRepository: UserRepository,
     private val jwtUtils: JwtUtils,
     private val mailPort: MailPort,
-    private val memberRepository: MemberRepository
 ) {
 
     fun getStudyClasses(page: Int, size: Int): StudyClassesResponse {
@@ -58,7 +51,7 @@ class StudyClassService(
             throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
         }
 
-        studyClass.update(request.title, request.description, request.requirement);
+        studyClass.update(request.title, request.description, request.requirement)
         studyClassRepository.save(studyClass)
         return StudyClassMapper.toStudyClassDetailResponse(studyClass)
     }
@@ -74,18 +67,22 @@ class StudyClassService(
         studyClassRepository.deleteById(id)
     }
 
-    fun getStudyMembers(id: Long, page: Int, size: Int): StudyClassPendingResponse {
+    fun getStudyMembers(id: Long, role: StudyRole): List<User> {
         studyClassRepository.findById(id).orElseThrow {
             throw CustomException("Study Class not found", HttpStatus.NOT_FOUND)
         }
 
-        val pageable: Pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"))
-        val members: Page<User> = memberRepository.findMembersByStudyId(id, pageable)
+        val studyClass = studyClassRepository.findById(id)
+            .orElseThrow { CustomException("Study Class not found", HttpStatus.NOT_FOUND) }
 
-        return StudyClassMapper.toStudyPendingResponse(members)
+        return when (role) {
+            StudyRole.ADMIN -> studyClass.admins
+            StudyRole.MEMBER -> studyClass.members
+            StudyRole.PENDING -> studyClass.pendings
+        }
     }
 
-    fun changeRole(id: Long, request: StudyClassRoleChangeRequest): StudyClassRoleChangeResponse {
+    fun changeRole(id: Long, request: StudyClassRoleChangeRequest) {
         val adminEmail = jwtUtils.extractEmail()
         val study = studyClassRepository.findById(id)
             .orElseThrow { CustomException("Study Class not found", HttpStatus.NOT_FOUND) }
@@ -95,9 +92,11 @@ class StudyClassService(
 
         val user = userRepository.findByEmail(request.email)
             ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
-        val result = study.changeRole(user, request.newRole)
-
-        return StudyClassRoleChangeResponse(result)
+        when (request.newRole) {
+            StudyRole.ADMIN -> study.changeToRoleAdmin(user)
+            StudyRole.MEMBER -> study.changeToRoleMember(user)
+            else -> throw CustomException("Invalid Study Role", HttpStatus.BAD_REQUEST)
+        }
     }
 
     fun create(request: StudyClassCreateRequest): StudyClassCreateResponse {
@@ -116,7 +115,7 @@ class StudyClassService(
         return StudyClassMapper.toStudyCreateResponse(studyClass.id)
     }
 
-    fun join(id: Long): StudyClassJoinResponse {
+    fun join(id: Long) {
         val email: String = jwtUtils.extractEmail()
         val user: User? = userRepository.findByEmail(email)
 
@@ -125,9 +124,7 @@ class StudyClassService(
         if(user != null) {
             study.join(user)
             mailPort.sendAll(MailType.STUDY_MEMBER_JOIN, study.admins.map { it.email })
-            return StudyClassJoinResponse(true)
         }
-        return StudyClassJoinResponse(false)
     }
 
     fun pending(id: Long, page: Int, size: Int): StudyClassPendingResponse {
@@ -147,7 +144,7 @@ class StudyClassService(
         return StudyClassMapper.toStudyPendingResponse(pendings)
     }
 
-    fun approve(id: Long, email: String): StudyClassApproveResponse {
+    fun approve(id: Long, email: String) {
         val adminEmail = jwtUtils.extractEmail()
         val study: StudyClass = studyClassRepository.findById(id).get()
 
@@ -155,13 +152,13 @@ class StudyClassService(
             val user: User? = userRepository.findByEmail(email)
             if(user != null) {
                 study.approve(user)
-                return StudyClassApproveResponse(true)
             }
+        } else {
+            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
         }
-        return StudyClassApproveResponse(false)
     }
 
-    fun deny(id: Long, email: String): StudyClassDenyResponse {
+    fun deny(id: Long, email: String) {
         val adminEmail = jwtUtils.extractEmail()
         val study: StudyClass = studyClassRepository.findById(id).get()
 
@@ -169,12 +166,12 @@ class StudyClassService(
             val user: User = userRepository.findByEmail(email)
                 ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
             study.deny(user)
-            return StudyClassDenyResponse(true)
+        } else {
+            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
         }
-        throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
     }
 
-    fun leave(id: Long): StudyClassLeaveResponse {
+    fun leave(id: Long) {
         val memberEmail = jwtUtils.extractEmail()
         val study: StudyClass = studyClassRepository.findById(id).get()
 
@@ -182,8 +179,8 @@ class StudyClassService(
             val user: User = userRepository.findByEmail(memberEmail)
                 ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
             study.leave(user)
-            return StudyClassLeaveResponse(true)
+        } else {
+            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
         }
-        throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
     }
 }
