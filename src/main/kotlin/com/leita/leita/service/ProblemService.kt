@@ -21,19 +21,15 @@ import org.springframework.stereotype.Service
 class ProblemService(
     private val problemRepository: ProblemRepository,
     private val jwtUtils: JwtUtils,
-    private val userRepository: UserRepository
 ) {
     fun createProblem(request: CreateProblemRequest): CreateProblemResponse {
-        val email = jwtUtils.extractEmail()
-        val user = userRepository.findByEmail(email)
-            ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
-
+        val user = jwtUtils.extractUser()
         var problemId = Problem.generateProblemId()
         if( problemRepository.existsProblemByProblemId(problemId) ) {
             problemId = Problem.generateProblemId(problemId)
         }
 
-        var problem = Problem.create(
+        val problem = Problem.create(
             title = request.title,
             author = user,
             description = request.description,
@@ -49,10 +45,7 @@ class ProblemService(
     }
 
     fun updateProblem(problemId: Long, request: CreateProblemRequest): CreateProblemResponse {
-        val email = jwtUtils.extractEmail()
-        val user = userRepository.findByEmail(email)
-            ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
-
+        val user = jwtUtils.extractUser()
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
         if (problem.author.id != user.id) {
@@ -68,10 +61,7 @@ class ProblemService(
     }
 
     fun deleteProblem(problemId: Long): DeleteProblemResponse {
-        val email = jwtUtils.extractEmail()
-        val user = userRepository.findByEmail(email)
-            ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
-
+        val user = jwtUtils.extractUser()
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
@@ -87,9 +77,7 @@ class ProblemService(
         var userId: Long? = null
 
         if(filter != null) {
-            val email = jwtUtils.extractEmail()
-            val user = userRepository.findByEmail(email)
-                ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
+            val user = jwtUtils.extractUser()
             userId = user.id
         }
 

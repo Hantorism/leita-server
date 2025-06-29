@@ -80,13 +80,6 @@ class StudyClassController(private val studyClassService: StudyClassService) {
         return ResponseEntity.ok(wrappedResponse)
     }
 
-    @GetMapping("/{id}/pendings")
-    fun pending(@PathVariable id: Long): ResponseEntity<BaseResponse<List<User>>> {
-        val response = studyClassService.pending(id)
-        val wrappedResponse: BaseResponse<List<User>> = BaseResponse("스터디 참가 조회 완료", response)
-        return ResponseEntity.ok(wrappedResponse)
-    }
-
     @PutMapping("/{id}/approve")
     fun approve(@PathVariable id: Long, @RequestBody request: StudyClassMemberRequest): ResponseEntity<BaseResponse<Void>> {
         studyClassService.approve(id, request)

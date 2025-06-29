@@ -15,7 +15,6 @@ import com.leita.leita.port.judge.dto.response.JudgeWCResponse
 import com.leita.leita.port.judge.dto.response.RunWCResponse
 import com.leita.leita.repository.JudgeRepository
 import com.leita.leita.repository.ProblemRepository
-import com.leita.leita.repository.UserRepository
 import jakarta.transaction.Transactional
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -25,15 +24,12 @@ class JudgeService(
     private val judgePort: JudgePort,
     private val judgeRepository: JudgeRepository,
     private val jwtUtils: JwtUtils,
-    private val userRepository: UserRepository,
     private val problemService: ProblemService,
     private val problemRepository: ProblemRepository
 ) {
     @Transactional
     fun submit(problemId: Long, request: SubmitRequest): SubmitResponse {
-        val email = jwtUtils.extractEmail()
-        val user = userRepository.findByEmail(email)
-            ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
+        val user = jwtUtils.extractUser()
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
@@ -51,9 +47,7 @@ class JudgeService(
 
     @Transactional
     fun run(problemId: Long, request: RunRequest): List<RunResponse> {
-        val email = jwtUtils.extractEmail()
-        val user = userRepository.findByEmail(email)
-            ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
+        val user = jwtUtils.extractUser()
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
@@ -70,9 +64,7 @@ class JudgeService(
                 ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
             return judgeRepository.findAllByProblemIdAndType(problem.id, JudgeType.SUBMIT)
         } else {
-            val email = jwtUtils.extractEmail()
-            val user = userRepository.findByEmail(email)
-                ?: throw CustomException("User not found with email: $email", HttpStatus.UNAUTHORIZED)
+            val user = jwtUtils.extractUser()
             return judgeRepository.findAllByUserIdAndType(user.id, JudgeType.SUBMIT)
         }
     }
