@@ -43,9 +43,7 @@ class StudyService(
             .orElseThrow { CustomException("Study not found", HttpStatus.NOT_FOUND) }
         val studyClass = studyClassRepository.findById(study.studyClassId)
             .orElseThrow { CustomException("Study Class not found", HttpStatus.NOT_FOUND) }
-        if (!studyClass.isAdminByEmail(adminEmail)) {
-            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
-        }
+        studyClass.checkAdminByEmail(adminEmail)
 
         study.update(request.startDateTime, request.endDateTime)
         studyRepository.save(study)
@@ -57,9 +55,7 @@ class StudyService(
             .orElseThrow { CustomException("Study not found", HttpStatus.NOT_FOUND) }
         val studyClass = studyClassRepository.findById(study.studyClassId)
             .orElseThrow { CustomException("Study Class not found", HttpStatus.NOT_FOUND) }
-        if (!studyClass.isAdminByEmail(adminEmail)) {
-            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
-        }
+        studyClass.checkAdminByEmail(adminEmail)
 
         studyRepository.deleteById(id)
     }
@@ -68,9 +64,7 @@ class StudyService(
         val adminEmail = jwtUtils.extractEmail()
         val studyClass = studyClassRepository.findById(classId)
             .orElseThrow { CustomException("Study Class not found", HttpStatus.NOT_FOUND) }
-        if (!studyClass.isAdminByEmail(adminEmail)) {
-            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
-        }
+        studyClass.checkAdminByEmail(adminEmail)
 
         val study = Study.create(
             startDateTime = request.startDateTime,
@@ -85,15 +79,13 @@ class StudyService(
 
     fun attend(id: Long) {
         val email = jwtUtils.extractEmail()
-        val member = userRepository.findById(id)
-            .orElseThrow { CustomException("Member not found", HttpStatus.NOT_FOUND) }
+        val member = userRepository.findByEmail(email)
+            ?: throw CustomException("Member not found", HttpStatus.NOT_FOUND)
         val study = studyRepository.findById(id)
             .orElseThrow { CustomException("Study not found", HttpStatus.NOT_FOUND) }
         val studyClass = studyClassRepository.findById(study.studyClassId)
             .orElseThrow { CustomException("Study Class not found", HttpStatus.NOT_FOUND) }
-        if (!studyClass.isMemberByEmail(email)) {
-            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
-        }
+        studyClass.checkMemberByEmail(member.email)
 
         study.attend(member)
         studyRepository.save(study)
