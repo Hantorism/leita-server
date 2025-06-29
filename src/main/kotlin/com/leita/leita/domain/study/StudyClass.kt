@@ -113,12 +113,18 @@ open class StudyClass(
         admins.remove(user)
     }
 
-    fun isAdminByEmail(email: String): Boolean {
-        return admins.any { it.email == email }
+    fun checkAdminByEmail(email: String) {
+        val isAdmin = admins.any { it.email == email }
+        if( !isAdmin ) {
+            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
+        }
     }
 
-    fun isMemberByEmail(email: String): Boolean {
-        return admins.any { it.email == email }
+    fun checkMemberByEmail(email: String) {
+        val isMember = members.any { it.email == email }
+        if( !isMember ) {
+            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
+        }
     }
 
     fun changeToRoleAdmin(user: User) {
