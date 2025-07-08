@@ -1,7 +1,7 @@
 package com.leita.leita.domain.study
 
-import com.leita.leita.domain.User
-import com.leita.leita.repository.BaseEntity
+import com.leita.leita.domain.user.User
+import com.leita.leita.domain.BaseEntity
 import jakarta.persistence.*
 import java.time.LocalDateTime
 

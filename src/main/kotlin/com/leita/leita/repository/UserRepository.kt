@@ -1,6 +1,6 @@
 package com.leita.leita.repository
 
-import com.leita.leita.domain.User
+import com.leita.leita.domain.user.User
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 

@@ -1,7 +1,7 @@
 package com.leita.leita.controller.auth
 
 import com.leita.leita.controller.auth.response.InfoResponse
-import com.leita.leita.domain.User
+import com.leita.leita.domain.user.User
 
 class AuthMapper {
     companion object {

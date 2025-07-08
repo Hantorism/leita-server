@@ -3,7 +3,7 @@ package com.leita.leita.common.security.jwt
 import com.leita.leita.common.config.JwtConfig
 import com.leita.leita.common.exception.CustomException
 import com.leita.leita.controller.auth.response.JwtResponse
-import com.leita.leita.domain.User
+import com.leita.leita.domain.user.User
 import com.leita.leita.port.cache.CachePort
 import com.leita.leita.repository.UserRepository
 import io.jsonwebtoken.Jwts
