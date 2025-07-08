@@ -7,7 +7,7 @@ import com.leita.leita.controller.studyClass.request.StudyClassCreateRequest
 import com.leita.leita.controller.studyClass.request.StudyClassRoleChangeRequest
 import com.leita.leita.controller.studyClass.request.StudyClassUpdateRequest
 import com.leita.leita.domain.study.StudyClass
-import com.leita.leita.domain.User
+import com.leita.leita.domain.user.User
 import com.leita.leita.port.mail.MailPort
 import com.leita.leita.port.mail.MailType
 import com.leita.leita.repository.StudyClassRepository

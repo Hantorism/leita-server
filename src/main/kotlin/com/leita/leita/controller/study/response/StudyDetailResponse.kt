@@ -1,6 +1,6 @@
 package com.leita.leita.controller.study.response
 
-import com.leita.leita.domain.User
+import com.leita.leita.domain.user.User
 import java.time.LocalDateTime
 
 data class StudyDetailResponse (
