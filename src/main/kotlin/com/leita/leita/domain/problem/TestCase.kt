@@ -1,7 +1,7 @@
 package com.leita.leita.domain.problem
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.leita.leita.repository.BaseEntity
+import com.leita.leita.domain.BaseEntity
 import jakarta.persistence.*
 
 @Entity
