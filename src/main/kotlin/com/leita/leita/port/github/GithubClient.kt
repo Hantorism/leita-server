@@ -1,4 +1,5 @@
 package com.leita.leita.port.github
+
 import com.leita.leita.port.github.dto.GithubCommitRequest
 import com.leita.leita.port.github.dto.GithubFileResponse
 import com.leita.leita.port.github.dto.GithubRepositoryResponse
@@ -6,7 +7,7 @@ import com.leita.leita.port.github.dto.GithubUserResponse
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.web.bind.annotation.*
 
-@FeignClient(name = "githubClient", url = "\${github.api.url}")
+@FeignClient(name = "githubClient", url = "\${external-server.github}")
 interface GithubClient {
     @GetMapping("/user")
     fun getUser(@RequestHeader("Authorization") token: String): GithubUserResponse

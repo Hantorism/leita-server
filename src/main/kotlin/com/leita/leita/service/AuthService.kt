@@ -1,52 +1,34 @@
 package com.leita.leita.service
 
 import com.leita.leita.common.exception.CustomException
-import com.leita.leita.common.security.OAutheUserInfo
-import com.leita.leita.common.security.SecurityRole
 import com.leita.leita.common.security.jwt.JwtUtils
 import com.leita.leita.controller.auth.AuthMapper
 import com.leita.leita.controller.auth.request.OAuthRequest
 import com.leita.leita.controller.auth.response.InfoResponse
 import com.leita.leita.controller.auth.response.JwtResponse
-import com.leita.leita.domain.User
+import com.leita.leita.domain.user.User
+import com.leita.leita.port.google.GoogleOAuthPort
 import com.leita.leita.repository.UserRepository
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.client.WebClient
 
 @Service
 class AuthService(
     private val userRepository: UserRepository,
     private val jwtUtils: JwtUtils,
-    private val webClient: WebClient
+    private val googleOAuthPort: GoogleOAuthPort
 ) {
     fun oauth(request: OAuthRequest): JwtResponse {
-        try {
-            val userInfo = webClient
-                .get()
-                .uri("https://www.googleapis.com/oauth2/v3/userinfo")
-                .header("Authorization", "Bearer ${request.accessToken}")
-                .retrieve()
-                .bodyToMono(OAutheUserInfo::class.java)
-                .block()!!
+        val userInfo = googleOAuthPort.getUserInfo(request.accessToken)
 
-            isAjouEmail(userInfo.email)
+        isAjouEmail(userInfo.email)
 
-            if(userRepository.findByEmail(userInfo.email) == null) {
-                val user = User(
-                    email = userInfo.email,
-                    name = userInfo.name,
-                    profileImage = userInfo.picture,
-                    sub = userInfo.sub,
-                    role = SecurityRole.USER,
-                )
-                userRepository.save(user)
-            }
-
-            return jwtUtils.generateToken(userInfo.email)
-        } catch (e: Exception) {
-            throw CustomException("OAuth 인증 실패", HttpStatus.UNAUTHORIZED)
+        if(userRepository.findByEmail(userInfo.email) == null) {
+            val user = User.oauthLogin(userInfo)
+            userRepository.save(user)
         }
+
+        return jwtUtils.generateToken(userInfo.email)
     }
 
     fun info(): InfoResponse {

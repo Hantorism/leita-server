@@ -1,6 +1,6 @@
-package com.leita.leita.common.security
+package com.leita.leita.port.google.dto
 
-data class OAutheUserInfo(
+data class OAuthUserInfo(
     val sub: String,
     val email: String,
     val emailVerified: Boolean,
