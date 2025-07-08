@@ -1,6 +1,6 @@
 package com.leita.leita.controller.studyClass.response
 
-import com.leita.leita.domain.User
+import com.leita.leita.domain.user.User
 
 data class StudyClassDetailResponse (
     val id: Long,

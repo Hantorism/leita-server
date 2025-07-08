@@ -9,7 +9,7 @@ import com.leita.leita.controller.studyClass.request.StudyClassUpdateRequest
 import com.leita.leita.controller.studyClass.response.StudyClassCreateResponse
 import com.leita.leita.controller.studyClass.response.StudyClassDetailResponse
 import com.leita.leita.controller.studyClass.response.StudyClassesResponse
-import com.leita.leita.domain.User
+import com.leita.leita.domain.user.User
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
