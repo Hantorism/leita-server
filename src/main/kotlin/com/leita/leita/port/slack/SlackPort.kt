@@ -8,5 +8,5 @@ interface SlackPort {
         description: String,
         logLevel: SlackLogLevel,
         label: SlackLabel
-    ): Boolean
+    )
 }

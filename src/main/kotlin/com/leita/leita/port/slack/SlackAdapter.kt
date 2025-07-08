@@ -1,19 +1,16 @@
 package com.leita.leita.port.slack
 
-import com.leita.leita.common.config.RestConfig
 import com.leita.leita.common.config.env.SpringEnv
 import com.leita.leita.common.exception.CustomException
 import org.springframework.http.*
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.client.WebClient
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Component
 class SlackAdapter(
-    private val restConfig: RestConfig,
-    private val webClient: WebClient,
     private val springEnv: SpringEnv,
+    private val slackClient: SlackClient,
 ) : SlackPort {
 
     override fun sendMsg(
@@ -21,28 +18,17 @@ class SlackAdapter(
         description: String,
         logLevel: SlackLogLevel,
         label: SlackLabel
-    ): Boolean {
+    ) {
         try {
-            if(springEnv.isLocalProfile()) {
-                return false
+            if(!springEnv.isLocalProfile()) {
+                val formattedMsg = createMessage(
+                    timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                    label.title, description, logLevel, label
+                )
+                slackClient.sendMessage(formattedMsg)
             }
-
-            val formattedMsg = createMessage(
-                timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                label.title, description, logLevel, label
-            )
-
-            webClient.post()
-                .uri(restConfig.slack)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(formattedMsg)
-                .retrieve()
-                .bodyToMono(String::class.java)
-                .block()!!
-
-            return true
         } catch (e: Exception) {
-            throw CustomException("An error occurred while sending the message to Slack", HttpStatus.INTERNAL_SERVER_ERROR)
+            throw CustomException("An error occurred while sending the message to Slack: $e", HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
