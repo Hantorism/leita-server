@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.leita.leita.common.exception.CustomException
 import com.leita.leita.port.google.dto.OAuthUserInfo
 import com.leita.leita.common.security.SecurityRole
-import com.leita.leita.port.github.model.GithubUserInfo
 import com.leita.leita.domain.BaseEntity
 import jakarta.persistence.Access
 import jakarta.persistence.AccessType
@@ -31,6 +30,9 @@ open class User(
     @Column(nullable = true)
     open var githubInfo: GithubInfo?,
 
+    @Column(nullable = true)
+    open var installationId: Long?,
+
     @JsonIgnore
     @Column(nullable = false)
     open var sub: String,
@@ -48,6 +50,7 @@ open class User(
                 email = oAuthUserInfo.email,
                 profileImage = oAuthUserInfo.picture,
                 githubInfo = null,
+                installationId = null,
                 sub = oAuthUserInfo.sub,
                 role = SecurityRole.USER
             )
@@ -60,12 +63,4 @@ open class User(
         }
     }
 
-    fun githubLogin(accessToken: String, githubUserInfo: GithubUserInfo) {
-        this.githubInfo = GithubInfo(
-            userName = githubUserInfo.name,
-            email = githubUserInfo.email,
-            repository = null,
-            accessToken = accessToken
-        )
-    }
 }
