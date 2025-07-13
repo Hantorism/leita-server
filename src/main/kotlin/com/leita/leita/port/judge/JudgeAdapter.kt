@@ -1,5 +1,6 @@
 package com.leita.leita.port.judge
 
+import com.leita.leita.common.config.WebClientConfig
 import com.leita.leita.common.exception.CustomException
 import com.leita.leita.controller.dto.judge.request.SubmitRequest
 import com.leita.leita.controller.dto.judge.request.RunRequest
@@ -8,11 +9,17 @@ import com.leita.leita.port.judge.dto.request.RunWCRequest
 import com.leita.leita.port.judge.dto.response.JudgeWCResponse
 import com.leita.leita.port.judge.dto.response.RunWCResponse
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.bodyToMono
 
 @Component
-class JudgeAdapter(private val judgeClient: JudgeClient) : JudgePort {
+class JudgeAdapter(
+    private val webClient: WebClient,
+    private val webClientConfig: WebClientConfig
+) : JudgePort {
 
     @Async
     override fun submit(problemId: Long, submitId: Long, request: SubmitRequest): JudgeWCResponse {
@@ -24,7 +31,16 @@ class JudgeAdapter(private val judgeClient: JudgeClient) : JudgePort {
             )
             println(submitRequest)
 
-            return judgeClient.submit(submitRequest)
+            return webClient.post()
+                .uri(request.language.getUrl(webClientConfig.judgeBaseUrl) + "/problem/submit/" + problemId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(submitRequest)
+                .retrieve()
+                .bodyToMono<JudgeWCResponse>()
+                .doOnSuccess {
+                    println("Judge server responded: ${request.language.getUrl(webClientConfig.judgeBaseUrl) + "/problem/submit/" + problemId} / $it")
+                }
+                .block()!!
         } catch (ex: Exception) {
             println(ex.message)
             throw CustomException("제출 실패", HttpStatus.INTERNAL_SERVER_ERROR)
@@ -40,7 +56,16 @@ class JudgeAdapter(private val judgeClient: JudgeClient) : JudgePort {
                 testCases = request.testCases,
             )
 
-            return judgeClient.run(runRequest)
+            return webClient.post()
+                .uri(request.language.getUrl(webClientConfig.judgeBaseUrl) + "/problem/run/" + problemId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(runRequest)
+                .retrieve()
+                .bodyToMono<List<RunWCResponse>>()
+                .doOnSuccess {
+                    println("Judge server responded: ${request.language.getUrl(webClientConfig.judgeBaseUrl) + "/problem/run/" + problemId} / $it")
+                }
+                .block()!!
         } catch (ex: Exception) {
             println(ex.message)
             throw CustomException("제출 실패", HttpStatus.INTERNAL_SERVER_ERROR)
