@@ -1,12 +1,21 @@
+
 package com.leita.leita.port.github
 
-import com.leita.leita.port.github.model.FileExistenceResult
-import com.leita.leita.port.github.model.GithubRepository
-import com.leita.leita.port.github.model.GithubUserInfo
+import com.fasterxml.jackson.databind.JsonNode
 
 interface GithubPort {
-    fun getUserInfo(accessToken: String): GithubUserInfo
-    fun getRepositories(accessToken: String): List<GithubRepository>
-    fun commitCode(accessToken: String, repositoryFullName: String, filePath: String, content: String, commitMessage: String)
-    fun checkFileExists(accessToken: String, repositoryFullName: String, filePath: String): FileExistenceResult?
+    fun getInstallationAccessToken(installationId: Long): String
+    fun getInstallationRepositories(token: String): JsonNode
+    fun commitFileToRepository(
+        token: String,
+        owner: String,
+        repo: String,
+        path: String,
+        message: String,
+        content: String,
+        sha: String?,
+        branch: String?,
+        authorName: String?,
+        authorEmail: String?
+    ): JsonNode
 }

@@ -1,69 +1,74 @@
+
 package com.leita.leita.port.github
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.leita.leita.common.config.GithubConfig
 import com.leita.leita.port.github.dto.GithubCommitRequest
-import com.leita.leita.port.github.model.FileExistenceResult
-import com.leita.leita.port.github.model.GithubRepository
-import com.leita.leita.port.github.model.GithubUserInfo
-import feign.FeignException
-import org.slf4j.LoggerFactory
+import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.stereotype.Component
+import java.security.KeyFactory
+import java.security.PrivateKey
+import java.security.spec.PKCS8EncodedKeySpec
 import java.util.Base64
+import java.util.Date
 
 @Component
-class GithubAdapter(private val githubClient: GithubClient) : GithubPort {
-    private val logger = LoggerFactory.getLogger(GithubAdapter::class.java)
+class GithubAdapter(
+    private val githubConfig: GithubConfig,
+    private val githubClient: GithubClient
+) : GithubPort {
 
-    override fun getUserInfo(accessToken: String): GithubUserInfo {
-        val response = githubClient.getUser("Bearer $accessToken")
-        return GithubUserInfo(
-            id = response.id,
-            login = response.login,
-            name = response.name,
-            email = response.email
+    override fun getInstallationAccessToken(installationId: Long): String {
+        val jwt = createJwt()
+        val response = githubClient.createInstallationAccessToken("Bearer $jwt", installationId)
+        return response.token
+    }
+
+    override fun getInstallationRepositories(token: String): JsonNode {
+        return githubClient.getInstallationRepositories("Bearer $token")
+    }
+
+    override fun commitFileToRepository(
+        token: String,
+        owner: String,
+        repo: String,
+        path: String,
+        message: String,
+        content: String,
+        sha: String?,
+        branch: String?,
+        authorName: String?,
+        authorEmail: String?
+    ): JsonNode {
+        val request = GithubCommitRequest(
+            message = message,
+            content = content,
+            sha = sha,
+            branch = branch,
+            repo = repo,
+            committer = GithubCommitRequest.Committer(authorName, authorEmail)
         )
+        return githubClient.commitFileToRepository("Bearer $token", owner, repo, path, request)
     }
 
-    override fun getRepositories(accessToken: String): List<GithubRepository> {
-        return githubClient.getRepositories("Bearer $accessToken").map { repo ->
-            GithubRepository(
-                id = repo.id,
-                name = repo.name,
-                fullName = repo.full_name,
-                description = repo.description,
-                url = repo.html_url,
-                isPrivate = repo.private
-            )
-        }
+    private fun createJwt(): String {
+        val nowMillis = System.currentTimeMillis()
+        val now = Date(nowMillis)
+        val expirationMillis = nowMillis + 10 * 60 * 1000 // 10 minutes
+
+        return Jwts.builder()
+            .setIssuer(githubConfig.appId)
+            .setIssuedAt(now)
+            .setExpiration(Date(expirationMillis))
+            .signWith(getPrivateKey(), SignatureAlgorithm.RS256)
+            .compact()
     }
 
-    override fun checkFileExists(accessToken: String, repositoryFullName: String, filePath: String): FileExistenceResult? {
-        val (owner, repo) = repositoryFullName.split("/", limit = 2)
-        
-        return try {
-            val response = githubClient.getFileContent("Bearer $accessToken", owner, repo, filePath)
-            response?.let { FileExistenceResult(exists = true, sha = it.sha) }
-        } catch (e: FeignException) {
-            if (e.status() == 404) {
-                FileExistenceResult(exists = false, sha = null)
-            } else {
-                logger.error("GitHub API 오류: ${e.message}")
-                null
-            }
-        }
-    }
-
-    override fun commitCode(accessToken: String, repositoryFullName: String, filePath: String, content: String, commitMessage: String) {
-        val (owner, repo) = repositoryFullName.split("/", limit = 2)
-        
-        val fileExistence = checkFileExists(accessToken, repositoryFullName, filePath)
-        val encodedContent = Base64.getEncoder().encodeToString(content.toByteArray())
-        
-        val commitRequest = GithubCommitRequest(
-            message = commitMessage,
-            content = encodedContent,
-            sha = fileExistence?.sha
-        )
-        
-        githubClient.commitFile("Bearer $accessToken", owner, repo, filePath, commitRequest)
+    private fun getPrivateKey(): PrivateKey {
+        val privateKeyBytes = Base64.getDecoder().decode(githubConfig.privateKey)
+        val keySpec = PKCS8EncodedKeySpec(privateKeyBytes)
+        val keyFactory = KeyFactory.getInstance("RSA")
+        return keyFactory.generatePrivate(keySpec)
     }
 }
