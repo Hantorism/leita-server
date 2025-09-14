@@ -13,6 +13,7 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Table
 import org.springframework.http.HttpStatus
+import kotlin.random.Random
 
 @Entity
 @Table(name = "users")
@@ -30,9 +31,6 @@ open class User(
     @Column(nullable = true)
     open var githubInfo: GithubInfo?,
 
-    @Column(nullable = true)
-    open var installationId: Long?,
-
     @JsonIgnore
     @Column(nullable = false)
     open var sub: String,
@@ -42,6 +40,12 @@ open class User(
     @Enumerated(EnumType.STRING)
     open var role: SecurityRole,
 ) : BaseEntity() {
+
+    fun addGithubApps(installationId: Long): User {
+        this.githubInfo = GithubInfo(installationId)
+        return this
+    }
+
     companion object {
         fun oauthLogin(oAuthUserInfo: OAuthUserInfo): User {
             isAjouEmail(oAuthUserInfo.email)
@@ -50,7 +54,6 @@ open class User(
                 email = oAuthUserInfo.email,
                 profileImage = oAuthUserInfo.picture,
                 githubInfo = null,
-                installationId = null,
                 sub = oAuthUserInfo.sub,
                 role = SecurityRole.USER
             )
@@ -63,4 +66,7 @@ open class User(
         }
     }
 
+    fun generateGitState(): Long {
+        return Random.nextInt(10000, 100000).toLong()
+    }
 }
