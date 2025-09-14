@@ -1,4 +1,4 @@
-package com.leita.leita.port.github.dto
+package com.leita.leita.port.github.dto.request
 
 data class GithubCommitRequest(
     val message: String,
