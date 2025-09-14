@@ -3,15 +3,15 @@ package com.leita.leita.port.github
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.leita.leita.common.config.GithubConfig
-import com.leita.leita.port.github.dto.GithubCommitRequest
+import com.leita.leita.port.github.dto.request.GithubCommitRequest
+import com.leita.leita.port.github.dto.response.InstallationRepositoriesResponse
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.stereotype.Component
 import java.security.KeyFactory
 import java.security.PrivateKey
 import java.security.spec.PKCS8EncodedKeySpec
-import java.util.Base64
-import java.util.Date
+import java.util.*
 
 @Component
 class GithubAdapter(
@@ -25,21 +25,13 @@ class GithubAdapter(
         return response.token
     }
 
-    override fun getInstallationRepositories(token: String): JsonNode {
+    override fun getInstallationRepositories(token: String): InstallationRepositoriesResponse {
         return githubClient.getInstallationRepositories("Bearer $token")
     }
 
     override fun commitFileToRepository(
-        token: String,
-        owner: String,
-        repo: String,
-        path: String,
-        message: String,
-        content: String,
-        sha: String?,
-        branch: String?,
-        authorName: String?,
-        authorEmail: String?
+        token: String, owner: String, repo: String, path: String, message: String,
+        content: String, sha: String?, branch: String?, authorName: String?, authorEmail: String?
     ): JsonNode {
         val request = GithubCommitRequest(
             message = message,
@@ -55,7 +47,7 @@ class GithubAdapter(
     private fun createJwt(): String {
         val nowMillis = System.currentTimeMillis()
         val now = Date(nowMillis)
-        val expirationMillis = nowMillis + 10 * 60 * 1000 // 10 minutes
+        val expirationMillis = nowMillis + 10 * 60 * 1000
 
         return Jwts.builder()
             .setIssuer(githubConfig.appId)
@@ -66,9 +58,16 @@ class GithubAdapter(
     }
 
     private fun getPrivateKey(): PrivateKey {
-        val privateKeyBytes = Base64.getDecoder().decode(githubConfig.privateKey)
+        val privateKeyContent = githubConfig.privateKey
+            .replace("-----BEGIN PRIVATE KEY-----", "")
+            .replace("-----END PRIVATE KEY-----", "")
+            .filter { !it.isWhitespace() }
+        System.out.println(privateKeyContent)
+
+        val privateKeyBytes = Base64.getDecoder().decode(privateKeyContent)
         val keySpec = PKCS8EncodedKeySpec(privateKeyBytes)
         val keyFactory = KeyFactory.getInstance("RSA")
+
         return keyFactory.generatePrivate(keySpec)
     }
 }
