@@ -3,6 +3,7 @@ package com.leita.leita.port.github
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.leita.leita.common.config.GithubConfig
+import com.leita.leita.common.util.PrivateKeyParser
 import com.leita.leita.port.github.dto.request.GithubCommitRequest
 import com.leita.leita.port.github.dto.response.InstallationRepositoriesResponse
 import io.jsonwebtoken.Jwts
@@ -53,21 +54,7 @@ class GithubAdapter(
             .setIssuer(githubConfig.appId)
             .setIssuedAt(now)
             .setExpiration(Date(expirationMillis))
-            .signWith(getPrivateKey(), SignatureAlgorithm.RS256)
+            .signWith(PrivateKeyParser.parsePrivateKey(githubConfig.privateKey), SignatureAlgorithm.RS256)
             .compact()
-    }
-
-    private fun getPrivateKey(): PrivateKey {
-        val privateKeyContent = githubConfig.privateKey
-            .replace("-----BEGIN PRIVATE KEY-----", "")
-            .replace("-----END PRIVATE KEY-----", "")
-            .filter { !it.isWhitespace() }
-        System.out.println(privateKeyContent)
-
-        val privateKeyBytes = Base64.getDecoder().decode(privateKeyContent)
-        val keySpec = PKCS8EncodedKeySpec(privateKeyBytes)
-        val keyFactory = KeyFactory.getInstance("RSA")
-
-        return keyFactory.generatePrivate(keySpec)
     }
 }
