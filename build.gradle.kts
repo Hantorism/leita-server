@@ -54,7 +54,17 @@ dependencies {
 
 	testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
 	testImplementation("org.assertj:assertj-core:3.25.3")
-	testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.23")
+
+    implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage:3.38.0")
+    implementation("com.oracle.oci.sdk:oci-java-sdk-identity:3.38.0")
+    implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey3:3.38.0")
+
+    implementation("jakarta.ws.rs:jakarta.ws.rs-api:3.1.0")
+
+    implementation("org.glassfish.jersey.core:jersey-client:3.1.3")
+    implementation("org.glassfish.jersey.inject:jersey-hk2:3.1.3")
+    implementation("org.glassfish.jersey.media:jersey-media-json-jackson:3.1.3")
+    implementation("org.glassfish.jersey.connectors:jersey-apache-connector:3.1.3")
 }
 
 tasks.withType<Test> {
