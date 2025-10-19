@@ -37,15 +37,15 @@ class StudyClassService(
     }
 
     fun getStudyClass(id: Long): StudyClassDetailResponse {
-        val study: StudyClass = studyClassRepository.findById(id)
-            .orElseThrow { CustomException("Study Class not found", HttpStatus.NOT_FOUND) }
+        val study: StudyClass = studyClassRepository.findDetailById(id)
+            ?: throw CustomException("Study Class not found", HttpStatus.NOT_FOUND)
         return StudyClassMapper.toStudyClassDetailResponse(study)
     }
 
     fun updateStudyClass(id: Long, request: StudyClassUpdateRequest): StudyClassDetailResponse {
         val adminEmail = jwtUtils.extractEmail()
-        val studyClass = studyClassRepository.findById(id)
-            .orElseThrow { CustomException("Study Class not found", HttpStatus.NOT_FOUND) }
+        val studyClass = studyClassRepository.findDetailById(id)
+            ?: throw CustomException("Study Class not found", HttpStatus.NOT_FOUND)
         studyClass.checkAdminByEmail(adminEmail)
 
         studyClass.update(request.title, request.description, request.requirement)
@@ -55,20 +55,16 @@ class StudyClassService(
 
     fun deleteStudyClass(id: Long) {
         val adminEmail = jwtUtils.extractEmail()
-        val studyClass = studyClassRepository.findById(id)
-            .orElseThrow { CustomException("Study Class not found", HttpStatus.NOT_FOUND) }
+        val studyClass = studyClassRepository.findDetailById(id)
+            ?: throw CustomException("Study Class not found", HttpStatus.NOT_FOUND)
         studyClass.checkAdminByEmail(adminEmail)
 
         studyClassRepository.deleteById(id)
     }
 
     fun getStudyMembers(id: Long, role: StudyRole): List<User> {
-        studyClassRepository.findById(id).orElseThrow {
-            throw CustomException("Study Class not found", HttpStatus.NOT_FOUND)
-        }
-
-        val studyClass = studyClassRepository.findById(id)
-            .orElseThrow { CustomException("Study Class not found", HttpStatus.NOT_FOUND) }
+        val studyClass = studyClassRepository.findDetailById(id)
+            ?: throw CustomException("Study Class not found", HttpStatus.NOT_FOUND)
 
         return when (role) {
             StudyRole.ADMIN -> studyClass.admins
@@ -79,8 +75,8 @@ class StudyClassService(
 
     fun changeRole(id: Long, request: StudyClassRoleChangeRequest) {
         val adminEmail = jwtUtils.extractEmail()
-        val studyClass = studyClassRepository.findById(id)
-            .orElseThrow { CustomException("Study Class not found", HttpStatus.NOT_FOUND) }
+        val studyClass = studyClassRepository.findDetailById(id)
+            ?: throw CustomException("Study Class not found", HttpStatus.NOT_FOUND)
         studyClass.checkAdminByEmail(adminEmail)
 
         val user = userRepository.findByEmail(request.email)
@@ -107,8 +103,8 @@ class StudyClassService(
 
     fun join(id: Long) {
         val user = jwtUtils.extractUser()
-
-        val studyClass: StudyClass = studyClassRepository.findById(id).get()
+        val studyClass: StudyClass = studyClassRepository.findDetailById(id)
+            ?: throw CustomException("Study Class not found", HttpStatus.NOT_FOUND)
 
         studyClass.join(user)
         mailPort.sendAll(MailType.STUDY_MEMBER_JOIN, studyClass.admins.map { it.email })
@@ -116,7 +112,8 @@ class StudyClassService(
 
     fun approve(id: Long, request: StudyClassMemberRequest) {
         val adminEmail = jwtUtils.extractEmail()
-        val studyClass: StudyClass = studyClassRepository.findById(id).get()
+        val studyClass: StudyClass = studyClassRepository.findDetailById(id)
+            ?: throw CustomException("Study Class not found", HttpStatus.NOT_FOUND)
 
         studyClass.checkAdminByEmail(adminEmail)
         val user = userRepository.findByEmail(request.email)
@@ -126,7 +123,8 @@ class StudyClassService(
 
     fun deny(id: Long, request: StudyClassMemberRequest) {
         val adminEmail = jwtUtils.extractEmail()
-        val studyClass: StudyClass = studyClassRepository.findById(id).get()
+        val studyClass: StudyClass = studyClassRepository.findDetailById(id)
+            ?: throw CustomException("Study Class not found", HttpStatus.NOT_FOUND)
 
         studyClass.checkAdminByEmail(adminEmail)
         val user = userRepository.findByEmail(request.email)
@@ -136,7 +134,8 @@ class StudyClassService(
 
     fun leave(id: Long) {
         val memberEmail = jwtUtils.extractEmail()
-        val studyClass: StudyClass = studyClassRepository.findById(id).get()
+        val studyClass: StudyClass = studyClassRepository.findDetailById(id)
+            ?: throw CustomException("Study Class not found", HttpStatus.NOT_FOUND)
 
         studyClass.checkMemberByEmail(memberEmail)
         val user: User = userRepository.findByEmail(memberEmail)
