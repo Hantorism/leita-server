@@ -3,6 +3,7 @@ package com.leita.leita.repository
 import com.leita.leita.domain.problem.Problem
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -69,6 +70,7 @@ interface ProblemRepository : JpaRepository<Problem, Long> {
         pageable: Pageable
     ): Page<Problem>
 
+    @EntityGraph(attributePaths = ["testCases"])
     fun findProblemByProblemId(problemId: Long): Problem?
 
     fun existsProblemByProblemId(problemId: Long): Boolean
