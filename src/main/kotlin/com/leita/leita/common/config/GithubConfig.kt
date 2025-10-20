@@ -7,5 +7,7 @@ import org.springframework.stereotype.Component
 @ConfigurationProperties(prefix = "github")
 data class GithubConfig(
     var appId: String = "",
-    var privateKey: String = ""
+    var privateKey: String = "",
+    var clientId: String = "",
+    var clientSecret: String = ""
 )

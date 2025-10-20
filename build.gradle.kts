@@ -33,7 +33,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation ("org.springframework.cloud:spring-cloud-starter-openfeign:4.2.1")
+	implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.2.1")
+    implementation("io.github.openfeign:feign-okhttp:12.3")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
 
 	implementation("mysql:mysql-connector-java:8.0.33")

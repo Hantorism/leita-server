@@ -41,8 +41,8 @@ open class User(
     open var role: SecurityRole,
 ) : BaseEntity() {
 
-    fun addGithubApps(installationId: Long): User {
-        this.githubInfo = GithubInfo(installationId)
+    fun addGithubApps(installationId: Long, githubUserName: String): User {
+        this.githubInfo = GithubInfo(githubUserName, installationId)
         return this
     }
 

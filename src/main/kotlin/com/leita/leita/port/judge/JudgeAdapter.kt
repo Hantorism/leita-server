@@ -29,7 +29,6 @@ class JudgeAdapter(
                 code = request.code,
                 language = request.language,
             )
-            println(submitRequest)
 
             return webClient.post()
                 .uri(request.language.getUrl(webClientConfig.judgeBaseUrl) + "/problem/submit/" + problemId)
