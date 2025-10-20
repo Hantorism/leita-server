@@ -4,7 +4,9 @@ import com.leita.leita.common.config.OracleStorageConfig
 import com.oracle.bmc.objectstorage.ObjectStorage
 import com.oracle.bmc.objectstorage.model.CreatePreauthenticatedRequestDetails
 import com.oracle.bmc.objectstorage.requests.CreatePreauthenticatedRequestRequest
+import com.oracle.bmc.objectstorage.requests.GetObjectRequest
 import org.springframework.stereotype.Component
+import java.io.ByteArrayOutputStream
 import java.util.Date
 import java.util.concurrent.TimeUnit
 
@@ -29,10 +31,23 @@ class OracleStorageAdapter(
             .createPreauthenticatedRequestDetails(details)
             .build()
 
-        println(details)
-        println(request)
-
         val response = objectStorage.createPreauthenticatedRequest(request)
         return "https://" + oracleStorageConfig.namespace + ".objectstorage." + oracleStorageConfig.region + ".oci.customer-oci.com" + response.preauthenticatedRequest.accessUri
+    }
+
+    override fun downloadFile(objectName: String): ByteArray {
+        val getObjectRequest = GetObjectRequest.builder()
+            .namespaceName(oracleStorageConfig.namespace)
+            .bucketName(oracleStorageConfig.bucketName)
+            .objectName(objectName)
+            .build()
+
+        val response = objectStorage.getObject(getObjectRequest)
+
+        val outputStream = ByteArrayOutputStream()
+        response.inputStream.use { input ->
+            input.copyTo(outputStream)
+        }
+        return outputStream.toByteArray()
     }
 }

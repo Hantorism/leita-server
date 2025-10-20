@@ -7,19 +7,19 @@ import com.leita.leita.port.judge.dto.response.RunWCResponse
 
 class JudgeMapper {
     companion object {
-        fun toSubmitResponse(result: JudgeWCResponse): SubmitResponse {
+        fun toSubmitResponse(response: JudgeWCResponse): SubmitResponse {
             return SubmitResponse (
-                    result = result.result.message,
-                    error = result.error,
+                    result = response.result,
+                    error = response.error,
                 )
         }
 
-        fun toRunResponse(results: List<RunWCResponse>): List<RunResponse> {
-            return results.map { result ->
+        fun toRunResponse(responses: List<RunWCResponse>): List<RunResponse> {
+            return responses.map { response ->
                 RunResponse(
-                    result = result.result.message,
-                    error = result.error,
-                    output = result.output,
+                    result = response.result,
+                    error = response.error,
+                    output = response.output,
                 )
             }
         }

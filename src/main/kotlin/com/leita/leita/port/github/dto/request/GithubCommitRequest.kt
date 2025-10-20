@@ -1,5 +1,8 @@
 package com.leita.leita.port.github.dto.request
 
+import com.fasterxml.jackson.annotation.JsonInclude
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class GithubCommitRequest(
     val message: String,
     val content: String,
