@@ -1,11 +1,10 @@
 package com.leita.leita.controller.git
 
 import com.leita.leita.common.exception.CustomException
-import com.leita.leita.controller.dto.BaseResponse
-import com.leita.leita.controller.git.request.CommitRequest
 import com.leita.leita.controller.git.response.GitInstallResponse
 import com.leita.leita.controller.git.response.RepositoryResponse
 import com.leita.leita.service.GitService
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -25,25 +24,19 @@ class GitController(
 
     @GetMapping("/install/callback")
     fun callbackInstall(
+        @RequestParam("code") code: String?,
         @RequestParam("installation_id") installationId: Long?,
-        @RequestParam(value = "setup_action", required = false) setupAction: String?,
         @RequestParam(value = "state", required = false) state: String?
     ): ResponseEntity<String> {
-        if (installationId == null || state == null) {
+        if (installationId == null || state == null || code == null) {
             throw CustomException("Github Apps 설치 실패", HttpStatus.BAD_REQUEST)
         }
-        gitService.callbackInstall(installationId, state)
+        gitService.callbackInstall(installationId, state, code)
 
         val successHtml = "<script>window.close();</script>"
         return ResponseEntity.ok()
-            .contentType(MediaType.TEXT_HTML)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE + ";charset=UTF-8")
             .body(successHtml)
-    }
-
-    @PostMapping("/commit")
-    fun commit(@RequestBody request: CommitRequest): ResponseEntity<BaseResponse<Void>> {
-        gitService.commit(request)
-        return ResponseEntity.ok(null)
     }
 
     @GetMapping("/repositories")
