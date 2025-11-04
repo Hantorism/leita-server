@@ -1,5 +1,6 @@
 package com.leita.leita.controller.problem
 
+import com.leita.leita.common.dto.TestCaseDto
 import com.leita.leita.controller.problem.response.ProblemDetailResponse
 import com.leita.leita.controller.problem.response.ProblemsResponse
 import com.leita.leita.domain.problem.Problem
@@ -24,7 +25,9 @@ class ProblemMapper {
                 authorName = problem.author.name,
                 description = problem.description,
                 limit = problem.limit,
-                testCases = problem.testCases,
+                testCases = problem.testCases.map {
+                    testCase -> TestCaseDto.fromDomain(testCase)
+                },
                 source = problem.source,
                 solved = problem.solved,
                 category = problem.category,

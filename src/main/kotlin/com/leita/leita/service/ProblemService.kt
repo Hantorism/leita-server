@@ -1,5 +1,6 @@
 package com.leita.leita.service
 
+import com.leita.leita.common.dto.TestCaseDto
 import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.jwt.JwtUtils
 import com.leita.leita.controller.problem.ProblemMapper
@@ -9,9 +10,11 @@ import com.leita.leita.controller.problem.response.CreateProblemResponse
 import com.leita.leita.controller.problem.response.DeleteProblemResponse
 import com.leita.leita.controller.problem.response.ProblemDetailResponse
 import com.leita.leita.controller.problem.response.ProblemsResponse
+import com.leita.leita.domain.problem.Description
 import com.leita.leita.domain.problem.Problem
+import com.leita.leita.domain.problem.TestCase
+import com.leita.leita.port.storage.StoragePort
 import com.leita.leita.repository.ProblemRepository
-import com.leita.leita.repository.UserRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
@@ -21,24 +24,29 @@ import org.springframework.stereotype.Service
 class ProblemService(
     private val problemRepository: ProblemRepository,
     private val jwtUtils: JwtUtils,
+    private val storagePort: StoragePort,
 ) {
     fun createProblem(request: CreateProblemRequest): CreateProblemResponse {
         val user = jwtUtils.extractUser()
         var problemId = Problem.generateProblemId()
-        if( problemRepository.existsProblemByProblemId(problemId) ) {
+        if (problemRepository.existsProblemByProblemId(problemId)) {
             problemId = Problem.generateProblemId(problemId)
         }
+
+        val description = uploadDescription(problemId, request.description)
+        val testCases = uploadTestCases(problemId, request.testCases)
 
         val problem = Problem.create(
             title = request.title,
             author = user,
-            description = request.description,
+            description = description,
             limit = request.limit,
-            testCases = request.testCases,
+            testCases = testCases,
             source = request.source,
             category = request.category,
-            problemId
+            problemId = problemId
         )
+
         problemRepository.save(problem)
 
         return CreateProblemResponse(problemId)
@@ -51,9 +59,13 @@ class ProblemService(
         if (problem.author.id != user.id) {
             throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
         }
+
+        val description = uploadDescription(problemId, request.description)
+        val testCases = uploadTestCases(problemId, request.testCases)
+
         problem.update(
-            request.title, request.description, request.limit,
-            request.testCases, request.source, request.category
+            request.title, description, request.limit,
+            testCases, request.source, request.category
         )
 
         problemRepository.save(problem)
@@ -104,5 +116,28 @@ class ProblemService(
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
         problem.solved.updateSolved(isSolved)
         problemRepository.save(problem.filterVisibleTestCases())
+    }
+
+    private fun uploadDescription(problemId: Long, description: Description): Description {
+        return Description.create(
+            storagePort.uploadString("problems/$problemId/description/problem.html", description.problem),
+            storagePort.uploadString("problems/$problemId/description/input.html", description.input),
+            storagePort.uploadString("problems/$problemId/description/output.html", description.output)
+        )
+    }
+
+    private fun uploadTestCases(problemId: Long, testCases: List<TestCaseDto>): List<TestCase> {
+        return testCases.mapIndexed { index, testCaseRequest ->
+            val inputUrl =
+                storagePort.uploadString("problems/$problemId/testcases/$index.in", testCaseRequest.input)
+            val outputUrl =
+                storagePort.uploadString("problems/$problemId/testcases/$index.out", testCaseRequest.output)
+
+            TestCase(
+                input = inputUrl,
+                output = outputUrl,
+                isShow = testCaseRequest.isShow
+            )
+        }.toMutableList()
     }
 }

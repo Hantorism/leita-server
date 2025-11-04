@@ -13,4 +13,16 @@ open class Description(
 
     @Column(name = "description_output", columnDefinition = "TEXT")
     val output: String,
-)
+) {
+    companion object {
+        fun create(
+            problem: String, input: String, output: String,
+        ): Description {
+            return Description(
+                problem = problem,
+                input = input,
+                output = output,
+            )
+        }
+    }
+}
