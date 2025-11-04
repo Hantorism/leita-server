@@ -1,6 +1,5 @@
 package com.leita.leita.domain.problem
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.leita.leita.domain.BaseEntity
 import jakarta.persistence.*
 
@@ -20,7 +19,6 @@ open class TestCase(
 
 ) : BaseEntity() {
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_id", nullable = false)
     open var problem: Problem? = null
@@ -31,12 +29,10 @@ open class TestCase(
         return this
     }
 
-    @JsonIgnore
     fun show() {
         this.isShow = true
     }
 
-    @JsonIgnore
     fun hide() {
         this.isShow = false
     }
