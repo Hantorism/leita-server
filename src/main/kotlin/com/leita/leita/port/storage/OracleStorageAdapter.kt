@@ -4,7 +4,9 @@ import com.leita.leita.common.config.OracleStorageConfig
 import com.oracle.bmc.objectstorage.ObjectStorage
 import com.oracle.bmc.objectstorage.model.CreatePreauthenticatedRequestDetails
 import com.oracle.bmc.objectstorage.requests.CreatePreauthenticatedRequestRequest
+import com.oracle.bmc.objectstorage.requests.DeleteObjectRequest
 import com.oracle.bmc.objectstorage.requests.GetObjectRequest
+import com.oracle.bmc.objectstorage.requests.ListObjectsRequest
 import com.oracle.bmc.objectstorage.requests.PutObjectRequest
 import org.springframework.stereotype.Component
 import java.io.ByteArrayInputStream
@@ -68,7 +70,41 @@ class OracleStorageAdapter(
         val contentType = Files.probeContentType(file.toPath()) ?: "application/octet-stream"
         val contentLength = file.length()
 
-        return upload(objectName, contentLength, contentType, file.inputStream());
+        return upload(objectName, contentLength, contentType, file.inputStream())
+    }
+
+    override fun deleteFolder(prefix: String) {
+        var nextStartWith: String? = null
+        do {
+            val listRequest = ListObjectsRequest.builder()
+                .namespaceName(oracleStorageConfig.namespace)
+                .bucketName(oracleStorageConfig.bucketName)
+                .prefix(prefix)
+                .start(nextStartWith)
+                .build()
+
+            val listResponse = objectStorage.listObjects(listRequest)
+
+            listResponse.listObjects.objects.forEach { summary ->
+                deleteObject(summary.name)
+            }
+
+            nextStartWith = listResponse.listObjects.nextStartWith
+        } while (!nextStartWith.isNullOrEmpty())
+    }
+
+    private fun deleteObject(objectName: String) {
+        val request = DeleteObjectRequest.builder()
+            .namespaceName(oracleStorageConfig.namespace)
+            .bucketName(oracleStorageConfig.bucketName)
+            .objectName(objectName)
+            .build()
+
+        try {
+            objectStorage.deleteObject(request)
+        } catch (e: Exception) {
+            println("Failed to delete object: $objectName, reason: ${e.message}")
+        }
     }
 
     private fun upload(
