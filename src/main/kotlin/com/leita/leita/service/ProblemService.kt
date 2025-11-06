@@ -60,6 +60,7 @@ class ProblemService(
             throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
         }
 
+        deleteProblemFiles(problemId)
         val description = uploadDescription(problemId, request.description)
         val testCases = uploadTestCases(problemId, request.testCases)
 
@@ -77,10 +78,14 @@ class ProblemService(
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
-        if(problem.author.id != user.id) {
+        if (problem.author.id != user.id) {
             throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
         }
-        problemRepository.deleteById(problemId)
+
+        // ✅ 오브젝트 스토리지 내 관련 파일 전부 삭제
+        deleteProblemFiles(problemId)
+
+        problemRepository.delete(problem)
         return DeleteProblemResponse(true)
     }
 
@@ -88,7 +93,7 @@ class ProblemService(
         val pageable: Pageable = PageRequest.of(page, size)
         var userId: Long? = null
 
-        if(filter != null) {
+        if (filter != null) {
             val user = jwtUtils.extractUser()
             userId = user.id
         }
@@ -119,25 +124,25 @@ class ProblemService(
     }
 
     private fun uploadDescription(problemId: Long, description: Description): Description {
+        val basePath = "problems/$problemId/description"
         return Description.create(
-            storagePort.uploadString("problems/$problemId/description/problem.html", description.problem),
-            storagePort.uploadString("problems/$problemId/description/input.html", description.input),
-            storagePort.uploadString("problems/$problemId/description/output.html", description.output)
+            storagePort.uploadString("$basePath/problem.html", description.problem),
+            storagePort.uploadString("$basePath/input.html", description.input),
+            storagePort.uploadString("$basePath/output.html", description.output)
         )
     }
 
     private fun uploadTestCases(problemId: Long, testCases: List<TestCaseDto>): List<TestCase> {
-        return testCases.mapIndexed { index, testCaseRequest ->
-            val inputUrl =
-                storagePort.uploadString("problems/$problemId/testcases/$index.in", testCaseRequest.input)
-            val outputUrl =
-                storagePort.uploadString("problems/$problemId/testcases/$index.out", testCaseRequest.output)
+        val basePath = "problems/$problemId/testcases"
+        return testCases.mapIndexed { index, dto ->
+            val inputUrl = storagePort.uploadString("$basePath/$index.in", dto.input)
+            val outputUrl = storagePort.uploadString("$basePath/$index.out", dto.output)
+            TestCase(input = inputUrl, output = outputUrl, isShow = dto.isShow)
+        }
+    }
 
-            TestCase(
-                input = inputUrl,
-                output = outputUrl,
-                isShow = testCaseRequest.isShow
-            )
-        }.toMutableList()
+    private fun deleteProblemFiles(problemId: Long) {
+        val basePath = "problems/$problemId/"
+        storagePort.deleteFolder(basePath)
     }
 }
