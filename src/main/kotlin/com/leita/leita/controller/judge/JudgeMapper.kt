@@ -2,8 +2,8 @@ package com.leita.leita.controller.dto.auth
 
 import com.leita.leita.controller.dto.judge.response.RunResponse
 import com.leita.leita.controller.dto.judge.response.SubmitResponse
-import com.leita.leita.port.judge.dto.response.JudgeWCResponse
-import com.leita.leita.port.judge.dto.response.RunWCResponse
+import com.leita.leita.util.judge.dto.response.JudgeWCResponse
+import com.leita.leita.util.judge.dto.response.RunWCResponse
 
 class JudgeMapper {
     companion object {

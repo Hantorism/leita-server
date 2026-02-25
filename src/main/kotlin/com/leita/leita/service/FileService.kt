@@ -1,13 +1,13 @@
 package com.leita.leita.service
 
-import com.leita.leita.port.storage.StoragePort
+import com.leita.leita.util.storage.OracleStorageUtil
 import org.springframework.stereotype.Service
 
 @Service
 class FileService(
-    private val storagePort: StoragePort
+    private val oracleStorageUtil: OracleStorageUtil
 ) {
     fun createPreAuthenticatedRequest(objectName: String): String {
-        return storagePort.createPreAuthenticatedRequest(objectName)
+        return oracleStorageUtil.createPreAuthenticatedRequest(objectName)
     }
 }

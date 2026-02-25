@@ -4,7 +4,7 @@ import com.leita.leita.common.config.JwtConfig
 import com.leita.leita.common.exception.CustomException
 import com.leita.leita.controller.auth.response.JwtResponse
 import com.leita.leita.domain.user.User
-import com.leita.leita.port.cache.CachePort
+import com.leita.leita.util.cache.CacheUtil
 import com.leita.leita.repository.UserRepository
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.Claims
@@ -23,7 +23,7 @@ import javax.crypto.spec.SecretKeySpec
 @Component
 class JwtUtils(
     private val jwtProperties: JwtConfig,
-    private val cachePort: CachePort,
+    private val cacheUtil: CacheUtil,
     private val request: HttpServletRequest,
     private val userRepository: UserRepository
 ) {
@@ -87,7 +87,7 @@ class JwtUtils(
     val isTokenExpired: Boolean
         get() {
             return extractExpirationTime().before(Date(System.currentTimeMillis())) ||
-                    cachePort.get(extractJTI()) != null
+                    cacheUtil.get(extractJTI()) != null
         }
 
     private val token: String
