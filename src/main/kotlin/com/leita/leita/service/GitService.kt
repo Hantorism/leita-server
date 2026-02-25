@@ -4,10 +4,10 @@ import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.jwt.JwtUtils
 import com.leita.leita.controller.dto.judge.request.ReviewRequest
 import com.leita.leita.controller.git.response.RepositoryResponse
-import com.leita.leita.port.cache.CachePort
-import com.leita.leita.port.github.GithubPort
-import com.leita.leita.port.github.dto.response.InstallationRepositoriesResponse
-import com.leita.leita.port.storage.StoragePort
+import com.leita.leita.util.cache.CacheUtil
+import com.leita.leita.util.github.GithubUtil
+import com.leita.leita.util.github.dto.response.InstallationRepositoriesResponse
+import com.leita.leita.util.storage.OracleStorageUtil
 import com.leita.leita.repository.JudgeRepository
 import com.leita.leita.repository.ProblemRepository
 import com.leita.leita.repository.UserRepository
@@ -18,20 +18,20 @@ import java.util.Base64
 @Service
 class GitService(
     private val judgeRepository: JudgeRepository,
-    private val githubPort: GithubPort,
+    private val githubUtil: GithubUtil,
     private val jwtUtils: JwtUtils,
     private val userRepository: UserRepository,
     private val problemRepository: ProblemRepository,
-    private val cachePort: CachePort,
-    private val storagePort: StoragePort,
+    private val cacheUtil: CacheUtil,
+    private val oracleStorageUtil: OracleStorageUtil,
 ) {
     fun callbackInstall(installationId: Long, state: String, code: String) {
-        val userId = cachePort.get(state)
+        val userId = cacheUtil.get(state)
             ?: throw CustomException("Callback info not found", HttpStatus.BAD_REQUEST)
         val user = userRepository.findById(userId.toLong())
             .orElseThrow{ throw CustomException("User not found", HttpStatus.NOT_FOUND) }
 
-        val githubUserName = githubPort.getInstallation(installationId, code)
+        val githubUserName = githubUtil.getInstallation(installationId, code)
 
         user.addGithubApps(installationId, githubUserName)
         userRepository.save(user)
@@ -45,7 +45,7 @@ class GitService(
         val installationId = user.githubInfo!!.installationId
 
         try {
-            val response: InstallationRepositoriesResponse = githubPort.getInstallationRepositories(installationId)
+            val response: InstallationRepositoriesResponse = githubUtil.getInstallationRepositories(installationId)
             return response.repositories.map { RepositoryResponse(it.name, it.html_url) }
         } catch (_: Exception) {
             throw CustomException("Repositories not found", HttpStatus.BAD_REQUEST)
@@ -57,7 +57,7 @@ class GitService(
         val state = user.generateGitState()
 
         // TODO: expire가 있는 cache set으로 변경 필요
-        cachePort.set(state.toString(), user.id.toString())
+        cacheUtil.set(state.toString(), user.id.toString())
 
         return "https://github.com/apps/leita-ajou/installations/new?state=$state"
     }
@@ -90,7 +90,7 @@ class GitService(
             ```
         """.trimIndent()
 
-        val codeEncodedContent = storagePort.downloadFile("submits/${judge.id}/Main.${judge.used?.language?.toExtension()}")
+        val codeEncodedContent = oracleStorageUtil.downloadFile("submits/${judge.id}/Main.${judge.used?.language?.toExtension()}")
         val codeContent = Base64.getDecoder().decode(codeEncodedContent)
 
         val reviewFileName = "${problem.problemId}/review.md"
@@ -101,7 +101,7 @@ class GitService(
             codeFileName to String(codeContent)
         )
 
-        githubPort.commitMultipleFiles(
+        githubUtil.commitMultipleFiles(
             installationId,
             owner = githubUserName,
             repo = request.repositoryName,

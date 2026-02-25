@@ -8,8 +8,8 @@ import com.leita.leita.controller.studyClass.request.StudyClassRoleChangeRequest
 import com.leita.leita.controller.studyClass.request.StudyClassUpdateRequest
 import com.leita.leita.domain.study.StudyClass
 import com.leita.leita.domain.user.User
-import com.leita.leita.port.mail.MailPort
-import com.leita.leita.port.mail.MailType
+import com.leita.leita.util.mail.MailUtil
+import com.leita.leita.util.mail.MailType
 import com.leita.leita.repository.StudyClassRepository
 import com.leita.leita.repository.UserRepository
 import com.leita.leita.controller.studyClass.response.StudyClassCreateResponse
@@ -27,7 +27,7 @@ class StudyClassService(
     private val studyClassRepository: StudyClassRepository,
     private val userRepository: UserRepository,
     private val jwtUtils: JwtUtils,
-    private val mailPort: MailPort,
+    private val mailUtil: MailUtil,
 ) {
 
     fun getStudyClasses(page: Int, size: Int): StudyClassesResponse {
@@ -107,7 +107,7 @@ class StudyClassService(
             ?: throw CustomException("Study Class not found", HttpStatus.NOT_FOUND)
 
         studyClass.join(user)
-        mailPort.sendAll(MailType.STUDY_MEMBER_JOIN, studyClass.admins.map { it.email })
+        mailUtil.sendAll(MailType.STUDY_MEMBER_JOIN, studyClass.admins.map { it.email })
     }
 
     fun approve(id: Long, request: StudyClassMemberRequest) {

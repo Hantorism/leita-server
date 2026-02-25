@@ -2,7 +2,7 @@ package com.leita.leita.domain.user
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.leita.leita.common.exception.CustomException
-import com.leita.leita.port.google.dto.OAuthUserInfo
+import com.leita.leita.util.google.dto.OAuthUserInfo
 import com.leita.leita.common.security.SecurityRole
 import com.leita.leita.domain.BaseEntity
 import jakarta.persistence.Access
