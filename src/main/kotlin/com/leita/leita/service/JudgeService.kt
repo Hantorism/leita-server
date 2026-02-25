@@ -10,9 +10,9 @@ import com.leita.leita.controller.dto.judge.response.RunResponse
 import com.leita.leita.domain.judge.Judge
 import com.leita.leita.domain.judge.JudgeType
 import com.leita.leita.domain.judge.Result
-import com.leita.leita.port.judge.JudgePort
-import com.leita.leita.port.judge.dto.response.JudgeWCResponse
-import com.leita.leita.port.judge.dto.response.RunWCResponse
+import com.leita.leita.util.judge.JudgeUtil
+import com.leita.leita.util.judge.dto.response.JudgeWCResponse
+import com.leita.leita.util.judge.dto.response.RunWCResponse
 import com.leita.leita.repository.JudgeRepository
 import com.leita.leita.repository.ProblemRepository
 import jakarta.transaction.Transactional
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class JudgeService(
-    private val judgePort: JudgePort,
+    private val judgeUtil: JudgeUtil,
     private val judgeRepository: JudgeRepository,
     private val jwtUtils: JwtUtils,
     private val problemService: ProblemService,
@@ -36,7 +36,7 @@ class JudgeService(
         val submit = Judge.create(problem.id, user, request.language, JudgeType.SUBMIT)
         val submitId = judgeRepository.save(submit).id
 
-        val response: JudgeWCResponse = judgePort.submit(problemId, submitId, request)
+        val response: JudgeWCResponse = judgeUtil.submit(problemId, submitId, request)
         submit.updateSizeOfCode(request.code)
         submit.updateSubmitInfo(response)
 
@@ -54,7 +54,7 @@ class JudgeService(
         val run = Judge.create(problem.id, user, request.language, JudgeType.RUN)
         val submitId = judgeRepository.save(run).id
 
-        val response: List<RunWCResponse> = judgePort.run(problemId, submitId, request)
+        val response: List<RunWCResponse> = judgeUtil.run(problemId, submitId, request)
         return JudgeMapper.toRunResponse(response)
     }
 

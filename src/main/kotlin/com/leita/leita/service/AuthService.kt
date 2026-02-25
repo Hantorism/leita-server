@@ -6,7 +6,7 @@ import com.leita.leita.controller.auth.request.OAuthRequest
 import com.leita.leita.controller.auth.response.InfoResponse
 import com.leita.leita.controller.auth.response.JwtResponse
 import com.leita.leita.domain.user.User
-import com.leita.leita.port.google.GoogleOAuthPort
+import com.leita.leita.util.google.GoogleOAuthUtil
 import com.leita.leita.repository.UserRepository
 import org.springframework.stereotype.Service
 
@@ -14,10 +14,10 @@ import org.springframework.stereotype.Service
 class AuthService(
     private val userRepository: UserRepository,
     private val jwtUtils: JwtUtils,
-    private val googleOAuthPort: GoogleOAuthPort
+    private val googleOAuthUtil: GoogleOAuthUtil
 ) {
     fun oauth(request: OAuthRequest): JwtResponse {
-        val userInfo = googleOAuthPort.getUserInfo(request.accessToken)
+        val userInfo = googleOAuthUtil.getUserInfo(request.accessToken)
 
         if(userRepository.findByEmail(userInfo.email) == null) {
             val user = User.oauthLogin(userInfo)

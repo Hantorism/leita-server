@@ -13,7 +13,7 @@ import com.leita.leita.controller.problem.response.ProblemsResponse
 import com.leita.leita.domain.problem.Description
 import com.leita.leita.domain.problem.Problem
 import com.leita.leita.domain.problem.TestCase
-import com.leita.leita.port.storage.StoragePort
+import com.leita.leita.util.storage.OracleStorageUtil
 import com.leita.leita.repository.ProblemRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service
 class ProblemService(
     private val problemRepository: ProblemRepository,
     private val jwtUtils: JwtUtils,
-    private val storagePort: StoragePort,
+    private val oracleStorageUtil: OracleStorageUtil,
 ) {
     fun createProblem(request: CreateProblemRequest): CreateProblemResponse {
         val user = jwtUtils.extractUser()
@@ -126,23 +126,23 @@ class ProblemService(
     private fun uploadDescription(problemId: Long, description: Description): Description {
         val basePath = "problems/$problemId/description"
         return Description.create(
-            storagePort.uploadString("$basePath/problem.html", description.problem),
-            storagePort.uploadString("$basePath/input.html", description.input),
-            storagePort.uploadString("$basePath/output.html", description.output)
+            oracleStorageUtil.uploadString("$basePath/problem.html", description.problem),
+            oracleStorageUtil.uploadString("$basePath/input.html", description.input),
+            oracleStorageUtil.uploadString("$basePath/output.html", description.output)
         )
     }
 
     private fun uploadTestCases(problemId: Long, testCases: List<TestCaseDto>): List<TestCase> {
         val basePath = "problems/$problemId/testcases"
         return testCases.mapIndexed { index, dto ->
-            val inputUrl = storagePort.uploadString("$basePath/$index.in", dto.input)
-            val outputUrl = storagePort.uploadString("$basePath/$index.out", dto.output)
+            val inputUrl = oracleStorageUtil.uploadString("$basePath/$index.in", dto.input)
+            val outputUrl = oracleStorageUtil.uploadString("$basePath/$index.out", dto.output)
             TestCase(input = inputUrl, output = outputUrl, isShow = dto.isShow)
         }
     }
 
     private fun deleteProblemFiles(problemId: Long) {
         val basePath = "problems/$problemId/"
-        storagePort.deleteFolder(basePath)
+        oracleStorageUtil.deleteFolder(basePath)
     }
 }
