@@ -1,8 +1,10 @@
 package com.leita.leita.controller.study.request
 
-import java.time.LocalDateTime
-
-class StudyCreateRequest(
-    val startDateTime: LocalDateTime,
-    val endDateTime: LocalDateTime,
+data class StudyCreateRequest(
+    val title: String,
+    val description: String,
+    val attendanceCheckRequired: Boolean,
+    val assignmentRequired: Boolean,
+    val requiredAttendanceCount: Int,
+    val requiredAssignmentCount: Int
 )
