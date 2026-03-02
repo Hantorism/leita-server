@@ -18,40 +18,17 @@ class GithubUtil(
 ) {
 
     fun getInstallationRepositories(installationId: Long): InstallationRepositoriesResponse {
-        return getInstallationRepositoriesLogic(installationId)
+        val token = getInstallationAccessToken(installationId)
+        return githubClient.getInstallationRepositories("Bearer $token")
     }
 
     fun getInstallation(installationId: Long, code: String): String {
-        return getInstallationLogic(installationId, code)
+        val jwt = createJwt()
+        val response: InstallationResponse = githubClient.getInstallation("Bearer $jwt", installationId)
+        return response.account.login
     }
 
     fun commitMultipleFiles(
-        installationId: Long, owner: String, repo: String, branch: String, message: String,
-        files: Map<String, String>, authorName: String?, authorEmail: String?
-    ): CreateCommitResponse {
-        return commitMultipleFilesLogic(installationId, owner, repo, branch, message, files, authorName, authorEmail)
-    }
-
-    fun getInstallationAccessToken(installationId: Long): String {
-        val jwt = createJwt()
-        val response = githubClient.createInstallationAccessToken("Bearer $jwt", installationId)
-        return response.token
-    }
-
-    fun createJwt(): String {
-        val nowMillis = System.currentTimeMillis()
-        val now = Date(nowMillis)
-        val expirationMillis = nowMillis + 10 * 60 * 1000
-
-        return Jwts.builder()
-            .setIssuer(githubConfig.appId)
-            .setIssuedAt(now)
-            .setExpiration(Date(expirationMillis))
-            .signWith(PrivateKeyParser.parsePrivateKey(githubConfig.privateKey), SignatureAlgorithm.RS256)
-            .compact()
-    }
-
-    fun commitMultipleFilesLogic(
         installationId: Long, owner: String, repo: String, branch: String, message: String,
         files: Map<String, String>, authorName: String?, authorEmail: String?
     ): CreateCommitResponse {
@@ -124,15 +101,22 @@ class GithubUtil(
         return commit
     }
 
-    fun getInstallationLogic(installationId: Long, code: String): String {
+    fun getInstallationAccessToken(installationId: Long): String {
         val jwt = createJwt()
-        val response: InstallationResponse = githubClient.getInstallation("Bearer $jwt", installationId)
-        return response.account.login
+        val response = githubClient.createInstallationAccessToken("Bearer $jwt", installationId)
+        return response.token
     }
 
-    fun getInstallationRepositoriesLogic(installationId: Long): InstallationRepositoriesResponse {
-        val token = getInstallationAccessToken(installationId)
-        return githubClient.getInstallationRepositories("Bearer $token")
+    fun createJwt(): String {
+        val nowMillis = System.currentTimeMillis()
+        val now = Date(nowMillis)
+        val expirationMillis = nowMillis + 10 * 60 * 1000
+
+        return Jwts.builder()
+            .setIssuer(githubConfig.appId)
+            .setIssuedAt(now)
+            .setExpiration(Date(expirationMillis))
+            .signWith(PrivateKeyParser.parsePrivateKey(githubConfig.privateKey), SignatureAlgorithm.RS256)
+            .compact()
     }
 }
-

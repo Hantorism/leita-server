@@ -1,5 +1,6 @@
 package com.leita.leita.controller.study.response
 
-class StudyCreateResponse(
+data class StudyCreateResponse(
     val id: Long,
+    val title: String
 )

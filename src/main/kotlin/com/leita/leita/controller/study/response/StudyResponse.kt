@@ -1,12 +1,12 @@
 package com.leita.leita.controller.study.response
 
-data class StudyDetailResponse (
-    val id: Long?,
+data class StudyResponse(
+    val id: Long,
     val title: String,
     val description: String,
     val attendanceCheckRequired: Boolean,
     val assignmentRequired: Boolean,
     val requiredAttendanceCount: Int,
-    val requiredAssignmentCount: Int,
-    val members: List<StudyMemberResponse>
+    val requiredAssignmentCount: Int
 )
+
