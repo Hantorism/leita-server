@@ -23,15 +23,6 @@ class JudgeUtil(
 
     @Async
     fun submit(problemId: Long, submitId: Long, request: SubmitRequest): JudgeWCResponse {
-        return submitLogic(problemId, submitId, request)
-    }
-
-    @Async
-    fun run(problemId: Long, submitId: Long, request: RunRequest): List<RunWCResponse> {
-        return runLogic(problemId, submitId, request)
-    }
-
-    fun submitLogic(problemId: Long, submitId: Long, request: SubmitRequest): JudgeWCResponse {
         try {
             val submitRequest = SubmitWCRequest(
                 submitId,
@@ -55,7 +46,8 @@ class JudgeUtil(
         }
     }
 
-    fun runLogic(problemId: Long, submitId: Long, request: RunRequest): List<RunWCResponse> {
+    @Async
+    fun run(problemId: Long, submitId: Long, request: RunRequest): List<RunWCResponse> {
         try {
             val runRequest = RunWCRequest(
                 code = request.code,
@@ -79,4 +71,3 @@ class JudgeUtil(
         }
     }
 }
-

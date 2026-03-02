@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository
 interface JudgeRepository: JpaRepository<Judge, Long> {
     fun findAllByProblemIdAndType(problemId: Long, type: JudgeType): List<Judge>
     fun findAllByUserIdAndType(userId: Long, type: JudgeType): List<Judge>
+    fun findByProblemIdAndUserId(problemId: Long, userId: Long): Judge?
 }
