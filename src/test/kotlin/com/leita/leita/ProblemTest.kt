@@ -1,5 +1,6 @@
 package com.leita.leita
 
+import com.leita.leita.common.exception.CustomException
 import com.leita.leita.domain.problem.*
 import com.leita.leita.fixtures.DummyDescription
 import com.leita.leita.fixtures.DummyLimit
@@ -19,7 +20,7 @@ class ProblemTest {
     fun `create 메서드는 테스트 케이스 5개 미만이면 예외를 던진다`() {
         val testCases = DummyTestCases(4)
 
-        val exception = assertThrows<IllegalArgumentException> {
+        val exception = assertThrows<CustomException> {
             Problem.create(
                 title = "Title",
                 author = author,

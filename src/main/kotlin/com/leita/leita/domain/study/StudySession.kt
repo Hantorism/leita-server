@@ -20,7 +20,7 @@ open class StudySession(
     open val studyId: Long,
 
     @OneToMany(mappedBy = "studySession", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    open val attendanceChecks: MutableList<AttendanceCheck> = mutableListOf(),
+    open val attendances: MutableList<Attendance> = mutableListOf(),
 
     @OneToMany(mappedBy = "studySession", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     open val assignments: MutableList<Assignment> = mutableListOf()
@@ -53,23 +53,23 @@ open class StudySession(
         this.endDateTime = endDateTime
     }
 
-    fun openAttendanceCheck(
+    fun openAttendance(
         openTime: LocalDateTime,
         closeTime: LocalDateTime,
         lateThresholdMinutes: Int = 10
-    ): AttendanceCheck {
-        if (attendanceChecks.any { it.status == AttendanceCheckStatus.OPEN }) {
-            throw CustomException("이미 진행 중인 출석 체크가 있습니다.", HttpStatus.BAD_REQUEST)
+    ): Attendance {
+        if (attendances.any { it.status == AttendanceStatus.OPEN }) {
+            throw CustomException("이미 진행 중인 출석이 있습니다.", HttpStatus.BAD_REQUEST)
         }
 
-        val attendanceCheck = AttendanceCheck.create(
+        val attendance = Attendance.create(
             studySession = this,
             openTime = openTime,
             closeTime = closeTime,
             lateThresholdMinutes = lateThresholdMinutes
         )
-        attendanceChecks.add(attendanceCheck)
-        return attendanceCheck
+        attendances.add(attendance)
+        return attendance
     }
 
     fun createAssignment(

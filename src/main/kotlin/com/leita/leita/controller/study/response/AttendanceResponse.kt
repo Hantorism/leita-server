@@ -2,18 +2,18 @@ package com.leita.leita.controller.study.response
 
 import java.time.LocalDateTime
 
-data class AttendanceCheckResponse(
+data class AttendanceResponse(
     val id: Long,
     val studySessionId: Long,
     val openTime: LocalDateTime,
     val closeTime: LocalDateTime?,
     val lateThresholdMinutes: Int,
     val status: String,
-    val attendances: List<AttendanceResponse>,
+    val records: List<AttendanceRecordResponse>,
     val attendanceRate: AttendanceRateResponse
 )
 
-data class AttendanceResponse(
+data class AttendanceRecordResponse(
     val id: Long,
     val userId: Long,
     val userName: String,
