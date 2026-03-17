@@ -55,7 +55,10 @@ class StudyService(
         study.update(
             title = request.title,
             description = request.description,
-            attendanceCheckRequired = request.attendanceCheckRequired,
+            requirement = request.requirement,
+            startDate = request.startDate,
+            endDate = request.endDate,
+            attendanceRequired = request.attendanceRequired,
             assignmentRequired = request.assignmentRequired,
             requiredAttendanceCount = request.requiredAttendanceCount,
             requiredAssignmentCount = request.requiredAssignmentCount
@@ -102,8 +105,11 @@ class StudyService(
         val study = Study.create(
             title = request.title,
             description = request.description,
+            requirement = request.requirement,
+            startDate = request.startDate,
+            endDate = request.endDate,
             admin = admin,
-            attendanceCheckRequired = request.attendanceCheckRequired,
+            attendanceRequired = request.attendanceRequired,
             assignmentRequired = request.assignmentRequired,
             requiredAttendanceCount = request.requiredAttendanceCount,
             requiredAssignmentCount = request.requiredAssignmentCount

@@ -16,6 +16,8 @@ class StudyProcessTest {
     private lateinit var memberUser2: User
     private lateinit var study: Study
 
+    private var nextUserId = 1L
+
     private fun createUser(email: String, name: String): User {
         return User(
             name = name,
@@ -25,12 +27,13 @@ class StudyProcessTest {
             sub = email,
             role = SecurityRole.USER
         ).apply {
-            this.id = email.hashCode().toLong().coerceAtLeast(1)
+            this.id = nextUserId++
         }
     }
 
     @BeforeEach
     fun setUp() {
+        nextUserId = 1L
         adminUser = createUser("admin@test.com", "Admin")
         memberUser1 = createUser("member1@test.com", "Member1")
         memberUser2 = createUser("member2@test.com", "Member2")
@@ -38,8 +41,11 @@ class StudyProcessTest {
         study = Study.create(
             title = "알고리즘 마스터",
             description = "코딩 테스트 준비",
+            requirement = "열심히 할 사람",
+            startDate = java.time.LocalDateTime.now(),
+            endDate = java.time.LocalDateTime.now().plusMonths(3),
             admin = adminUser,
-            attendanceCheckRequired = true,
+            attendanceRequired = true,
             assignmentRequired = true,
             requiredAttendanceCount = 8,
             requiredAssignmentCount = 5
@@ -194,12 +200,12 @@ class StudyProcessTest {
     }
 
     @Test
-    @DisplayName("8. 출석 체크 필수 여부 확인")
-    fun testAttendanceCheckRequired() {
-        assert(study.attendanceCheckRequired == true)
+    @DisplayName("8. 출석 필수 여부 확인")
+    fun testAttendanceRequired() {
+        assert(study.attendanceRequired == true)
         assert(study.assignmentRequired == true)
 
-        println("✅ 출석 체크 필수: ${study.attendanceCheckRequired}")
+        println("✅ 출석 필수: ${study.attendanceRequired}")
         println("✅ 과제 필수: ${study.assignmentRequired}")
     }
 

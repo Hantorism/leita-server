@@ -24,24 +24,24 @@ class StudySessionDomainTest {
     fun `open attendance check and attend`() {
         val now = LocalDateTime.now()
         val session = StudySession.create(now.minusHours(1), now.plusHours(2), 1L)
-        val check = session.openAttendanceCheck(now.minusMinutes(5), now.plusMinutes(30), 10)
+        val attendance = session.openAttendance(now.minusMinutes(5), now.plusMinutes(30), 10)
 
         val member = user(11L, "m1@ajou.ac.kr")
-        check.registerMember(member)
-        val attendance = check.attend(member, now)
+        attendance.registerMember(member)
+        val record = attendance.attend(member, now)
 
-        assertEquals(AttendanceStatus.PRESENT, attendance.status)
-        assertEquals(1, session.attendanceChecks.size)
+        assertEquals(AttendanceRecordStatus.PRESENT, record.status)
+        assertEquals(1, session.attendances.size)
     }
 
     @Test
     fun `cannot open multiple attendance checks at same time`() {
         val now = LocalDateTime.now()
         val session = StudySession.create(now.minusHours(1), now.plusHours(2), 1L)
-        session.openAttendanceCheck(now.minusMinutes(5), now.plusMinutes(30), 10)
+        session.openAttendance(now.minusMinutes(5), now.plusMinutes(30), 10)
 
         assertThrows(RuntimeException::class.java) {
-            session.openAttendanceCheck(now.minusMinutes(1), now.plusMinutes(40), 10)
+            session.openAttendance(now.minusMinutes(1), now.plusMinutes(40), 10)
         }
     }
 
@@ -68,6 +68,3 @@ class StudySessionDomainTest {
         }
     }
 }
-
-
-
