@@ -10,6 +10,8 @@ import java.time.LocalDateTime
 @DisplayName("스터디 시스템 종합 테스트")
 class StudySystemTest {
 
+    private var nextUserId = 1L
+
     private fun createUser(email: String, name: String): User {
         return User(
             name = name,
@@ -19,13 +21,14 @@ class StudySystemTest {
             sub = email,
             role = SecurityRole.USER
         ).apply {
-            this.id = email.hashCode().toLong().coerceAtLeast(1)
+            this.id = nextUserId++
         }
     }
 
     @Test
     @DisplayName("전체 스터디 플로우 - 생성부터 세션 관리까지")
     fun testFullStudyFlow() {
+        nextUserId = 1L
         println("\n=== 스터디 시스템 전체 플로우 테스트 ===\n")
 
         // 사용자 생성
@@ -38,8 +41,11 @@ class StudySystemTest {
         val study = Study.create(
             title = "알고리즘 마스터 스터디",
             description = "코딩 테스트 완벽 대비",
+            requirement = "열심히 할 사람",
+            startDate = LocalDateTime.now(),
+            endDate = LocalDateTime.now().plusMonths(3),
             admin = admin,
-            attendanceCheckRequired = true,
+            attendanceRequired = true,
             assignmentRequired = true,
             requiredAttendanceCount = 10,
             requiredAssignmentCount = 5
@@ -82,9 +88,9 @@ class StudySystemTest {
         println("   ✅ 시작: ${session.startDateTime}")
         println("   ✅ 종료: ${session.endDateTime}")
 
-        // 5. 출석 체크 시작
-        println("\n5️⃣ 출석 체크 시작")
-        val attendanceCheck = session.openAttendanceCheck(
+        // 5. 출석 시작
+        println("\n5️⃣ 출석 시작")
+        val attendance = session.openAttendance(
             openTime = now.plusDays(1).withHour(19).withMinute(0),
             closeTime = now.plusDays(1).withHour(21).withMinute(0),
             lateThresholdMinutes = 10
@@ -92,30 +98,30 @@ class StudySystemTest {
 
         // 모든 활성 멤버 등록
         study.getAllActiveMembers().forEach { member ->
-            attendanceCheck.registerMember(member)
+            attendance.registerMember(member)
         }
 
-        assertEquals(3, attendanceCheck.attendances.size)
-        println("   ✅ 출석 체크 오픈")
+        assertEquals(3, attendance.records.size)
+        println("   ✅ 출석 오픈")
         println("   ✅ 지각 기준: 시작 후 10분")
-        println("   ✅ 등록된 멤버: ${attendanceCheck.attendances.size}명")
+        println("   ✅ 등록된 멤버: ${attendance.records.size}명")
 
         // 6. 출석 응답
         println("\n6️⃣ 출석 응답")
         val attendTime1 = now.plusDays(1).withHour(19).withMinute(5)  // 5분 후 - PRESENT
         val attendTime2 = now.plusDays(1).withHour(19).withMinute(15) // 15분 후 - LATE
 
-        attendanceCheck.attend(admin, attendTime1)
-        attendanceCheck.attend(member1, attendTime2)
+        attendance.attend(admin, attendTime1)
+        attendance.attend(member1, attendTime2)
         // member2는 응답 안 함 - ABSENT
 
-        val adminAttendance = attendanceCheck.attendances.find { it.user.id == admin.id }
-        val member1Attendance = attendanceCheck.attendances.find { it.user.id == member1.id }
-        val member2Attendance = attendanceCheck.attendances.find { it.user.id == member2.id }
+        val adminRecord = attendance.records.find { it.user.id == admin.id }
+        val member1Record = attendance.records.find { it.user.id == member1.id }
+        val member2Record = attendance.records.find { it.user.id == member2.id }
 
-        assertEquals(AttendanceStatus.PRESENT, adminAttendance?.status)
-        assertEquals(AttendanceStatus.LATE, member1Attendance?.status)
-        assertEquals(AttendanceStatus.ABSENT, member2Attendance?.status)
+        assertEquals(AttendanceRecordStatus.PRESENT, adminRecord?.status)
+        assertEquals(AttendanceRecordStatus.LATE, member1Record?.status)
+        assertEquals(AttendanceRecordStatus.ABSENT, member2Record?.status)
 
         println("   ✅ ${admin.name}: PRESENT (5분 후 응답)")
         println("   ✅ ${member1.name}: LATE (15분 후 응답)")
@@ -147,13 +153,13 @@ class StudySystemTest {
         println("   ✅ 문제 추가/제거 완료")
         println("   ✅ 현재 문제: ${assignment.problemIds}")
 
-        // 9. 출석 체크 종료
-        println("\n9️⃣ 출석 체크 종료")
-        attendanceCheck.close(now.plusDays(1).withHour(21).withMinute(0))
+        // 9. 출석 종료
+        println("\n9️⃣ 출석 종료")
+        attendance.close(now.plusDays(1).withHour(21).withMinute(0))
 
-        assertEquals(AttendanceCheckStatus.CLOSED, attendanceCheck.status)
-        println("   ✅ 출석 체크 종료")
-        println("   ✅ 상태: ${attendanceCheck.status}")
+        assertEquals(AttendanceStatus.CLOSED, attendance.status)
+        println("   ✅ 출석 종료")
+        println("   ✅ 상태: ${attendance.status}")
 
         // 최종 결과
         println("\n🎯 최종 결과")
@@ -165,12 +171,12 @@ class StudySystemTest {
         println("   - 총 활성 멤버: ${study.getAllActiveMembers().size}명")
 
         println("\n📅 세션 정보")
-        println("   - 출석 체크: ${session.attendanceChecks.size}개")
+        println("   - 출석: ${session.attendances.size}개")
         println("   - 과제: ${session.assignments.size}개")
 
         println("\n✅ 출석 현황")
-        attendanceCheck.attendances.forEach { att ->
-            println("   - ${att.user.name}: ${att.status}")
+        attendance.records.forEach { record ->
+            println("   - ${record.user.name}: ${record.status}")
         }
 
         println("\n📝 과제 현황")
@@ -184,6 +190,7 @@ class StudySystemTest {
     @Test
     @DisplayName("수료 조건 검증")
     fun testCompletionValidation() {
+        nextUserId = 1L
         println("\n=== 수료 조건 검증 테스트 ===\n")
 
         val admin = createUser("admin@test.com", "관리자")
@@ -193,13 +200,16 @@ class StudySystemTest {
         val study1 = Study.create(
             title = "출석 중심 스터디",
             description = "출석이 중요",
+            requirement = "열심히 할 사람",
+            startDate = LocalDateTime.now(),
+            endDate = LocalDateTime.now().plusMonths(3),
             admin = admin,
-            attendanceCheckRequired = true,
+            attendanceRequired = true,
             assignmentRequired = false,
             requiredAttendanceCount = 10,
             requiredAssignmentCount = 0
         )
-        assertTrue(study1.attendanceCheckRequired)
+        assertTrue(study1.attendanceRequired)
         assertFalse(study1.assignmentRequired)
         println("   ✅ 출석 ${study1.requiredAttendanceCount}회 이상 필수")
 
@@ -208,13 +218,16 @@ class StudySystemTest {
         val study2 = Study.create(
             title = "과제 중심 스터디",
             description = "과제가 중요",
+            requirement = "열심히 할 사람",
+            startDate = LocalDateTime.now(),
+            endDate = LocalDateTime.now().plusMonths(3),
             admin = admin,
-            attendanceCheckRequired = false,
+            attendanceRequired = false,
             assignmentRequired = true,
             requiredAttendanceCount = 0,
             requiredAssignmentCount = 5
         )
-        assertFalse(study2.attendanceCheckRequired)
+        assertFalse(study2.attendanceRequired)
         assertTrue(study2.assignmentRequired)
         println("   ✅ 과제 ${study2.requiredAssignmentCount}개 이상 필수")
 
@@ -223,13 +236,16 @@ class StudySystemTest {
         val study3 = Study.create(
             title = "엄격한 스터디",
             description = "출석과 과제 모두 중요",
+            requirement = "열심히 할 사람",
+            startDate = LocalDateTime.now(),
+            endDate = LocalDateTime.now().plusMonths(3),
             admin = admin,
-            attendanceCheckRequired = true,
+            attendanceRequired = true,
             assignmentRequired = true,
             requiredAttendanceCount = 8,
             requiredAssignmentCount = 4
         )
-        assertTrue(study3.attendanceCheckRequired)
+        assertTrue(study3.attendanceRequired)
         assertTrue(study3.assignmentRequired)
         println("   ✅ 출석 ${study3.requiredAttendanceCount}회 + 과제 ${study3.requiredAssignmentCount}개 이상 필수")
 
@@ -239,6 +255,7 @@ class StudySystemTest {
     @Test
     @DisplayName("중복 방지 및 예외 처리")
     fun testDuplicatePreventionAndExceptions() {
+        nextUserId = 1L
         println("\n=== 중복 방지 및 예외 처리 테스트 ===\n")
 
         val admin = createUser("admin@test.com", "관리자")
@@ -247,8 +264,11 @@ class StudySystemTest {
         val study = Study.create(
             title = "테스트 스터디",
             description = "예외 테스트",
+            requirement = "열심히 할 사람",
+            startDate = LocalDateTime.now(),
+            endDate = LocalDateTime.now().plusMonths(3),
             admin = admin,
-            attendanceCheckRequired = true,
+            attendanceRequired = true,
             assignmentRequired = true,
             requiredAttendanceCount = 1,
             requiredAssignmentCount = 1
@@ -261,14 +281,14 @@ class StudySystemTest {
             studyId = 1L
         )
 
-        // 1. 중복 출석 체크 방지
-        println("1️⃣ 중복 출석 체크 방지")
-        session.openAttendanceCheck(now, now.plusHours(2), 10)
+        // 1. 중복 출석 방지
+        println("1️⃣ 중복 출석 방지")
+        session.openAttendance(now, now.plusHours(2), 10)
         val exception1 = assertThrows(Exception::class.java) {
-            session.openAttendanceCheck(now, now.plusHours(2), 10)
+            session.openAttendance(now, now.plusHours(2), 10)
         }
         assertNotNull(exception1)
-        println("   ✅ 이미 진행 중인 출석 체크가 있을 때 새로 생성 불가")
+        println("   ✅ 이미 진행 중인 출석이 있을 때 새로 생성 불가")
 
         // 2. 중복 과제 방지
         println("\n2️⃣ 중복 과제 방지 (세션당 1개)")
@@ -299,4 +319,3 @@ class StudySystemTest {
         println("\n✅ 예외 처리 테스트 완료\n")
     }
 }
-

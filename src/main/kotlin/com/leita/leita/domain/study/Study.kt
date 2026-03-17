@@ -5,6 +5,7 @@ import com.leita.leita.domain.BaseEntity
 import com.leita.leita.domain.user.User
 import jakarta.persistence.*
 import org.springframework.http.HttpStatus
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "study")
@@ -18,7 +19,16 @@ open class Study(
     open var description: String,
 
     @Column(nullable = false)
-    open var attendanceCheckRequired: Boolean = false,
+    open var requirement: String,
+
+    @Column(nullable = false)
+    open var startDate: LocalDateTime,
+
+    @Column(nullable = false)
+    open var endDate: LocalDateTime,
+
+    @Column(nullable = false)
+    open var attendanceRequired: Boolean = false,
 
     @Column(nullable = false)
     open var assignmentRequired: Boolean = false,
@@ -38,8 +48,11 @@ open class Study(
         fun create(
             title: String,
             description: String,
+            requirement: String,
+            startDate: LocalDateTime,
+            endDate: LocalDateTime,
             admin: User,
-            attendanceCheckRequired: Boolean = false,
+            attendanceRequired: Boolean = false,
             assignmentRequired: Boolean = false,
             requiredAttendanceCount: Int = 0,
             requiredAssignmentCount: Int = 0
@@ -47,8 +60,12 @@ open class Study(
             if (description.isBlank()) {
                 throw CustomException("스터디 설명은 필수입니다.", HttpStatus.BAD_REQUEST)
             }
+            if (requirement.isBlank()) {
+                throw CustomException("스터디 참여 조건은 필수입니다.", HttpStatus.BAD_REQUEST)
+            }
+            validateDateTimeRange(startDate, endDate)
             validateCompletionCondition(
-                attendanceCheckRequired,
+                attendanceRequired,
                 assignmentRequired,
                 requiredAttendanceCount,
                 requiredAssignmentCount
@@ -57,7 +74,10 @@ open class Study(
             val study = Study(
                 title = title,
                 description = description,
-                attendanceCheckRequired = attendanceCheckRequired,
+                requirement = requirement,
+                startDate = startDate,
+                endDate = endDate,
+                attendanceRequired = attendanceRequired,
                 assignmentRequired = assignmentRequired,
                 requiredAttendanceCount = requiredAttendanceCount,
                 requiredAssignmentCount = requiredAssignmentCount
@@ -66,16 +86,22 @@ open class Study(
             return study
         }
 
+        private fun validateDateTimeRange(startDate: LocalDateTime, endDate: LocalDateTime) {
+            if (!endDate.isAfter(startDate)) {
+                throw CustomException("스터디 종료일은 시작일보다 늦어야 합니다.", HttpStatus.BAD_REQUEST)
+            }
+        }
+
         private fun validateCompletionCondition(
-            attendanceCheckRequired: Boolean,
+            attendanceRequired: Boolean,
             assignmentRequired: Boolean,
             requiredAttendanceCount: Int,
             requiredAssignmentCount: Int
         ) {
-            if (!attendanceCheckRequired && !assignmentRequired) {
+            if (!attendanceRequired && !assignmentRequired) {
                 throw CustomException("수료 조건은 최소 1개 이상 필요합니다.", HttpStatus.BAD_REQUEST)
             }
-            if (attendanceCheckRequired && requiredAttendanceCount <= 0) {
+            if (attendanceRequired && requiredAttendanceCount <= 0) {
                 throw CustomException("출석 수료 조건은 1 이상이어야 합니다.", HttpStatus.BAD_REQUEST)
             }
             if (assignmentRequired && requiredAssignmentCount <= 0) {
@@ -194,7 +220,10 @@ open class Study(
     fun update(
         title: String,
         description: String,
-        attendanceCheckRequired: Boolean,
+        requirement: String,
+        startDate: LocalDateTime,
+        endDate: LocalDateTime,
+        attendanceRequired: Boolean,
         assignmentRequired: Boolean,
         requiredAttendanceCount: Int,
         requiredAssignmentCount: Int
@@ -202,8 +231,12 @@ open class Study(
         if (description.isBlank()) {
             throw CustomException("스터디 설명은 필수입니다.", HttpStatus.BAD_REQUEST)
         }
+        if (requirement.isBlank()) {
+            throw CustomException("스터디 참여 조건은 필수입니다.", HttpStatus.BAD_REQUEST)
+        }
+        Companion.validateDateTimeRange(startDate, endDate)
         Companion.validateCompletionCondition(
-            attendanceCheckRequired,
+            attendanceRequired,
             assignmentRequired,
             requiredAttendanceCount,
             requiredAssignmentCount
@@ -211,7 +244,10 @@ open class Study(
 
         this.title = title
         this.description = description
-        this.attendanceCheckRequired = attendanceCheckRequired
+        this.requirement = requirement
+        this.startDate = startDate
+        this.endDate = endDate
+        this.attendanceRequired = attendanceRequired
         this.assignmentRequired = assignmentRequired
         this.requiredAttendanceCount = requiredAttendanceCount
         this.requiredAssignmentCount = requiredAssignmentCount
