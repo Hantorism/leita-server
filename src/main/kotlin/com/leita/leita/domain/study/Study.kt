@@ -15,28 +15,28 @@ open class Study(
     @Column(nullable = false, unique = true)
     open var title: String,
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     open var description: String,
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     open var requirement: String,
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     open var startDate: LocalDateTime,
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     open var endDate: LocalDateTime,
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     open var attendanceRequired: Boolean = false,
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     open var assignmentRequired: Boolean = false,
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     open var requiredAttendanceCount: Int = 0,
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     open var requiredAssignmentCount: Int = 0,
 
     @OneToMany(mappedBy = "study", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
