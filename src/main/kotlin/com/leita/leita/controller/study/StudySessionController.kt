@@ -32,115 +32,104 @@ class StudySessionController(
 
     @GetMapping
     fun getStudySessions(
-        @PathVariable studyId: Long,
-        @RequestParam page: Int = 0,
-        @RequestParam size: Int = 10
+        @RequestParam(required = true) studyId: Long,
+        @RequestParam(required = false) page: Int?,
+        @RequestParam(required = false) size: Int?
     ): ResponseEntity<BaseResponse<StudySessionsResponse>> {
         val response = studySessionService.getStudySessions(studyId, page, size)
         return ResponseEntity.ok(BaseResponse("스터디 세션 목록 조회 완료", response))
     }
 
-    @GetMapping("/{sessionId}")
-    fun getStudySession(
-        @PathVariable studyId: Long,
-        @PathVariable sessionId: Long
-    ): ResponseEntity<BaseResponse<StudySessionDetailResponse>> {
-        val response = studySessionService.getStudySession(studyId, sessionId)
-        return ResponseEntity.ok(BaseResponse("스터디 세션 조회 완료", response))
-    }
-
     @PostMapping
     fun createStudySession(
-        @PathVariable studyId: Long,
         @RequestBody request: StudySessionCreateRequest
     ): ResponseEntity<BaseResponse<StudySessionDetailResponse>> {
-        val response = studySessionService.createStudySession(studyId, request)
+        val response = studySessionService.createStudySession(request.studyId, request)
         return ResponseEntity.ok(BaseResponse("스터디 세션 생성 완료", response))
     }
 
-    @PutMapping("/{sessionId}")
+    @GetMapping("/{studySessionId}")
+    fun getStudySession(
+        @PathVariable studySessionId: Long
+    ): ResponseEntity<BaseResponse<StudySessionDetailResponse>> {
+        val response = studySessionService.getStudySession(studySessionId)
+        return ResponseEntity.ok(BaseResponse("스터디 세션 조회 완료", response))
+    }
+
+    @PutMapping("/{studySessionId}")
     fun updateStudySession(
-        @PathVariable studyId: Long,
-        @PathVariable sessionId: Long,
+        @PathVariable studySessionId: Long,
         @RequestBody request: StudySessionUpdateRequest
     ): ResponseEntity<BaseResponse<StudySessionDetailResponse>> {
-        val response = studySessionService.updateStudySession(studyId, sessionId, request)
+        val response = studySessionService.updateStudySession(studySessionId, request)
         return ResponseEntity.ok(BaseResponse("스터디 세션 수정 완료", response))
     }
 
-    @DeleteMapping("/{sessionId}")
+    @DeleteMapping("/{studySessionId}")
     fun deleteStudySession(
-        @PathVariable studyId: Long,
-        @PathVariable sessionId: Long
+        @PathVariable studySessionId: Long
     ): ResponseEntity<BaseResponse<Void>> {
-        studySessionService.deleteStudySession(studyId, sessionId)
+        studySessionService.deleteStudySession(studySessionId)
         return ResponseEntity.ok(BaseResponse("스터디 세션 삭제 완료", null))
     }
 
-    @GetMapping("/{sessionId}/attendance")
+    @GetMapping("/{studySessionId}/attendance")
     fun getAttendance(
-        @PathVariable studyId: Long,
-        @PathVariable sessionId: Long
+        @PathVariable studySessionId: Long
     ): ResponseEntity<BaseResponse<AttendanceResponse>> {
-        val response = studySessionService.getAttendance(studyId, sessionId)
+        val response = studySessionService.getAttendance(studySessionId)
         return ResponseEntity.ok(BaseResponse("출석 조회 완료", response))
     }
 
-    @PostMapping("/{sessionId}/attendance/open")
+    @PostMapping("/{studySessionId}/attendance/open")
     fun openAttendance(
-        @PathVariable studyId: Long,
-        @PathVariable sessionId: Long,
+        @PathVariable studySessionId: Long,
         @RequestBody request: AttendanceOpenRequest
     ): ResponseEntity<BaseResponse<AttendanceResponse>> {
-        val response = studySessionService.openAttendance(studyId, sessionId, request)
+        val response = studySessionService.openAttendance(studySessionId, request)
         return ResponseEntity.ok(BaseResponse("출석 오픈 완료", response))
     }
 
-    @PostMapping("/{sessionId}/attendance/attend")
+    @PostMapping("/{studySessionId}/attendance/attend")
     fun attend(
-        @PathVariable studyId: Long,
-        @PathVariable sessionId: Long
+        @PathVariable studySessionId: Long
     ): ResponseEntity<BaseResponse<AttendanceResponse>> {
-        val response = studySessionService.attend(studyId, sessionId)
+        val response = studySessionService.attend(studySessionId)
         return ResponseEntity.ok(BaseResponse("출석 완료", response))
     }
 
-    @PostMapping("/{sessionId}/attendance/close")
+    @PostMapping("/{studySessionId}/attendance/close")
     fun closeAttendance(
-        @PathVariable studyId: Long,
-        @PathVariable sessionId: Long,
+        @PathVariable studySessionId: Long,
         @RequestBody(required = false) request: AttendanceCloseRequest?
     ): ResponseEntity<BaseResponse<AttendanceResponse>> {
-        val response = studySessionService.closeAttendance(studyId, sessionId, request)
+        val response = studySessionService.closeAttendance(studySessionId, request)
         return ResponseEntity.ok(BaseResponse("출석 종료 완료", response))
     }
 
-    @GetMapping("/{sessionId}/assignment")
+    @GetMapping("/{studySessionId}/assignment")
     fun getAssignment(
-        @PathVariable studyId: Long,
-        @PathVariable sessionId: Long
+        @PathVariable studySessionId: Long
     ): ResponseEntity<BaseResponse<AssignmentDetailResponse>> {
-        val response = studySessionService.getAssignment(studyId, sessionId)
+        val response = studySessionService.getAssignment(studySessionId)
         return ResponseEntity.ok(BaseResponse("과제 조회 완료", response))
     }
 
-    @PostMapping("/{sessionId}/assignment")
+    @PostMapping("/{studySessionId}/assignment")
     fun createAssignment(
-        @PathVariable studyId: Long,
-        @PathVariable sessionId: Long,
+        @PathVariable studySessionId: Long,
         @RequestBody request: AssignmentCreateRequest
     ): ResponseEntity<BaseResponse<AssignmentResponse>> {
-        val response = studySessionService.createAssignment(studyId, sessionId, request)
+        val response = studySessionService.createAssignment(studySessionId, request)
         return ResponseEntity.ok(BaseResponse("과제 생성 완료", response))
     }
 
-    @PutMapping("/{sessionId}/assignment")
+    @PutMapping("/{studySessionId}/assignment")
     fun updateAssignment(
-        @PathVariable studyId: Long,
-        @PathVariable sessionId: Long,
+        @PathVariable studySessionId: Long,
         @RequestBody request: AssignmentUpdateRequest
     ): ResponseEntity<BaseResponse<AssignmentResponse>> {
-        val response = studySessionService.updateAssignment(studyId, sessionId, request)
+        val response = studySessionService.updateAssignment(studySessionId, request)
         return ResponseEntity.ok(BaseResponse("과제 수정 완료", response))
     }
 }

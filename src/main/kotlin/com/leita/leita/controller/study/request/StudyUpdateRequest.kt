@@ -1,13 +1,15 @@
 package com.leita.leita.controller.study.request
 
+import java.time.LocalDate
 import java.time.LocalDateTime
 
-data class StudyUpdateRequest (
+data class StudyUpdateRequest(
     val title: String,
     val description: String,
     val requirement: String,
-    val startDate: LocalDateTime,
-    val endDate: LocalDateTime,
+    val startDate: LocalDate,
+    val endDate: LocalDate,
+
     val attendanceRequired: Boolean,
     val assignmentRequired: Boolean,
     val requiredAttendanceCount: Int,

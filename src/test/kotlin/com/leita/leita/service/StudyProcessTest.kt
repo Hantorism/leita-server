@@ -7,6 +7,7 @@ import com.leita.leita.common.security.SecurityRole
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 @DisplayName("스터디 전체 흐름 단위 테스트")
 class StudyProcessTest {
@@ -42,8 +43,8 @@ class StudyProcessTest {
             title = "알고리즘 마스터",
             description = "코딩 테스트 준비",
             requirement = "열심히 할 사람",
-            startDate = java.time.LocalDateTime.now(),
-            endDate = java.time.LocalDateTime.now().plusMonths(3),
+            startDate = LocalDate.now(),
+            endDate = LocalDate.now().plusMonths(3),
             admin = adminUser,
             attendanceRequired = true,
             assignmentRequired = true,

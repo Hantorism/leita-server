@@ -1,6 +1,7 @@
 package com.leita.leita.common.config
 
 import com.leita.leita.common.security.ApiPaths
+import com.leita.leita.common.security.jwt.JwtExceptionFilter
 import com.leita.leita.common.security.jwt.JwtRequestFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -14,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 class SecurityConfig(
     private val jwtRequestFilter: JwtRequestFilter,
+    private val jwtExceptionFilter: JwtExceptionFilter,
 ) {
 
     @Bean
@@ -28,6 +30,7 @@ class SecurityConfig(
                 it.anyRequest().permitAll()
             }
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(jwtExceptionFilter, JwtRequestFilter::class.java)
 
         return http.build()
     }

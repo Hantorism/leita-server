@@ -5,6 +5,7 @@ import com.leita.leita.domain.BaseEntity
 import com.leita.leita.domain.user.User
 import jakarta.persistence.*
 import org.springframework.http.HttpStatus
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Entity
@@ -22,10 +23,10 @@ open class Study(
     open var requirement: String,
 
     @Column(nullable = true)
-    open var startDate: LocalDateTime,
+    open var startDate: LocalDate,
 
     @Column(nullable = true)
-    open var endDate: LocalDateTime,
+    open var endDate: LocalDate,
 
     @Column(nullable = true)
     open var attendanceRequired: Boolean = false,
@@ -40,7 +41,7 @@ open class Study(
     open var requiredAssignmentCount: Int = 0,
 
     @OneToMany(mappedBy = "study", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    open val studyMembers: MutableList<StudyMember> = mutableListOf()
+    open val studyMembers: MutableSet<StudyMember> = mutableSetOf()
 
 ) : BaseEntity() {
 
@@ -49,8 +50,8 @@ open class Study(
             title: String,
             description: String,
             requirement: String,
-            startDate: LocalDateTime,
-            endDate: LocalDateTime,
+            startDate: LocalDate,
+            endDate: LocalDate,
             admin: User,
             attendanceRequired: Boolean = false,
             assignmentRequired: Boolean = false,
@@ -86,7 +87,7 @@ open class Study(
             return study
         }
 
-        private fun validateDateTimeRange(startDate: LocalDateTime, endDate: LocalDateTime) {
+        private fun validateDateTimeRange(startDate: LocalDate, endDate: LocalDate) {
             if (!endDate.isAfter(startDate)) {
                 throw CustomException("스터디 종료일은 시작일보다 늦어야 합니다.", HttpStatus.BAD_REQUEST)
             }
@@ -221,8 +222,8 @@ open class Study(
         title: String,
         description: String,
         requirement: String,
-        startDate: LocalDateTime,
-        endDate: LocalDateTime,
+        startDate: LocalDate,
+        endDate: LocalDate,
         attendanceRequired: Boolean,
         assignmentRequired: Boolean,
         requiredAttendanceCount: Int,

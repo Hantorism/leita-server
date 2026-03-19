@@ -29,7 +29,7 @@ open class Attendance(
     open var status: AttendanceStatus = AttendanceStatus.OPEN,
 
     @OneToMany(mappedBy = "attendance", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    open val records: MutableList<AttendanceRecord> = mutableListOf()
+    open val records: MutableSet<AttendanceRecord> = mutableSetOf()
 ) : BaseEntity() {
 
     companion object {
