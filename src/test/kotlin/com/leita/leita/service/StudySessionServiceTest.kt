@@ -69,6 +69,7 @@ class StudySessionServiceTest {
         val response = studySessionService.createStudySession(
             1L,
             StudySessionCreateRequest(
+                studyId = 1L,
                 startDateTime = LocalDateTime.of(2026, 3, 20, 19, 0),
                 endDateTime = LocalDateTime.of(2026, 3, 20, 21, 0)
             )
@@ -89,11 +90,10 @@ class StudySessionServiceTest {
         ).apply { id = 20L }
 
         `when`(studyRepository.findDetailById(1L)).thenReturn(study)
-        `when`(studySessionRepository.findDetailByIdAndStudyId(20L, 1L)).thenReturn(session)
+        `when`(studySessionRepository.findDetailById(20L)).thenReturn(session)
         `when`(jwtUtils.extractEmail()).thenReturn(adminUser.email)
 
         val response = studySessionService.openAttendance(
-            1L,
             20L,
             AttendanceOpenRequest(
                 lateThresholdMinutes = 15,
@@ -125,10 +125,10 @@ class StudySessionServiceTest {
         attendance.registerMember(memberUser)
 
         `when`(studyRepository.findDetailById(1L)).thenReturn(study)
-        `when`(studySessionRepository.findDetailByIdAndStudyId(30L, 1L)).thenReturn(session)
+        `when`(studySessionRepository.findDetailById(30L)).thenReturn(session)
         `when`(jwtUtils.extractUser()).thenReturn(memberUser)
 
-        val response = studySessionService.attend(1L, 30L)
+        val response = studySessionService.attend(30L)
         val memberRecord = response.records.first { it.userId == memberUser.id }
 
         assertThat(memberRecord.status).isEqualTo(AttendanceRecordStatus.PRESENT.name)
