@@ -19,6 +19,7 @@ import com.leita.leita.domain.study.Study
 import com.leita.leita.domain.study.StudySession
 import com.leita.leita.repository.StudyRepository
 import com.leita.leita.repository.StudySessionRepository
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -33,23 +34,29 @@ class StudySessionService(
 ) {
 
     @Transactional(readOnly = true)
-    fun getStudySessions(studyId: Long, page: Int, size: Int): StudySessionsResponse {
+    fun getStudySessions(studyId: Long, page: Int?, size: Int?): StudySessionsResponse {
         val study = getStudy(studyId)
         study.checkMemberByEmail(jwtUtils.extractEmail())
 
-        val sessions = studySessionRepository.findByStudyIdOrderByStartDateTimeAsc(
-            studyId,
-            PageRequest.of(page, size)
-        )
+        var sessions: Page<StudySession>
+        if (page != null && size != null) {
+            sessions = studySessionRepository.findByStudyIdOrderByStartDateTimeAsc(
+                studyId,
+                PageRequest.of(page, size)
+            )
+        } else {
+            sessions = studySessionRepository.findByStudyIdOrderByStartDateTimeAsc(studyId)
+        }
+
         return StudySessionMapper.toStudySessionsResponse(sessions)
     }
 
     @Transactional(readOnly = true)
-    fun getStudySession(studyId: Long, sessionId: Long): StudySessionDetailResponse {
-        val study = getStudy(studyId)
+    fun getStudySession(sessionId: Long): StudySessionDetailResponse {
+        val studySession = getStudySessionEntity(sessionId)
+        val study = getStudy(studySession.studyId)
         study.checkMemberByEmail(jwtUtils.extractEmail())
 
-        val studySession = getStudySessionEntity(studyId, sessionId)
         return StudySessionMapper.toStudySessionDetailResponse(studySession)
     }
 
@@ -68,44 +75,44 @@ class StudySessionService(
     }
 
     @Transactional
-    fun updateStudySession(studyId: Long, sessionId: Long, request: StudySessionUpdateRequest): StudySessionDetailResponse {
-        val study = getStudy(studyId)
+    fun updateStudySession(sessionId: Long, request: StudySessionUpdateRequest): StudySessionDetailResponse {
+        val studySession = getStudySessionEntity(sessionId)
+        val study = getStudy(studySession.studyId)
         study.checkAdminByEmail(jwtUtils.extractEmail())
 
-        val studySession = getStudySessionEntity(studyId, sessionId)
         studySession.update(request.startDateTime, request.endDateTime)
         return StudySessionMapper.toStudySessionDetailResponse(studySession)
     }
 
     @Transactional
-    fun deleteStudySession(studyId: Long, sessionId: Long) {
-        val study = getStudy(studyId)
+    fun deleteStudySession(sessionId: Long) {
+        val studySession = getStudySessionEntity(sessionId)
+        val study = getStudy(studySession.studyId)
         study.checkAdminByEmail(jwtUtils.extractEmail())
 
-        val studySession = getStudySessionEntity(studyId, sessionId)
         studySessionRepository.delete(studySession)
     }
 
     @Transactional(readOnly = true)
-    fun getAttendance(studyId: Long, sessionId: Long): AttendanceResponse {
-        val study = getStudy(studyId)
+    fun getAttendance(sessionId: Long): AttendanceResponse {
+        val studySession = getStudySessionEntity(sessionId)
+        val study = getStudy(studySession.studyId)
         study.checkMemberByEmail(jwtUtils.extractEmail())
 
-        val attendance = getLatestAttendance(studyId, sessionId)
+        val attendance = getLatestAttendance(studySession)
         return StudySessionMapper.toAttendanceResponse(attendance)
     }
 
     @Transactional
     fun openAttendance(
-        studyId: Long,
         sessionId: Long,
         request: AttendanceOpenRequest
     ): AttendanceResponse {
-        val study = getStudy(studyId)
+        val studySession = getStudySessionEntity(sessionId)
+        val study = getStudy(studySession.studyId)
         study.checkAdminByEmail(jwtUtils.extractEmail())
         validateAttendanceEnabled(study)
 
-        val studySession = getStudySessionEntity(studyId, sessionId)
         val attendance = studySession.openAttendance(
             openTime = request.openTime ?: studySession.startDateTime,
             closeTime = request.closeTime ?: studySession.endDateTime,
@@ -118,52 +125,53 @@ class StudySessionService(
 
     @Transactional
     fun closeAttendance(
-        studyId: Long,
         sessionId: Long,
         request: AttendanceCloseRequest?
     ): AttendanceResponse {
-        val study = getStudy(studyId)
+        val studySession = getStudySessionEntity(sessionId)
+        val study = getStudy(studySession.studyId)
         study.checkAdminByEmail(jwtUtils.extractEmail())
         validateAttendanceEnabled(study)
 
-        val attendance = getOpenAttendance(studyId, sessionId)
+        val attendance = getOpenAttendance(studySession)
         attendance.close(request?.closeTime ?: LocalDateTime.now())
         return StudySessionMapper.toAttendanceResponse(attendance)
     }
 
     @Transactional
-    fun attend(studyId: Long, sessionId: Long): AttendanceResponse {
+    fun attend(sessionId: Long): AttendanceResponse {
         val user = jwtUtils.extractUser()
-        val study = getStudy(studyId)
+        val studySession = getStudySessionEntity(sessionId)
+        val study = getStudy(studySession.studyId)
         study.checkMemberByEmail(user.email)
         validateAttendanceEnabled(study)
 
-        val attendance = getOpenAttendance(studyId, sessionId)
+        val attendance = getOpenAttendance(studySession)
         attendance.attend(user)
         return StudySessionMapper.toAttendanceResponse(attendance)
     }
 
     @Transactional(readOnly = true)
-    fun getAssignment(studyId: Long, sessionId: Long): AssignmentDetailResponse {
-        val study = getStudy(studyId)
+    fun getAssignment(sessionId: Long): AssignmentDetailResponse {
+        val studySession = getStudySessionEntity(sessionId)
+        val study = getStudy(studySession.studyId)
         study.checkMemberByEmail(jwtUtils.extractEmail())
         validateAssignmentEnabled(study)
 
-        val assignment = getAssignmentEntity(studyId, sessionId)
+        val assignment = getAssignmentEntity(studySession)
         return StudySessionMapper.toAssignmentDetailResponse(assignment)
     }
 
     @Transactional
     fun createAssignment(
-        studyId: Long,
         sessionId: Long,
         request: AssignmentCreateRequest
     ): AssignmentResponse {
-        val study = getStudy(studyId)
+        val studySession = getStudySessionEntity(sessionId)
+        val study = getStudy(studySession.studyId)
         study.checkAdminByEmail(jwtUtils.extractEmail())
         validateAssignmentEnabled(study)
 
-        val studySession = getStudySessionEntity(studyId, sessionId)
         val assignment = studySession.createAssignment(
             title = request.title,
             description = request.description,
@@ -174,15 +182,15 @@ class StudySessionService(
 
     @Transactional
     fun updateAssignment(
-        studyId: Long,
         sessionId: Long,
         request: AssignmentUpdateRequest
     ): AssignmentResponse {
-        val study = getStudy(studyId)
+        val studySession = getStudySessionEntity(sessionId)
+        val study = getStudy(studySession.studyId)
         study.checkAdminByEmail(jwtUtils.extractEmail())
         validateAssignmentEnabled(study)
 
-        val assignment = getAssignmentEntity(studyId, sessionId)
+        val assignment = getAssignmentEntity(studySession)
         assignment.update(
             title = request.title,
             description = request.description,
@@ -196,23 +204,23 @@ class StudySessionService(
             ?: throw CustomException("Study not found", HttpStatus.NOT_FOUND)
     }
 
-    private fun getStudySessionEntity(studyId: Long, sessionId: Long): StudySession {
-        return studySessionRepository.findDetailByIdAndStudyId(sessionId, studyId)
+    private fun getStudySessionEntity(sessionId: Long): StudySession {
+        return studySessionRepository.findDetailById(sessionId)
             ?: throw CustomException("Study session not found", HttpStatus.NOT_FOUND)
     }
 
-    private fun getLatestAttendance(studyId: Long, sessionId: Long) =
-        getStudySessionEntity(studyId, sessionId).attendances
+    private fun getLatestAttendance(studySession: StudySession) =
+        studySession.attendances
             .maxByOrNull { it.openTime }
             ?: throw CustomException("Attendance not found", HttpStatus.NOT_FOUND)
 
-    private fun getOpenAttendance(studyId: Long, sessionId: Long) =
-        getStudySessionEntity(studyId, sessionId).attendances
+    private fun getOpenAttendance(studySession: StudySession) =
+        studySession.attendances
             .lastOrNull { it.status == AttendanceStatus.OPEN }
             ?: throw CustomException("Open attendance not found", HttpStatus.NOT_FOUND)
 
-    private fun getAssignmentEntity(studyId: Long, sessionId: Long) =
-        getStudySessionEntity(studyId, sessionId).getAssignment()
+    private fun getAssignmentEntity(studySession: StudySession) =
+        studySession.getAssignment()
             ?: throw CustomException("Assignment not found", HttpStatus.NOT_FOUND)
 
     private fun validateAttendanceEnabled(study: Study) {
