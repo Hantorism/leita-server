@@ -5,6 +5,7 @@ import com.leita.leita.domain.user.User
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @DisplayName("스터디 시스템 종합 테스트")
@@ -42,8 +43,8 @@ class StudySystemTest {
             title = "알고리즘 마스터 스터디",
             description = "코딩 테스트 완벽 대비",
             requirement = "열심히 할 사람",
-            startDate = LocalDateTime.now(),
-            endDate = LocalDateTime.now().plusMonths(3),
+            startDate = LocalDate.now(),
+            endDate = LocalDate.now().plusMonths(3),
             admin = admin,
             attendanceRequired = true,
             assignmentRequired = true,
@@ -201,8 +202,8 @@ class StudySystemTest {
             title = "출석 중심 스터디",
             description = "출석이 중요",
             requirement = "열심히 할 사람",
-            startDate = LocalDateTime.now(),
-            endDate = LocalDateTime.now().plusMonths(3),
+            startDate = LocalDate.now(),
+            endDate = LocalDate.now().plusMonths(3),
             admin = admin,
             attendanceRequired = true,
             assignmentRequired = false,
@@ -219,8 +220,8 @@ class StudySystemTest {
             title = "과제 중심 스터디",
             description = "과제가 중요",
             requirement = "열심히 할 사람",
-            startDate = LocalDateTime.now(),
-            endDate = LocalDateTime.now().plusMonths(3),
+            startDate = LocalDate.now(),
+            endDate = LocalDate.now().plusMonths(3),
             admin = admin,
             attendanceRequired = false,
             assignmentRequired = true,
@@ -237,8 +238,8 @@ class StudySystemTest {
             title = "엄격한 스터디",
             description = "출석과 과제 모두 중요",
             requirement = "열심히 할 사람",
-            startDate = LocalDateTime.now(),
-            endDate = LocalDateTime.now().plusMonths(3),
+            startDate = LocalDate.now(),
+            endDate = LocalDate.now().plusMonths(3),
             admin = admin,
             attendanceRequired = true,
             assignmentRequired = true,
@@ -265,8 +266,8 @@ class StudySystemTest {
             title = "테스트 스터디",
             description = "예외 테스트",
             requirement = "열심히 할 사람",
-            startDate = LocalDateTime.now(),
-            endDate = LocalDateTime.now().plusMonths(3),
+            startDate = LocalDate.now(),
+            endDate = LocalDate.now().plusMonths(3),
             admin = admin,
             attendanceRequired = true,
             assignmentRequired = true,

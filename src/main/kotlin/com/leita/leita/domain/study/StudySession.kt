@@ -20,10 +20,10 @@ open class StudySession(
     open val studyId: Long,
 
     @OneToMany(mappedBy = "studySession", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    open val attendances: MutableList<Attendance> = mutableListOf(),
+    open val attendances: MutableSet<Attendance> = mutableSetOf(),
 
     @OneToMany(mappedBy = "studySession", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    open val assignments: MutableList<Assignment> = mutableListOf()
+    open val assignments: MutableSet<Assignment> = mutableSetOf()
 ) : BaseEntity() {
 
     companion object {

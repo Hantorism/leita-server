@@ -13,3 +13,9 @@ spring:
       hibernate:
         format_sql: true
 
+external-server:
+  google: http://localhost:8080
+  slack: http://localhost:8080
+  github: http://localhost:8080
+  judge: http://localhost:8080
+

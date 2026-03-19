@@ -23,7 +23,9 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/study")
-class StudyController(private val studyService: StudyService) {
+class StudyController(
+    private val studyService: StudyService
+) {
 
     @GetMapping
     fun getStudies(
