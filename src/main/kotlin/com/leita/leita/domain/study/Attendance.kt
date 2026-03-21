@@ -22,7 +22,7 @@ open class Attendance(
     open var closeTime: LocalDateTime,
 
     @Column(nullable = false)
-    open val lateThresholdMinutes: Int = 10,
+    open val lateThresholdMinutes: Int = 0,
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -37,13 +37,10 @@ open class Attendance(
             studySession: StudySession,
             openTime: LocalDateTime,
             closeTime: LocalDateTime,
-            lateThresholdMinutes: Int = 10
+            lateThresholdMinutes: Int = 0
         ): Attendance {
             if (!closeTime.isAfter(openTime)) {
                 throw CustomException("출석 종료 시간은 시작 시간보다 늦어야 합니다.", HttpStatus.BAD_REQUEST)
-            }
-            if (lateThresholdMinutes <= 0) {
-                throw CustomException("지각 기준 시간은 1분 이상이어야 합니다.", HttpStatus.BAD_REQUEST)
             }
 
             return Attendance(

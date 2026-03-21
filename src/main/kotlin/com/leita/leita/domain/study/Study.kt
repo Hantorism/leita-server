@@ -6,7 +6,6 @@ import com.leita.leita.domain.user.User
 import jakarta.persistence.*
 import org.springframework.http.HttpStatus
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "study")
@@ -28,18 +27,6 @@ open class Study(
     @Column(nullable = true)
     open var endDate: LocalDate,
 
-    @Column(nullable = true)
-    open var attendanceRequired: Boolean = false,
-
-    @Column(nullable = true)
-    open var assignmentRequired: Boolean = false,
-
-    @Column(nullable = true)
-    open var requiredAttendanceCount: Int = 0,
-
-    @Column(nullable = true)
-    open var requiredAssignmentCount: Int = 0,
-
     @OneToMany(mappedBy = "study", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     open val studyMembers: MutableSet<StudyMember> = mutableSetOf()
 
@@ -53,10 +40,6 @@ open class Study(
             startDate: LocalDate,
             endDate: LocalDate,
             admin: User,
-            attendanceRequired: Boolean = false,
-            assignmentRequired: Boolean = false,
-            requiredAttendanceCount: Int = 0,
-            requiredAssignmentCount: Int = 0
         ): Study {
             if (description.isBlank()) {
                 throw CustomException("스터디 설명은 필수입니다.", HttpStatus.BAD_REQUEST)
@@ -65,12 +48,6 @@ open class Study(
                 throw CustomException("스터디 참여 조건은 필수입니다.", HttpStatus.BAD_REQUEST)
             }
             validateDateTimeRange(startDate, endDate)
-            validateCompletionCondition(
-                attendanceRequired,
-                assignmentRequired,
-                requiredAttendanceCount,
-                requiredAssignmentCount
-            )
 
             val study = Study(
                 title = title,
@@ -78,10 +55,6 @@ open class Study(
                 requirement = requirement,
                 startDate = startDate,
                 endDate = endDate,
-                attendanceRequired = attendanceRequired,
-                assignmentRequired = assignmentRequired,
-                requiredAttendanceCount = requiredAttendanceCount,
-                requiredAssignmentCount = requiredAssignmentCount
             )
             study.addMember(admin, StudyMemberRole.ADMIN)
             return study
@@ -90,23 +63,6 @@ open class Study(
         private fun validateDateTimeRange(startDate: LocalDate, endDate: LocalDate) {
             if (!endDate.isAfter(startDate)) {
                 throw CustomException("스터디 종료일은 시작일보다 늦어야 합니다.", HttpStatus.BAD_REQUEST)
-            }
-        }
-
-        private fun validateCompletionCondition(
-            attendanceRequired: Boolean,
-            assignmentRequired: Boolean,
-            requiredAttendanceCount: Int,
-            requiredAssignmentCount: Int
-        ) {
-            if (!attendanceRequired && !assignmentRequired) {
-                throw CustomException("수료 조건은 최소 1개 이상 필요합니다.", HttpStatus.BAD_REQUEST)
-            }
-            if (attendanceRequired && requiredAttendanceCount <= 0) {
-                throw CustomException("출석 수료 조건은 1 이상이어야 합니다.", HttpStatus.BAD_REQUEST)
-            }
-            if (assignmentRequired && requiredAssignmentCount <= 0) {
-                throw CustomException("과제 수료 조건은 1 이상이어야 합니다.", HttpStatus.BAD_REQUEST)
             }
         }
     }
@@ -224,10 +180,6 @@ open class Study(
         requirement: String,
         startDate: LocalDate,
         endDate: LocalDate,
-        attendanceRequired: Boolean,
-        assignmentRequired: Boolean,
-        requiredAttendanceCount: Int,
-        requiredAssignmentCount: Int
     ) {
         if (description.isBlank()) {
             throw CustomException("스터디 설명은 필수입니다.", HttpStatus.BAD_REQUEST)
@@ -235,22 +187,12 @@ open class Study(
         if (requirement.isBlank()) {
             throw CustomException("스터디 참여 조건은 필수입니다.", HttpStatus.BAD_REQUEST)
         }
-        Companion.validateDateTimeRange(startDate, endDate)
-        Companion.validateCompletionCondition(
-            attendanceRequired,
-            assignmentRequired,
-            requiredAttendanceCount,
-            requiredAssignmentCount
-        )
+        validateDateTimeRange(startDate, endDate)
 
         this.title = title
         this.description = description
         this.requirement = requirement
         this.startDate = startDate
         this.endDate = endDate
-        this.attendanceRequired = attendanceRequired
-        this.assignmentRequired = assignmentRequired
-        this.requiredAttendanceCount = requiredAttendanceCount
-        this.requiredAssignmentCount = requiredAssignmentCount
     }
 }

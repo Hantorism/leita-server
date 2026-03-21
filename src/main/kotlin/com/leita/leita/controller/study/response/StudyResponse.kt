@@ -1,7 +1,6 @@
 package com.leita.leita.controller.study.response
 
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 data class StudyResponse(
     val id: Long,
@@ -10,8 +9,4 @@ data class StudyResponse(
     val requirement: String,
     val startDate: LocalDate,
     val endDate: LocalDate,
-    val attendanceRequired: Boolean,
-    val assignmentRequired: Boolean,
-    val requiredAttendanceCount: Int,
-    val requiredAssignmentCount: Int
 )
