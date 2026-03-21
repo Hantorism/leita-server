@@ -18,10 +18,6 @@ class StudyMapper {
                 requirement = study.requirement,
                 startDate = study.startDate,
                 endDate = study.endDate,
-                attendanceRequired = study.attendanceRequired,
-                assignmentRequired = study.assignmentRequired,
-                requiredAttendanceCount = study.requiredAttendanceCount,
-                requiredAssignmentCount = study.requiredAssignmentCount,
                 members = study.studyMembers.map {
                     StudyMemberResponse(
                         userId = it.user.id,
@@ -43,10 +39,6 @@ class StudyMapper {
                 requirement = study.requirement,
                 startDate = study.startDate,
                 endDate = study.endDate,
-                attendanceRequired = study.attendanceRequired,
-                assignmentRequired = study.assignmentRequired,
-                requiredAttendanceCount = study.requiredAttendanceCount,
-                requiredAssignmentCount = study.requiredAssignmentCount
             )
         }
 

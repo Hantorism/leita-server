@@ -9,9 +9,4 @@ data class StudyUpdateRequest(
     val requirement: String,
     val startDate: LocalDate,
     val endDate: LocalDate,
-
-    val attendanceRequired: Boolean,
-    val assignmentRequired: Boolean,
-    val requiredAttendanceCount: Int,
-    val requiredAssignmentCount: Int
 )

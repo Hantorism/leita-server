@@ -46,10 +46,6 @@ class StudySystemTest {
             startDate = LocalDate.now(),
             endDate = LocalDate.now().plusMonths(3),
             admin = admin,
-            attendanceRequired = true,
-            assignmentRequired = true,
-            requiredAttendanceCount = 10,
-            requiredAssignmentCount = 5
         )
 
         assertEquals("알고리즘 마스터 스터디", study.title)
@@ -205,14 +201,7 @@ class StudySystemTest {
             startDate = LocalDate.now(),
             endDate = LocalDate.now().plusMonths(3),
             admin = admin,
-            attendanceRequired = true,
-            assignmentRequired = false,
-            requiredAttendanceCount = 10,
-            requiredAssignmentCount = 0
         )
-        assertTrue(study1.attendanceRequired)
-        assertFalse(study1.assignmentRequired)
-        println("   ✅ 출석 ${study1.requiredAttendanceCount}회 이상 필수")
 
         // 과제만 필수
         println("\n2️⃣ 과제만 필수")
@@ -223,14 +212,7 @@ class StudySystemTest {
             startDate = LocalDate.now(),
             endDate = LocalDate.now().plusMonths(3),
             admin = admin,
-            attendanceRequired = false,
-            assignmentRequired = true,
-            requiredAttendanceCount = 0,
-            requiredAssignmentCount = 5
         )
-        assertFalse(study2.attendanceRequired)
-        assertTrue(study2.assignmentRequired)
-        println("   ✅ 과제 ${study2.requiredAssignmentCount}개 이상 필수")
 
         // 둘 다 필수
         println("\n3️⃣ 출석 + 과제 모두 필수")
@@ -241,14 +223,7 @@ class StudySystemTest {
             startDate = LocalDate.now(),
             endDate = LocalDate.now().plusMonths(3),
             admin = admin,
-            attendanceRequired = true,
-            assignmentRequired = true,
-            requiredAttendanceCount = 8,
-            requiredAssignmentCount = 4
         )
-        assertTrue(study3.attendanceRequired)
-        assertTrue(study3.assignmentRequired)
-        println("   ✅ 출석 ${study3.requiredAttendanceCount}회 + 과제 ${study3.requiredAssignmentCount}개 이상 필수")
 
         println("\n✅ 수료 조건 검증 완료\n")
     }
@@ -269,10 +244,6 @@ class StudySystemTest {
             startDate = LocalDate.now(),
             endDate = LocalDate.now().plusMonths(3),
             admin = admin,
-            attendanceRequired = true,
-            assignmentRequired = true,
-            requiredAttendanceCount = 1,
-            requiredAssignmentCount = 1
         )
 
         val now = LocalDateTime.now()

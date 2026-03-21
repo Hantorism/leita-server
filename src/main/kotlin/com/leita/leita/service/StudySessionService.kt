@@ -103,18 +103,16 @@ class StudySessionService(
 
     @Transactional
     fun openAttendance(
-        sessionId: Long,
-        request: AttendanceOpenRequest
+        sessionId: Long, request: AttendanceOpenRequest
     ): AttendanceResponse {
         val studySession = getStudySessionEntity(sessionId)
         val study = getStudy(studySession.studyId)
         study.checkAdminByEmail(jwtUtils.extractEmail())
-        validateAttendanceEnabled(study)
 
         val attendance = studySession.openAttendance(
-            openTime = request.openTime ?: studySession.startDateTime,
-            closeTime = request.closeTime ?: studySession.endDateTime,
-            lateThresholdMinutes = request.lateThresholdMinutes ?: 10
+            openTime = request.openTime,
+            closeTime = request.closeTime,
+            lateThresholdMinutes = request.lateThresholdMinutes
         )
         study.getAllActiveMembers().forEach(attendance::registerMember)
 
@@ -129,7 +127,6 @@ class StudySessionService(
         val studySession = getStudySessionEntity(sessionId)
         val study = getStudy(studySession.studyId)
         study.checkAdminByEmail(jwtUtils.extractEmail())
-        validateAttendanceEnabled(study)
 
         val attendance = getOpenAttendance(studySession)
         attendance.close(request?.closeTime ?: LocalDateTime.now())
@@ -142,7 +139,6 @@ class StudySessionService(
         val studySession = getStudySessionEntity(sessionId)
         val study = getStudy(studySession.studyId)
         study.checkMemberByEmail(user.email)
-        validateAttendanceEnabled(study)
 
         val attendance = getOpenAttendance(studySession)
         attendance.attend(user)
@@ -154,7 +150,6 @@ class StudySessionService(
         val studySession = getStudySessionEntity(sessionId)
         val study = getStudy(studySession.studyId)
         study.checkMemberByEmail(jwtUtils.extractEmail())
-        validateAssignmentEnabled(study)
 
         val assignment = getAssignmentEntity(studySession)
         return StudySessionMapper.toAssignmentDetailResponse(assignment)
@@ -168,7 +163,6 @@ class StudySessionService(
         val studySession = getStudySessionEntity(sessionId)
         val study = getStudy(studySession.studyId)
         study.checkAdminByEmail(jwtUtils.extractEmail())
-        validateAssignmentEnabled(study)
 
         val assignment = studySession.createAssignment(
             title = request.title,
@@ -186,7 +180,6 @@ class StudySessionService(
         val studySession = getStudySessionEntity(sessionId)
         val study = getStudy(studySession.studyId)
         study.checkAdminByEmail(jwtUtils.extractEmail())
-        validateAssignmentEnabled(study)
 
         val assignment = getAssignmentEntity(studySession)
         assignment.update(
@@ -221,15 +214,4 @@ class StudySessionService(
         studySession.getAssignment()
             ?: throw CustomException("Assignment not found", HttpStatus.NOT_FOUND)
 
-    private fun validateAttendanceEnabled(study: Study) {
-        if (!study.attendanceRequired) {
-            throw CustomException("이 스터디는 출석을 사용하지 않습니다.", HttpStatus.BAD_REQUEST)
-        }
-    }
-
-    private fun validateAssignmentEnabled(study: Study) {
-        if (!study.assignmentRequired) {
-            throw CustomException("이 스터디는 과제를 사용하지 않습니다.", HttpStatus.BAD_REQUEST)
-        }
-    }
 }

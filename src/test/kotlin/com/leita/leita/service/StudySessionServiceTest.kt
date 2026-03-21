@@ -50,10 +50,6 @@ class StudySessionServiceTest {
             startDate = LocalDate.now(),
             endDate = LocalDate.now().plusMonths(3),
             admin = adminUser,
-            attendanceRequired = true,
-            assignmentRequired = true,
-            requiredAttendanceCount = 3,
-            requiredAssignmentCount = 2
         )
         study.join(memberUser)
         study.approve(memberUser)

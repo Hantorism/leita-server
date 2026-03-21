@@ -11,9 +11,5 @@ data class StudyDetailResponse(
     val startDate: LocalDate,
     val endDate: LocalDate,
 
-    val attendanceRequired: Boolean,
-    val assignmentRequired: Boolean,
-    val requiredAttendanceCount: Int,
-    val requiredAssignmentCount: Int,
     val members: List<StudyMemberResponse>
 )

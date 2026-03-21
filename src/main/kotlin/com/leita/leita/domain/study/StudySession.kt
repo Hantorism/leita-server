@@ -48,7 +48,7 @@ open class StudySession(
     }
 
     fun update(startDateTime: LocalDateTime, endDateTime: LocalDateTime) {
-        Companion.validateDateTimeRange(startDateTime, endDateTime)
+        validateDateTimeRange(startDateTime, endDateTime)
         this.startDateTime = startDateTime
         this.endDateTime = endDateTime
     }
@@ -56,7 +56,7 @@ open class StudySession(
     fun openAttendance(
         openTime: LocalDateTime,
         closeTime: LocalDateTime,
-        lateThresholdMinutes: Int = 10
+        lateThresholdMinutes: Int
     ): Attendance {
         if (attendances.any { it.status == AttendanceStatus.OPEN }) {
             throw CustomException("이미 진행 중인 출석이 있습니다.", HttpStatus.BAD_REQUEST)

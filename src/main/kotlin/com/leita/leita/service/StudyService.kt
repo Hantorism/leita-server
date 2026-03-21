@@ -58,10 +58,6 @@ class StudyService(
             requirement = request.requirement,
             startDate = request.startDate,
             endDate = request.endDate,
-            attendanceRequired = request.attendanceRequired,
-            assignmentRequired = request.assignmentRequired,
-            requiredAttendanceCount = request.requiredAttendanceCount,
-            requiredAssignmentCount = request.requiredAssignmentCount
         )
         studyRepository.save(study)
         return StudyMapper.toStudyDetailResponse(study)
@@ -109,10 +105,6 @@ class StudyService(
             startDate = request.startDate,
             endDate = request.endDate,
             admin = admin,
-            attendanceRequired = request.attendanceRequired,
-            assignmentRequired = request.assignmentRequired,
-            requiredAttendanceCount = request.requiredAttendanceCount,
-            requiredAssignmentCount = request.requiredAssignmentCount
         )
         studyRepository.save(study)
 

@@ -46,10 +46,6 @@ class StudyProcessTest {
             startDate = LocalDate.now(),
             endDate = LocalDate.now().plusMonths(3),
             admin = adminUser,
-            attendanceRequired = true,
-            assignmentRequired = true,
-            requiredAttendanceCount = 8,
-            requiredAssignmentCount = 5
         )
     }
 
@@ -198,16 +194,6 @@ class StudyProcessTest {
         println("   ⏳ 대기 중: ${study.getPendingUsers().size}명\n")
 
         println("✅ 전체 프로세스 성공!\n")
-    }
-
-    @Test
-    @DisplayName("8. 출석 필수 여부 확인")
-    fun testAttendanceRequired() {
-        assert(study.attendanceRequired == true)
-        assert(study.assignmentRequired == true)
-
-        println("✅ 출석 필수: ${study.attendanceRequired}")
-        println("✅ 과제 필수: ${study.assignmentRequired}")
     }
 
     @Test
