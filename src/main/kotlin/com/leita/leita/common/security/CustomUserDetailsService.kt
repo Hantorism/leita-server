@@ -1,7 +1,7 @@
 package com.leita.leita.common.security
 
-import com.leita.leita.domain.user.User
-import com.leita.leita.repository.UserRepository
+import com.leita.leita.user.domain.User
+import com.leita.leita.user.repository.UserRepository
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException

@@ -1,10 +1,10 @@
 package com.leita.leita.fixtures
 
 import com.leita.leita.common.security.SecurityRole
-import com.leita.leita.domain.user.User
-import com.leita.leita.domain.problem.Description
-import com.leita.leita.domain.problem.Limit
-import com.leita.leita.domain.problem.TestCase
+import com.leita.leita.user.domain.User
+import com.leita.leita.problem.domain.Description
+import com.leita.leita.problem.domain.Limit
+import com.leita.leita.problem.domain.TestCase
 
 class DummyUser: User(
     name = "홍길동",
