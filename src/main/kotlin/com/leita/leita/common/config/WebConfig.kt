@@ -1,7 +1,7 @@
 package com.leita.leita.common.config
 
-import com.leita.leita.common.LoggingFilter
-import com.leita.leita.common.LoggingInterceptor
+import com.leita.leita.common.logging.LoggingFilter
+import com.leita.leita.common.logging.LoggingInterceptor
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry

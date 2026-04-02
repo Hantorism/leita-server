@@ -2,10 +2,10 @@ package com.leita.leita.common.security.jwt
 
 import com.leita.leita.common.config.JwtConfig
 import com.leita.leita.common.exception.CustomException
-import com.leita.leita.controller.auth.response.JwtResponse
-import com.leita.leita.domain.user.User
+import com.leita.leita.auth.dto.JwtResponse
+import com.leita.leita.user.domain.User
 import com.leita.leita.util.cache.CacheUtil
-import com.leita.leita.repository.UserRepository
+import com.leita.leita.user.repository.UserRepository
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.SignatureAlgorithm
