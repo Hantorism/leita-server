@@ -10,6 +10,10 @@
     - `POST /study-session/{id}/attendance`: 출석 오픈
     - `PUT /study-session/{id}/attendance`: 출석 정보 수정 및 종료
     - `POST /study-session/{id}/attendance/attend`: 사용자 출석 수행
+- **현황 조회**: 스터디 멤버들의 출석 및 과제 현황을 조회합니다.
+    - `GET /study/{studyId}/members`: 전체 현황 (사용자 정보 포함)
+    - `GET /study/{studyId}/members/attendance`: 출석 현황 상세
+    - `GET /study/{studyId}/members/assignment`: 과제 해결 현황 상세
 - **과제**: 스터디 세션과 과제를 연결하고 완료 여부를 모니터링합니다.
 - **참여 로직**: 스터디 참여 신청, 관리자 승인/거절, 탈퇴 기능을 제공합니다.
 - **알림**: 스터디 멤버 가입 시 관리자에게 이메일 알림을 전송합니다.
