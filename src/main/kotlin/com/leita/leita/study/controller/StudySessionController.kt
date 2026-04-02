@@ -5,6 +5,7 @@ import com.leita.leita.study.dto.AssignmentCreateRequest
 import com.leita.leita.study.dto.AssignmentUpdateRequest
 import com.leita.leita.study.dto.AttendanceCloseRequest
 import com.leita.leita.study.dto.AttendanceOpenRequest
+import com.leita.leita.study.dto.AttendanceUpdateRequest
 import com.leita.leita.study.dto.StudySessionCreateRequest
 import com.leita.leita.study.dto.StudySessionUpdateRequest
 import com.leita.leita.study.dto.AssignmentDetailResponse
@@ -81,7 +82,7 @@ class StudySessionController(
         return ResponseEntity.ok(BaseResponse("출석 조회 완료", response))
     }
 
-    @PostMapping("/{studySessionId}/attendance/open")
+    @PostMapping("/{studySessionId}/attendance")
     fun openAttendance(
         @PathVariable studySessionId: Long,
         @RequestBody request: AttendanceOpenRequest
@@ -90,21 +91,21 @@ class StudySessionController(
         return ResponseEntity.ok(BaseResponse("출석 오픈 완료", response))
     }
 
+    @PutMapping("/{studySessionId}/attendance")
+    fun updateAttendance(
+        @PathVariable studySessionId: Long,
+        @RequestBody request: AttendanceUpdateRequest
+    ): ResponseEntity<BaseResponse<AttendanceResponse>> {
+        val response = studySessionService.updateAttendance(studySessionId, request)
+        return ResponseEntity.ok(BaseResponse("출석 정보 수정 완료", response))
+    }
+
     @PostMapping("/{studySessionId}/attendance/attend")
     fun attend(
         @PathVariable studySessionId: Long
     ): ResponseEntity<BaseResponse<AttendanceResponse>> {
         val response = studySessionService.attend(studySessionId)
         return ResponseEntity.ok(BaseResponse("출석 완료", response))
-    }
-
-    @PostMapping("/{studySessionId}/attendance/close")
-    fun closeAttendance(
-        @PathVariable studySessionId: Long,
-        @RequestBody(required = false) request: AttendanceCloseRequest?
-    ): ResponseEntity<BaseResponse<AttendanceResponse>> {
-        val response = studySessionService.closeAttendance(studySessionId, request)
-        return ResponseEntity.ok(BaseResponse("출석 종료 완료", response))
     }
 
     @GetMapping("/{studySessionId}/assignment")

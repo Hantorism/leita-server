@@ -6,7 +6,10 @@
 ## 서비스 정책
 - **역할 관리**: `StudyMemberRole`을 통해 관리자(ADMIN), 일반 멤버(MEMBER), 대기자(PENDING) 역할을 정의합니다.
 - **세션 관리**: 각 스터디는 여러 세션(`StudySession`)으로 구성되며, 각 세션은 제목(`title`), 설명(`description`), 기간 및 과제를 가질 수 있습니다.
-- **출석 관리**: 세션별 출석 상태(`AttendanceStatus`)를 추적하고 기록합니다.
+- **출석 관리**: 세션별 출석 상태(`AttendanceStatus`)를 추적하고 기록합니다. 
+    - `POST /study-session/{id}/attendance`: 출석 오픈
+    - `PUT /study-session/{id}/attendance`: 출석 정보 수정 및 종료
+    - `POST /study-session/{id}/attendance/attend`: 사용자 출석 수행
 - **과제**: 스터디 세션과 과제를 연결하고 완료 여부를 모니터링합니다.
 - **참여 로직**: 스터디 참여 신청, 관리자 승인/거절, 탈퇴 기능을 제공합니다.
 - **알림**: 스터디 멤버 가입 시 관리자에게 이메일 알림을 전송합니다.

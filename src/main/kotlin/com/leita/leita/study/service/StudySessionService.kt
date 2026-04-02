@@ -5,8 +5,9 @@ import com.leita.leita.common.security.jwt.JwtUtils
 import com.leita.leita.study.controller.StudySessionMapper
 import com.leita.leita.study.dto.AssignmentCreateRequest
 import com.leita.leita.study.dto.AssignmentUpdateRequest
-import com.leita.leita.study.dto.AttendanceCloseRequest
 import com.leita.leita.study.dto.AttendanceOpenRequest
+import com.leita.leita.study.dto.AttendanceUpdateRequest
+import com.leita.leita.study.dto.AttendanceCloseRequest
 import com.leita.leita.study.dto.StudySessionCreateRequest
 import com.leita.leita.study.dto.StudySessionUpdateRequest
 import com.leita.leita.study.dto.AssignmentDetailResponse
@@ -127,16 +128,20 @@ class StudySessionService(
     }
 
     @Transactional
-    fun closeAttendance(
+    fun updateAttendance(
         sessionId: Long,
-        request: AttendanceCloseRequest?
+        request: AttendanceUpdateRequest
     ): AttendanceResponse {
         val studySession = getStudySessionEntity(sessionId)
         val study = getStudy(studySession.studyId)
         study.checkAdminByEmail(jwtUtils.extractEmail())
 
-        val attendance = getOpenAttendance(studySession)
-        attendance.close(request?.closeTime ?: LocalDateTime.now())
+        val attendance = getLatestAttendance(studySession)
+        attendance.update(
+            closeTime = request.closeTime,
+            lateThresholdMinutes = request.lateThresholdMinutes,
+            status = request.status
+        )
         return StudySessionMapper.toAttendanceResponse(attendance)
     }
 
