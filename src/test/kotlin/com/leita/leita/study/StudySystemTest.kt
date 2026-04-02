@@ -1,6 +1,10 @@
 package com.leita.leita.study
 
 import com.leita.leita.common.security.SecurityRole
+import com.leita.leita.study.domain.Study
+import com.leita.leita.study.domain.StudySession
+import com.leita.leita.study.domain.AttendanceStatus
+import com.leita.leita.study.domain.AttendanceRecordStatus
 import com.leita.leita.user.domain.User
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
@@ -52,7 +56,6 @@ class StudySystemTest {
         assertEquals(1, study.getAdminUsers().size)
         println("   ✅ 스터디: ${study.title}")
         println("   ✅ 관리자: ${study.getAdminUsers()[0].name}")
-        println("   ✅ 수료 조건: 출석 ${study.requiredAttendanceCount}회, 과제 ${study.requiredAssignmentCount}개")
 
         // 2. 멤버 참가 신청
         println("\n2️⃣ 멤버 참가 신청")
@@ -96,7 +99,7 @@ class StudySystemTest {
         )
 
         // 모든 활성 멤버 등록
-        study.getAllActiveMembers().forEach { member ->
+        study.getAllActiveMembers().forEach { member: User ->
             attendance.registerMember(member)
         }
 

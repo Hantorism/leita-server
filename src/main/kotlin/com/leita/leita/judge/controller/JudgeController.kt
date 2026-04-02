@@ -1,11 +1,11 @@
 package com.leita.leita.judge.controller
 
 import com.leita.leita.common.dto.BaseResponse
-import com.leita.leita.common.dto.judge.request.ReviewRequest
-import com.leita.leita.common.dto.judge.request.RunRequest
-import com.leita.leita.common.dto.judge.request.SubmitRequest
-import com.leita.leita.common.dto.judge.response.RunResponse
-import com.leita.leita.common.dto.judge.response.SubmitResponse
+import com.leita.leita.judge.dto.ReviewRequest
+import com.leita.leita.judge.dto.RunRequest
+import com.leita.leita.judge.dto.SubmitRequest
+import com.leita.leita.judge.dto.RunResponse
+import com.leita.leita.judge.dto.SubmitResponse
 import com.leita.leita.judge.domain.Judge
 import com.leita.leita.git.service.GitService
 import com.leita.leita.judge.service.JudgeService

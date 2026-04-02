@@ -108,6 +108,15 @@ class StudySessionController(
         return ResponseEntity.ok(BaseResponse("출석 완료", response))
     }
 
+    @PostMapping("/{studySessionId}/attendance/close")
+    fun closeAttendance(
+        @PathVariable studySessionId: Long,
+        @RequestBody(required = false) request: AttendanceCloseRequest?
+    ): ResponseEntity<BaseResponse<AttendanceResponse>> {
+        val response = studySessionService.closeAttendance(studySessionId, request)
+        return ResponseEntity.ok(BaseResponse("출석 종료 완료", response))
+    }
+
     @GetMapping("/{studySessionId}/assignment")
     fun getAssignment(
         @PathVariable studySessionId: Long

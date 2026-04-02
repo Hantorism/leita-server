@@ -8,6 +8,7 @@ import com.leita.leita.study.domain.AttendanceRecordStatus
 import com.leita.leita.study.domain.Study
 import com.leita.leita.study.domain.StudyMemberRole
 import com.leita.leita.study.domain.StudySession
+import com.leita.leita.study.service.StudySessionService
 import com.leita.leita.user.domain.User
 import com.leita.leita.study.repository.StudyRepository
 import com.leita.leita.study.repository.StudySessionRepository

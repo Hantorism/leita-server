@@ -1,6 +1,8 @@
 package com.leita.leita.study
 
 import com.leita.leita.common.security.SecurityRole
+import com.leita.leita.study.domain.StudySession
+import com.leita.leita.study.domain.AttendanceRecordStatus
 import com.leita.leita.user.domain.User
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
