@@ -22,7 +22,7 @@ open class Attendance(
     open var closeTime: LocalDateTime,
 
     @Column(nullable = false)
-    open val lateThresholdMinutes: Int = 0,
+    open var lateThresholdMinutes: Int = 0,
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -99,6 +99,27 @@ open class Attendance(
         }
         status = AttendanceStatus.CLOSED
         closeTime = closedAt
+    }
+
+    fun update(
+        closeTime: LocalDateTime? = null,
+        lateThresholdMinutes: Int? = null,
+        status: AttendanceStatus? = null
+    ) {
+        closeTime?.let {
+            if (!it.isAfter(openTime)) {
+                throw CustomException("출석 종료 시간은 시작 시간보다 늦어야 합니다.", HttpStatus.BAD_REQUEST)
+            }
+            this.closeTime = it
+        }
+        lateThresholdMinutes?.let { this.lateThresholdMinutes = it }
+        status?.let {
+            if (it == AttendanceStatus.CLOSED && this.status == AttendanceStatus.OPEN) {
+                this.close(this.closeTime)
+            } else {
+                this.status = it
+            }
+        }
     }
 }
 
