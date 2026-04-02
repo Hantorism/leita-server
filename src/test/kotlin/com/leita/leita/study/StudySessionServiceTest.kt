@@ -67,6 +67,8 @@ class StudySessionServiceTest {
             1L,
             StudySessionCreateRequest(
                 studyId = 1L,
+                title = "1주차 세션",
+                description = "기초 알고리즘",
                 startDateTime = LocalDateTime.of(2026, 3, 20, 19, 0),
                 endDateTime = LocalDateTime.of(2026, 3, 20, 21, 0)
             )
@@ -74,6 +76,8 @@ class StudySessionServiceTest {
 
         assertThat(response.id).isEqualTo(10L)
         assertThat(response.studyId).isEqualTo(1L)
+        assertThat(response.title).isEqualTo("1주차 세션")
+        assertThat(response.description).isEqualTo("기초 알고리즘")
         assertThat(response.assignment).isNull()
         assertThat(response.attendance).isNull()
     }
@@ -81,6 +85,8 @@ class StudySessionServiceTest {
     @Test
     fun `관리자가 출석을 열면 활성 멤버들이 기본 등록된다`() {
         val session = StudySession.create(
+            title = "세션 제목",
+            description = "세션 설명",
             startDateTime = LocalDateTime.of(2026, 3, 20, 19, 0),
             endDateTime = LocalDateTime.of(2026, 3, 20, 21, 0),
             studyId = 1L
@@ -109,6 +115,8 @@ class StudySessionServiceTest {
     @Test
     fun `멤버는 열린 출석에 출석할 수 있다`() {
         val session = StudySession.create(
+            title = "세션 제목",
+            description = "세션 설명",
             startDateTime = LocalDateTime.now().minusHours(1),
             endDateTime = LocalDateTime.now().plusHours(1),
             studyId = 1L
