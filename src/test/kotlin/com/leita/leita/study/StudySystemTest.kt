@@ -76,6 +76,8 @@ class StudySystemTest {
         println("\n4️⃣ 스터디 세션 생성")
         val now = LocalDateTime.now()
         val session = StudySession.create(
+            title = "1주차 세션",
+            description = "기초 알고리즘",
             startDateTime = now.plusDays(1).withHour(19).withMinute(0),
             endDateTime = now.plusDays(1).withHour(21).withMinute(0),
             studyId = 1L
@@ -248,6 +250,8 @@ class StudySystemTest {
 
         val now = LocalDateTime.now()
         val session = StudySession.create(
+            title = "테스트 세션",
+            description = "설명",
             startDateTime = now,
             endDateTime = now.plusHours(2),
             studyId = 1L
