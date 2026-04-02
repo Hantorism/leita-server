@@ -1,13 +1,7 @@
 package com.leita.leita.study.controller
 
 import com.leita.leita.common.dto.BaseResponse
-import com.leita.leita.study.dto.StudyCreateRequest
-import com.leita.leita.study.dto.StudyMemberRequest
-import com.leita.leita.study.dto.StudyUpdateRequest
-import com.leita.leita.study.dto.StudiesResponse
-import com.leita.leita.study.dto.StudyCreateResponse
-import com.leita.leita.study.dto.StudyDetailResponse
-import com.leita.leita.study.dto.StudyMemberResponse
+import com.leita.leita.study.dto.*
 import com.leita.leita.study.service.StudyService
 import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
@@ -107,5 +101,35 @@ class StudyController(
         val response = studyService.getPendingMembersPage(id, page, size)
         val wrappedResponse = BaseResponse("대기 멤버 조회 완료", response)
         return ResponseEntity.ok(wrappedResponse)
+    }
+
+    @GetMapping("/{id}/members")
+    fun getMemberStatus(
+        @PathVariable id: Long,
+        @RequestParam(required = false) studySessionId: Long?,
+        @RequestParam(required = false) memberId: Long?
+    ): ResponseEntity<BaseResponse<List<StudyMemberStatusResponse>>> {
+        val response = studyService.getMemberStatus(id, studySessionId, memberId)
+        return ResponseEntity.ok(BaseResponse("스터디 멤버 현황 조회 완료", response))
+    }
+
+    @GetMapping("/{id}/members/attendance")
+    fun getMemberAttendance(
+        @PathVariable id: Long,
+        @RequestParam(required = false) studySessionId: Long?,
+        @RequestParam(required = false) memberId: Long?
+    ): ResponseEntity<BaseResponse<List<StudyMemberAttendanceResponse>>> {
+        val response = studyService.getMemberAttendance(id, studySessionId, memberId)
+        return ResponseEntity.ok(BaseResponse("스터디 멤버 출석 현황 조회 완료", response))
+    }
+
+    @GetMapping("/{id}/members/assignment")
+    fun getMemberAssignment(
+        @PathVariable id: Long,
+        @RequestParam(required = false) studySessionId: Long?,
+        @RequestParam(required = false) memberId: Long?
+    ): ResponseEntity<BaseResponse<List<StudyMemberAssignmentResponse>>> {
+        val response = studyService.getMemberAssignment(id, studySessionId, memberId)
+        return ResponseEntity.ok(BaseResponse("스터디 멤버 과제 현황 조회 완료", response))
     }
 }
