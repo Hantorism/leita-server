@@ -1,7 +1,7 @@
 package com.leita.leita.judge.controller
 
-import com.leita.leita.common.dto.judge.response.RunResponse
-import com.leita.leita.common.dto.judge.response.SubmitResponse
+import com.leita.leita.judge.dto.RunResponse
+import com.leita.leita.judge.dto.SubmitResponse
 import com.leita.leita.judge.dto.JudgeWCResponse
 import com.leita.leita.judge.dto.RunWCResponse
 

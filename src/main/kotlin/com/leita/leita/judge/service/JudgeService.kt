@@ -2,11 +2,11 @@ package com.leita.leita.judge.service
 
 import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.jwt.JwtUtils
-import com.leita.leita.common.dto.auth.JudgeMapper
-import com.leita.leita.common.dto.judge.request.SubmitRequest
-import com.leita.leita.common.dto.judge.response.SubmitResponse
-import com.leita.leita.common.dto.judge.request.RunRequest
-import com.leita.leita.common.dto.judge.response.RunResponse
+import com.leita.leita.judge.controller.JudgeMapper
+import com.leita.leita.judge.dto.SubmitRequest
+import com.leita.leita.judge.dto.SubmitResponse
+import com.leita.leita.judge.dto.RunRequest
+import com.leita.leita.judge.dto.RunResponse
 import com.leita.leita.judge.domain.Judge
 import com.leita.leita.judge.domain.JudgeType
 import com.leita.leita.judge.domain.Result
@@ -15,6 +15,7 @@ import com.leita.leita.judge.dto.JudgeWCResponse
 import com.leita.leita.judge.dto.RunWCResponse
 import com.leita.leita.judge.repository.JudgeRepository
 import com.leita.leita.problem.repository.ProblemRepository
+import com.leita.leita.problem.service.ProblemService
 import jakarta.transaction.Transactional
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service

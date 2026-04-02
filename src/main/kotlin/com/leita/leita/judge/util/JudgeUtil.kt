@@ -2,8 +2,8 @@ package com.leita.leita.judge.util
 
 import com.leita.leita.common.config.WebClientConfig
 import com.leita.leita.common.exception.CustomException
-import com.leita.leita.common.dto.judge.request.SubmitRequest
-import com.leita.leita.common.dto.judge.request.RunRequest
+import com.leita.leita.judge.dto.SubmitRequest
+import com.leita.leita.judge.dto.RunRequest
 import com.leita.leita.judge.dto.SubmitWCRequest
 import com.leita.leita.judge.dto.RunWCRequest
 import com.leita.leita.judge.dto.JudgeWCResponse
@@ -13,7 +13,7 @@ import org.springframework.http.MediaType
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.bodyToMono
+import reactor.core.publisher.Mono
 
 @Component
 class JudgeUtil(
@@ -35,7 +35,7 @@ class JudgeUtil(
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(submitRequest)
                 .retrieve()
-                .bodyToMono<JudgeWCResponse>()
+                .bodyToMono(JudgeWCResponse::class.java)
                 .doOnSuccess {
                     println("Judge server responded: ${request.language.getUrl(webClientConfig.judgeBaseUrl) + "/problem/submit/" + problemId} / $it")
                 }
@@ -60,7 +60,8 @@ class JudgeUtil(
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(runRequest)
                 .retrieve()
-                .bodyToMono<List<RunWCResponse>>()
+                .bodyToMono(Array<RunWCResponse>::class.java)
+                .map { it.toList() }
                 .doOnSuccess {
                     println("Judge server responded: ${request.language.getUrl(webClientConfig.judgeBaseUrl) + "/problem/run/" + problemId} / $it")
                 }

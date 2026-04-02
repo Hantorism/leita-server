@@ -2,6 +2,7 @@ package com.leita.leita.study.service
 
 import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.jwt.JwtUtils
+import com.leita.leita.study.controller.StudyMapper
 import com.leita.leita.study.dto.*
 import com.leita.leita.study.domain.Study
 import com.leita.leita.study.domain.StudyMemberRole
@@ -31,7 +32,153 @@ class StudyService(
     private val jwtUtils: JwtUtils,
     private val mailUtil: MailUtil,
 ) {
-...
+
+    @Transactional(readOnly = true)
+    fun getStudies(page: Int, size: Int): StudiesResponse {
+        val pageable: Pageable = PageRequest.of(page, size)
+        val studies = studyRepository.findAll(pageable)
+        return StudyMapper.toStudiesResponse(studies)
+    }
+
+    @Transactional(readOnly = true)
+    fun getStudy(id: Long): StudyDetailResponse {
+        val study = findStudy(id)
+        return StudyMapper.toStudyDetailResponse(study)
+    }
+
+    @Transactional
+    fun updateStudy(id: Long, request: StudyUpdateRequest): StudyDetailResponse {
+        val adminEmail = jwtUtils.extractEmail()
+        val study = findStudy(id)
+        study.checkAdminByEmail(adminEmail)
+
+        study.update(
+            title = request.title,
+            description = request.description,
+            requirement = request.requirement,
+            startDate = request.startDate,
+            endDate = request.endDate,
+        )
+        studyRepository.save(study)
+        return StudyMapper.toStudyDetailResponse(study)
+    }
+
+    @Transactional
+    fun deleteStudy(id: Long) {
+        val adminEmail = jwtUtils.extractEmail()
+        val study = findStudy(id)
+        study.checkAdminByEmail(adminEmail)
+
+        studyRepository.deleteById(id)
+    }
+
+    @Transactional(readOnly = true)
+    fun getStudyMembers(id: Long, role: StudyMemberRole): List<User> {
+        val study = findStudy(id)
+
+        return when (role) {
+            StudyMemberRole.ADMIN -> study.getAdminUsers()
+            StudyMemberRole.MEMBER -> study.getRegularUsers()
+            StudyMemberRole.PENDING -> study.getPendingUsers()
+        }
+    }
+
+    @Transactional
+    fun changeRole(id: Long, request: StudyRoleChangeRequest) {
+        val adminEmail = jwtUtils.extractEmail()
+        val study = findStudy(id)
+        study.checkAdminByEmail(adminEmail)
+
+        val user = userRepository.findByEmail(request.email)
+            ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
+
+        study.changeRole(user, request.newRole)
+        studyRepository.save(study)
+    }
+
+    @Transactional
+    fun create(request: StudyCreateRequest): StudyCreateResponse {
+        val admin = jwtUtils.extractUser()
+        val study = Study.create(
+            title = request.title,
+            description = request.description,
+            requirement = request.requirement,
+            startDate = request.startDate,
+            endDate = request.endDate,
+            admin = admin,
+        )
+        studyRepository.save(study)
+
+        return StudyMapper.toStudyCreateResponse(study)
+    }
+
+    @Transactional
+    fun join(id: Long) {
+        val user = jwtUtils.extractUser()
+        val study = findStudy(id)
+
+        study.join(user)
+        studyRepository.save(study)
+        mailUtil.sendAll(MailType.STUDY_MEMBER_JOIN, study.getAdminUsers().map { it.email })
+    }
+
+    @Transactional
+    fun approve(id: Long, request: StudyMemberRequest) {
+        val adminEmail = jwtUtils.extractEmail()
+        val study = findStudy(id)
+
+        study.checkAdminByEmail(adminEmail)
+        val user = userRepository.findByEmail(request.email)
+            ?: throw CustomException("User not found", HttpStatus.NOT_FOUND)
+        study.approve(user)
+        studyRepository.save(study)
+    }
+
+    @Transactional
+    fun deny(id: Long, request: StudyMemberRequest) {
+        val adminEmail = jwtUtils.extractEmail()
+        val study = findStudy(id)
+
+        study.checkAdminByEmail(adminEmail)
+        val user = userRepository.findByEmail(request.email)
+            ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
+        study.deny(user)
+        studyRepository.save(study)
+    }
+
+    @Transactional
+    fun leave(id: Long) {
+        val memberEmail = jwtUtils.extractEmail()
+        val study = findStudy(id)
+
+        study.checkMemberByEmail(memberEmail)
+        val user = userRepository.findByEmail(memberEmail)
+            ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
+        study.leave(user)
+        studyRepository.save(study)
+    }
+
+    @Transactional(readOnly = true)
+    fun getPendingMembersPage(studyId: Long, page: Int, size: Int): Page<StudyMemberResponse> {
+        val pageable = PageRequest.of(page, size)
+        val pendingPage = studyMemberRepository.findByStudyIdAndRoleOrderByJoinedAtDesc(
+            studyId = studyId,
+            role = StudyMemberRole.PENDING,
+            pageable = pageable
+        )
+
+        return pendingPage.map {
+            StudyMemberResponse(
+                userId = it.user.id,
+                name = it.user.name,
+                email = it.user.email,
+                role = it.role,
+                joinedAt = it.joinedAt,
+                approvedAt = it.approvedAt
+            )
+        }
+    }
+
     @Transactional(readOnly = true)
     fun getMemberStatus(studyId: Long, studySessionId: Long?, memberId: Long?): List<StudyMemberStatusResponse> {
         val study = findStudy(studyId)
@@ -158,149 +305,5 @@ class StudyService(
             email = user.email,
             profileImage = user.profileImage
         )
-    }
-}
-
-    fun getStudies(page: Int, size: Int): StudiesResponse {
-        val pageable: Pageable = PageRequest.of(page, size)
-        val studies = studyRepository.findAll(pageable)
-        return StudyMapper.toStudiesResponse(studies)
-    }
-
-    fun getStudy(id: Long): StudyDetailResponse {
-        val study = studyRepository.findDetailById(id)
-            ?: throw CustomException("Study not found", HttpStatus.NOT_FOUND)
-        return StudyMapper.toStudyDetailResponse(study)
-    }
-
-    fun updateStudy(id: Long, request: StudyUpdateRequest): StudyDetailResponse {
-        val adminEmail = jwtUtils.extractEmail()
-        val study = studyRepository.findDetailById(id)
-            ?: throw CustomException("Study not found", HttpStatus.NOT_FOUND)
-        study.checkAdminByEmail(adminEmail)
-
-        study.update(
-            title = request.title,
-            description = request.description,
-            requirement = request.requirement,
-            startDate = request.startDate,
-            endDate = request.endDate,
-        )
-        studyRepository.save(study)
-        return StudyMapper.toStudyDetailResponse(study)
-    }
-
-    fun deleteStudy(id: Long) {
-        val adminEmail = jwtUtils.extractEmail()
-        val study = studyRepository.findDetailById(id)
-            ?: throw CustomException("Study not found", HttpStatus.NOT_FOUND)
-        study.checkAdminByEmail(adminEmail)
-
-        studyRepository.deleteById(id)
-    }
-
-    fun getStudyMembers(id: Long, role: StudyMemberRole): List<User> {
-        val study = studyRepository.findDetailById(id)
-            ?: throw CustomException("Study not found", HttpStatus.NOT_FOUND)
-
-        return when (role) {
-            StudyMemberRole.ADMIN -> study.getAdminUsers()
-            StudyMemberRole.MEMBER -> study.getRegularUsers()
-            StudyMemberRole.PENDING -> study.getPendingUsers()
-        }
-    }
-
-    fun changeRole(id: Long, request: StudyRoleChangeRequest) {
-        val adminEmail = jwtUtils.extractEmail()
-        val study = studyRepository.findDetailById(id)
-            ?: throw CustomException("Study not found", HttpStatus.NOT_FOUND)
-        study.checkAdminByEmail(adminEmail)
-
-        val user = userRepository.findByEmail(request.email)
-            ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
-
-        study.changeRole(user, request.newRole)
-        studyRepository.save(study)
-    }
-
-    fun create(request: StudyCreateRequest): StudyCreateResponse {
-        val admin = jwtUtils.extractUser()
-        val study = Study.create(
-            title = request.title,
-            description = request.description,
-            requirement = request.requirement,
-            startDate = request.startDate,
-            endDate = request.endDate,
-            admin = admin,
-        )
-        studyRepository.save(study)
-
-        return StudyMapper.toStudyCreateResponse(study)
-    }
-
-    fun join(id: Long) {
-        val user = jwtUtils.extractUser()
-        val study = studyRepository.findDetailById(id)
-            ?: throw CustomException("Study not found", HttpStatus.NOT_FOUND)
-
-        study.join(user)
-        studyRepository.save(study)
-        mailUtil.sendAll(MailType.STUDY_MEMBER_JOIN, study.getAdminUsers().map { it.email })
-    }
-
-    fun approve(id: Long, request: StudyMemberRequest) {
-        val adminEmail = jwtUtils.extractEmail()
-        val study = studyRepository.findDetailById(id)
-            ?: throw CustomException("Study not found", HttpStatus.NOT_FOUND)
-
-        study.checkAdminByEmail(adminEmail)
-        val user = userRepository.findByEmail(request.email)
-            ?: throw CustomException("User not found", HttpStatus.NOT_FOUND)
-        study.approve(user)
-        studyRepository.save(study)
-    }
-
-    fun deny(id: Long, request: StudyMemberRequest) {
-        val adminEmail = jwtUtils.extractEmail()
-        val study = studyRepository.findDetailById(id)
-            ?: throw CustomException("Study not found", HttpStatus.NOT_FOUND)
-
-        study.checkAdminByEmail(adminEmail)
-        val user = userRepository.findByEmail(request.email)
-            ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
-        study.deny(user)
-        studyRepository.save(study)
-    }
-
-    fun leave(id: Long) {
-        val memberEmail = jwtUtils.extractEmail()
-        val study = studyRepository.findDetailById(id)
-            ?: throw CustomException("Study not found", HttpStatus.NOT_FOUND)
-
-        study.checkMemberByEmail(memberEmail)
-        val user = userRepository.findByEmail(memberEmail)
-            ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
-        study.leave(user)
-        studyRepository.save(study)
-    }
-
-    fun getPendingMembersPage(studyId: Long, page: Int, size: Int): Page<StudyMemberResponse> {
-        val pageable = PageRequest.of(page, size)
-        val pendingPage = studyMemberRepository.findByStudyIdAndRoleOrderByJoinedAtDesc(
-            studyId = studyId,
-            role = StudyMemberRole.PENDING,
-            pageable = pageable
-        )
-
-        return pendingPage.map {
-            StudyMemberResponse(
-                userId = it.user.id,
-                name = it.user.name,
-                email = it.user.email,
-                role = it.role,
-                joinedAt = it.joinedAt,
-                approvedAt = it.approvedAt
-            )
-        }
     }
 }

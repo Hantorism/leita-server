@@ -146,6 +146,18 @@ class StudySessionService(
     }
 
     @Transactional
+    fun closeAttendance(
+        sessionId: Long,
+        request: AttendanceCloseRequest?
+    ): AttendanceResponse {
+        return updateAttendance(sessionId, AttendanceUpdateRequest(
+            closeTime = request?.closeTime,
+            lateThresholdMinutes = null,
+            status = AttendanceStatus.CLOSED
+        ))
+    }
+
+    @Transactional
     fun attend(sessionId: Long): AttendanceResponse {
         val user = jwtUtils.extractUser()
         val studySession = getStudySessionEntity(sessionId)

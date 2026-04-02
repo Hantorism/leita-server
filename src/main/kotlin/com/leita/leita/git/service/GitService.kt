@@ -2,7 +2,7 @@ package com.leita.leita.git.service
 
 import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.jwt.JwtUtils
-import com.leita.leita.common.dto.judge.request.ReviewRequest
+import com.leita.leita.judge.dto.ReviewRequest
 import com.leita.leita.git.dto.RepositoryResponse
 import com.leita.leita.util.cache.CacheUtil
 import com.leita.leita.git.util.GithubUtil
@@ -73,9 +73,9 @@ class GitService(
         val githubUserName = user.githubInfo!!.githubUserName
 
         val reviewContent = """
-            # [${problem.problemId}] ${problem.title}
+            # [${problem.id}] ${problem.title}
 
-            **문제 링크**: [${problem.title}](https://leita.dev/problems/${problem.problemId})
+            **문제 링크**: [${problem.title}](https://leita.dev/problems/${problem.id})
             
             **제출 언어**: ${judge.used?.language ?: ""}
             
@@ -93,8 +93,8 @@ class GitService(
         val codeEncodedContent = oracleStorageUtil.downloadFile("submits/${judge.id}/Main.${judge.used?.language?.toExtension()}")
         val codeContent = Base64.getDecoder().decode(codeEncodedContent)
 
-        val reviewFileName = "${problem.problemId}/review.md"
-        val codeFileName = "${problem.problemId}/${problem.problemId}.${judge.used?.language?.toExtension()}"
+        val reviewFileName = "${problem.id}/review.md"
+        val codeFileName = "${problem.id}/${problem.id}.${judge.used?.language?.toExtension()}"
 
         val filesToCommit = mapOf(
             reviewFileName to reviewContent,
