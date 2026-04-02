@@ -31,6 +31,8 @@ class StudySessionMapper {
             return StudySessionResponse(
                 id = studySession.id,
                 studyId = studySession.studyId,
+                title = studySession.title,
+                description = studySession.description,
                 startDateTime = studySession.startDateTime,
                 endDateTime = studySession.endDateTime,
                 attendanceStatus = studySession.attendances.maxByOrNull { it.openTime }?.status?.name,
@@ -42,6 +44,8 @@ class StudySessionMapper {
             return StudySessionDetailResponse(
                 id = studySession.id,
                 studyId = studySession.studyId,
+                title = studySession.title,
+                description = studySession.description,
                 startDateTime = studySession.startDateTime,
                 endDateTime = studySession.endDateTime,
                 attendance = studySession.attendances.maxByOrNull { it.openTime }?.let(::toAttendanceResponse),
