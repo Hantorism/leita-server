@@ -64,6 +64,8 @@ class StudySessionService(
         study.checkAdminByEmail(jwtUtils.extractEmail())
 
         val studySession = StudySession.create(
+            title = request.title,
+            description = request.description,
             startDateTime = request.startDateTime,
             endDateTime = request.endDateTime,
             studyId = studyId
@@ -78,7 +80,12 @@ class StudySessionService(
         val study = getStudy(studySession.studyId)
         study.checkAdminByEmail(jwtUtils.extractEmail())
 
-        studySession.update(request.startDateTime, request.endDateTime)
+        studySession.update(
+            title = request.title,
+            description = request.description,
+            startDateTime = request.startDateTime,
+            endDateTime = request.endDateTime
+        )
         return StudySessionMapper.toStudySessionDetailResponse(studySession)
     }
 

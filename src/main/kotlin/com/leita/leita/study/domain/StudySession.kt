@@ -11,6 +11,12 @@ import java.time.LocalDateTime
 @Access(AccessType.FIELD)
 open class StudySession(
     @Column(nullable = false)
+    open var title: String,
+
+    @Column(nullable = true)
+    open var description: String?,
+
+    @Column(nullable = false)
     open var startDateTime: LocalDateTime,
 
     @Column(nullable = false)
@@ -18,7 +24,7 @@ open class StudySession(
 
     @Column(nullable = false)
     open val studyId: Long,
-
+    
     @OneToMany(mappedBy = "studySession", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     open val attendances: MutableSet<Attendance> = mutableSetOf(),
 
@@ -28,12 +34,16 @@ open class StudySession(
 
     companion object {
         fun create(
+            title: String,
+            description: String?,
             startDateTime: LocalDateTime,
             endDateTime: LocalDateTime,
             studyId: Long
         ): StudySession {
             validateDateTimeRange(startDateTime, endDateTime)
             return StudySession(
+                title = title,
+                description = description,
                 startDateTime = startDateTime,
                 endDateTime = endDateTime,
                 studyId = studyId
@@ -47,8 +57,15 @@ open class StudySession(
         }
     }
 
-    fun update(startDateTime: LocalDateTime, endDateTime: LocalDateTime) {
+    fun update(
+        title: String,
+        description: String?,
+        startDateTime: LocalDateTime,
+        endDateTime: LocalDateTime
+    ) {
         validateDateTimeRange(startDateTime, endDateTime)
+        this.title = title
+        this.description = description
         this.startDateTime = startDateTime
         this.endDateTime = endDateTime
     }
