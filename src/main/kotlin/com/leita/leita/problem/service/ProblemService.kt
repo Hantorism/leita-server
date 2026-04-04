@@ -13,7 +13,7 @@ import com.leita.leita.problem.dto.ProblemsResponse
 import com.leita.leita.problem.domain.Description
 import com.leita.leita.problem.domain.Problem
 import com.leita.leita.problem.domain.TestCase
-import com.leita.leita.file.util.OracleStorageUtil
+import com.leita.leita.external.oracle.OracleStorageUtil
 import com.leita.leita.problem.repository.ProblemRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable

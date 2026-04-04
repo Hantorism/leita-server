@@ -8,6 +8,6 @@
 - **채점 유형**: `JudgeType`을 사용하여 제출(SUBMIT)과 실행(RUN) 채점 유형을 구분합니다.
 - **결과 처리**: 실행 결과를 `Result` 상태(예: CORRECT, WRONG_ANSWER)로 매핑합니다.
 - **리소스 제한**: `UsedInfo`를 통해 사용된 메모리와 시간을 모니터링하고 보고합니다.
-- **통신**: 외부 채점 시스템(예: judge0)과 통신하기 위해 `JudgeUtil`을 사용합니다.
+- **통신**: 외부 채점 시스템(예: judge0)과 통신하기 위해 `external.judge.JudgeUtil`을 사용합니다.
 - **매핑**: 내부 채점 상세 내용을 응답으로 변환할 때 `JudgeMapper`를 활용합니다.
 - **통계**: 문제별 해결 여부를 업데이트하여 `ProblemService`의 통계에 반영합니다.

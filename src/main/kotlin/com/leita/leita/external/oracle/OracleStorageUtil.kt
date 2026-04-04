@@ -1,4 +1,4 @@
-package com.leita.leita.file.util
+package com.leita.leita.external.oracle
 
 import com.leita.leita.common.config.OracleStorageConfig
 import com.oracle.bmc.objectstorage.ObjectStorage

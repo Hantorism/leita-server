@@ -1,4 +1,4 @@
-package com.leita.leita.git.util
+package com.leita.leita.external.github
 
 import com.leita.leita.common.config.GithubConfig
 import com.leita.leita.common.lib.PrivateKeyParser

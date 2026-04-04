@@ -5,9 +5,9 @@ import com.leita.leita.common.security.jwt.JwtUtils
 import com.leita.leita.judge.dto.ReviewRequest
 import com.leita.leita.git.dto.RepositoryResponse
 import com.leita.leita.external.cache.CacheUtil
-import com.leita.leita.git.util.GithubUtil
+import com.leita.leita.external.github.GithubUtil
 import com.leita.leita.git.dto.InstallationRepositoriesResponse
-import com.leita.leita.file.util.OracleStorageUtil
+import com.leita.leita.external.oracle.OracleStorageUtil
 import com.leita.leita.judge.repository.JudgeRepository
 import com.leita.leita.problem.repository.ProblemRepository
 import com.leita.leita.user.repository.UserRepository

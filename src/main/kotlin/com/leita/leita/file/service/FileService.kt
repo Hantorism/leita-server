@@ -1,6 +1,6 @@
 package com.leita.leita.file.service
 
-import com.leita.leita.file.util.OracleStorageUtil
+import com.leita.leita.external.oracle.OracleStorageUtil
 import org.springframework.stereotype.Service
 
 @Service

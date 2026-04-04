@@ -10,7 +10,7 @@ import com.leita.leita.judge.dto.RunResponse
 import com.leita.leita.judge.domain.Judge
 import com.leita.leita.judge.domain.JudgeType
 import com.leita.leita.judge.domain.Result
-import com.leita.leita.judge.util.JudgeUtil
+import com.leita.leita.external.judge.JudgeUtil
 import com.leita.leita.judge.dto.JudgeWCResponse
 import com.leita.leita.judge.dto.RunWCResponse
 import com.leita.leita.judge.repository.JudgeRepository

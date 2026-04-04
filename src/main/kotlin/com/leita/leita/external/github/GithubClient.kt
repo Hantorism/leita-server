@@ -1,4 +1,4 @@
-package com.leita.leita.git.util
+package com.leita.leita.external.github
 
 import com.leita.leita.git.dto.CreateCommitRequest
 import com.leita.leita.git.dto.CreateRefRequest

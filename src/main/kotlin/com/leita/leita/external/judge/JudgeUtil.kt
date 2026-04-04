@@ -1,4 +1,4 @@
-package com.leita.leita.judge.util
+package com.leita.leita.external.judge
 
 import com.leita.leita.common.config.WebClientConfig
 import com.leita.leita.common.exception.CustomException
