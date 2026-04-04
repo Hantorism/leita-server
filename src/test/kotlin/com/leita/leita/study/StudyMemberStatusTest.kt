@@ -11,7 +11,7 @@ import com.leita.leita.study.repository.StudySessionRepository
 import com.leita.leita.study.service.StudyService
 import com.leita.leita.user.domain.User
 import com.leita.leita.user.repository.UserRepository
-import com.leita.leita.util.mail.MailUtil
+import com.leita.leita.external.mail.MailUtil
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName

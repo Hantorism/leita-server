@@ -13,8 +13,8 @@ import com.leita.leita.study.repository.StudySessionRepository
 import com.leita.leita.judge.repository.JudgeRepository
 import com.leita.leita.judge.domain.Result
 import com.leita.leita.user.repository.UserRepository
-import com.leita.leita.util.mail.MailType
-import com.leita.leita.util.mail.MailUtil
+import com.leita.leita.external.mail.MailType
+import com.leita.leita.external.mail.MailUtil
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable

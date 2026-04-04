@@ -17,7 +17,7 @@ Leita는 코딩 스터디 세션을 활성화하고 문제 풀이 현황을 추�
 
 ### 공통 컴포넌트
 - `common/`: 보안(Security), 예외 처리(Exception), 로깅(Logging) 등 횡단 관심사.
-- `util/`: 공통 유틸리티 (이메일, Slack, Google OAuth 등).
+- `external/`: 공통 유틸리티 (이메일, Slack, Google OAuth 등).
 - `config/`: Spring Boot 설정 클래스.
 
 ## 코드 컨벤션

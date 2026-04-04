@@ -1,8 +1,8 @@
 package com.leita.leita.common.exception
 
-import com.leita.leita.util.slack.SlackLabel
-import com.leita.leita.util.slack.SlackLogLevel
-import com.leita.leita.util.slack.SlackUtil
+import com.leita.leita.external.slack.SlackLabel
+import com.leita.leita.external.slack.SlackLogLevel
+import com.leita.leita.external.slack.SlackUtil
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice

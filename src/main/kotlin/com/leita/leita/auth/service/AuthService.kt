@@ -6,7 +6,7 @@ import com.leita.leita.auth.dto.OAuthRequest
 import com.leita.leita.auth.dto.InfoResponse
 import com.leita.leita.auth.dto.JwtResponse
 import com.leita.leita.user.domain.User
-import com.leita.leita.util.google.GoogleOAuthUtil
+import com.leita.leita.external.google.GoogleOAuthUtil
 import com.leita.leita.user.repository.UserRepository
 import org.springframework.stereotype.Service
 

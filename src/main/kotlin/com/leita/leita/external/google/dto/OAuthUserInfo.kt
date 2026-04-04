@@ -1,4 +1,4 @@
-package com.leita.leita.util.google.dto
+package com.leita.leita.external.google.dto
 
 data class OAuthUserInfo(
     val sub: String,

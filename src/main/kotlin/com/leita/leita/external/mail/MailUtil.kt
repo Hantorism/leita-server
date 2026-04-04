@@ -1,4 +1,4 @@
-package com.leita.leita.util.mail
+package com.leita.leita.external.mail
 
 import com.leita.leita.common.exception.CustomException
 import jakarta.mail.internet.InternetAddress

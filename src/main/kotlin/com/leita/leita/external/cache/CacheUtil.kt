@@ -1,4 +1,4 @@
-package com.leita.leita.util.cache
+package com.leita.leita.external.cache
 
 import org.springframework.stereotype.Component
 

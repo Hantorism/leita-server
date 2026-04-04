@@ -1,4 +1,4 @@
-package com.leita.leita.util.mail
+package com.leita.leita.external.mail
 
 enum class MailType(
     val title: String,

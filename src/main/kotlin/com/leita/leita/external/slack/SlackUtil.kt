@@ -1,4 +1,4 @@
-package com.leita.leita.util.slack
+package com.leita.leita.external.slack
 
 import com.leita.leita.common.config.env.SpringEnv
 import com.leita.leita.common.exception.CustomException

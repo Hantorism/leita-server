@@ -1,4 +1,4 @@
-package com.leita.leita.util.slack
+package com.leita.leita.external.slack
 
 enum class SlackLogLevel {
     INFO,

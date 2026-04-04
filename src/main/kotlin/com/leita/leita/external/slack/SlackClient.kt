@@ -1,4 +1,4 @@
-package com.leita.leita.util.slack
+package com.leita.leita.external.slack
 
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.web.bind.annotation.PostMapping

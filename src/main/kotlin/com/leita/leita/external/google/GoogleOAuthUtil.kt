@@ -1,6 +1,6 @@
-package com.leita.leita.util.google
+package com.leita.leita.external.google
 
-import com.leita.leita.util.google.dto.OAuthUserInfo
+import com.leita.leita.external.google.dto.OAuthUserInfo
 import org.springframework.stereotype.Component
 
 @Component

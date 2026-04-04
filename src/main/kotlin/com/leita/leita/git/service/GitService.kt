@@ -4,7 +4,7 @@ import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.jwt.JwtUtils
 import com.leita.leita.judge.dto.ReviewRequest
 import com.leita.leita.git.dto.RepositoryResponse
-import com.leita.leita.util.cache.CacheUtil
+import com.leita.leita.external.cache.CacheUtil
 import com.leita.leita.git.util.GithubUtil
 import com.leita.leita.git.dto.InstallationRepositoriesResponse
 import com.leita.leita.file.util.OracleStorageUtil
