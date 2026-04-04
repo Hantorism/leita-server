@@ -27,12 +27,18 @@
 - **MailType**: 메일의 제목과 본문 템플릿을 관리하는 Enum입니다 (예: 스터디 가입 신청 알림).
 
 ### 4. Slack (슬랙 연동)
-- **SlackUtil**: 시스템 로그 및 알림을 Slack 채널로 전송합니다.
-- **기능**:
-    - `sendMsg(timestamp, description, logLevel, label)`: 로그 레벨과 레이블에 따라 포맷팅된 메시지를 Slack으로 전송합니다.
-- **정책**: 로컬 환경(`local` 프로필)에서는 메시지를 전송하지 않으며, 그 외 환경에서만 동작합니다.
+...
 - **구성**: `SlackLogLevel`(로그 수준), `SlackLabel`(알림 아이콘 및 제목) 등을 사용하여 메시지를 시각화합니다.
 
+### 5. Message Queue (메시지 큐)
+- **설정**: `com.leita.leita.external.judge.messagequeue` 패키지에 위치합니다.
+- **기능**: 채점 요청 발행 및 결과 수신 등 신뢰성이 필요한 비동기 처리에 사용됩니다.
+- **Consumer**: `RabbitListener`를 통해 메시지를 수신하고 관련 서비스를 호출합니다.
+
+### 6. HTTP Client (OpenFeign)
+- **표준**: 프로젝트의 모든 외부 HTTP 요청은 `FeignClient` 사용을 지향합니다.
+- **예시**: `GithubClient`, `GoogleOAuthClient`, `JudgeClient`
+
 ## 사용 가이드
-- 모든 유틸리티는 `@Component`로 등록되어 있으므로 필요한 서비스에서 의존성을 주입받아 사용할 수 있습니다.
-- 비동기 작업(메일 전송 등)이 포함된 경우 Spring의 `@Async` 설정을 참고하십시오.
+- 모든 유틸리티는 `@Component` 또는 `@FeignClient`로 등록되어 있으므로 필요한 서비스에서 의존성을 주입받아 사용할 수 있습니다.
+- Message Queue를 통한 처리는 트랜잭션 범위와 메시지 수신 성공 여부(Ack)를 고려하여 설계하십시오.

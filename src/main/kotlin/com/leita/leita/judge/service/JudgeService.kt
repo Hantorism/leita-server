@@ -35,15 +35,38 @@ class JudgeService(
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
         val submit = Judge.create(problem.id, user, request.language, JudgeType.SUBMIT)
-        val submitId = judgeRepository.save(submit).id
-
-        val response: JudgeWCResponse = judgeUtil.submit(problemId, submitId, request)
+        val savedSubmit = judgeRepository.save(submit)
+        
+        // MQ를 통해 비동기 채점 요청 발행
+        judgeUtil.submitAsync(problemId, savedSubmit.id, request)
+        
+        // 코드 크기 업데이트
         submit.updateSizeOfCode(request.code)
-        submit.updateSubmitInfo(response)
+        judgeRepository.save(submit)
 
-        problemService.updateSolved(problemId, response.result === Result.CORRECT)
+        // 초기 응답은 PENDING 상태 또는 접수 완료 메시지 (기존 Mapper 호환을 위해 빈 response 반환 시도)
+        return SubmitResponse(
+            result = null,
+            error = null
+        )
+    }
 
-        return JudgeMapper.toSubmitResponse(response)
+    @Transactional
+    fun processJudgeResult(response: JudgeWCResponse) {
+        val judge = judgeRepository.findById(response.submitId)
+            .orElseThrow { CustomException("Judge with id: ${response.submitId} not found", HttpStatus.NOT_FOUND) }
+        
+        // 중복 처리 방지 (Idempotency)
+        if (judge.result != null) {
+            println("이미 처리된 채점 결과입니다: judgeId=${judge.id}")
+            return
+        }
+
+        judge.updateSubmitInfo(response)
+        judgeRepository.save(judge)
+
+        problemService.updateSolved(judge.problemId, response.result === Result.CORRECT)
+        println("채점 결과 처리 완료: judgeId=${judge.id}, status=${judge.result}")
     }
 
     @Transactional
