@@ -10,6 +10,7 @@ import com.leita.leita.study.dto.StudySessionResponse
 import com.leita.leita.study.dto.StudySessionsResponse
 import com.leita.leita.study.domain.Assignment
 import com.leita.leita.study.domain.Attendance
+import com.leita.leita.study.domain.AttendanceRecord
 import com.leita.leita.study.domain.AttendanceRecordStatus
 import com.leita.leita.study.domain.StudySession
 import org.springframework.data.domain.Page
@@ -68,16 +69,21 @@ class StudySessionMapper {
                 closeTime = attendance.closeTime,
                 lateThresholdMinutes = attendance.lateThresholdMinutes,
                 status = attendance.status.name,
-                records = attendance.records.map {
-                    AttendanceRecordResponse(
-                        id = it.id,
-                        userId = it.user.id,
-                        userName = it.user.name,
-                        userEmail = it.user.email,
-                        status = it.status.name,
-                        attendedAt = it.attendedAt
+                records = attendance.records
+                    .sortedWith(
+                        compareByDescending<AttendanceRecord> { it.attendedAt }
+                            .thenBy { it.user.name }
                     )
-                },
+                    .map {
+                        AttendanceRecordResponse(
+                            id = it.id,
+                            userId = it.user.id,
+                            userName = it.user.name,
+                            userEmail = it.user.email,
+                            status = it.status.name,
+                            attendedAt = it.attendedAt
+                        )
+                    },
                 attendanceRate = AttendanceRateResponse(
                     total = totalCount,
                     present = presentCount,
@@ -92,7 +98,6 @@ class StudySessionMapper {
             return AssignmentResponse(
                 id = assignment.id,
                 studySessionId = assignment.studySession.id,
-                title = assignment.title,
                 description = assignment.description,
                 problemIds = assignment.problemIds.toList()
             )
@@ -102,7 +107,6 @@ class StudySessionMapper {
             return AssignmentDetailResponse(
                 id = assignment.id,
                 studySessionId = assignment.studySession.id,
-                title = assignment.title,
                 description = assignment.description,
                 problemIds = assignment.problemIds.toList()
             )
