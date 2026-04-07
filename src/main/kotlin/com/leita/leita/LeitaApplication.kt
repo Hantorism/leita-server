@@ -11,7 +11,7 @@ import java.util.*
 class LeitaApplication {
 	@PostConstruct
 	fun init() {
-		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"))
+		TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
 	}
 }
 
