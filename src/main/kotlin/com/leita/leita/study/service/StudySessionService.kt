@@ -7,7 +7,6 @@ import com.leita.leita.study.dto.AssignmentCreateRequest
 import com.leita.leita.study.dto.AssignmentUpdateRequest
 import com.leita.leita.study.dto.AttendanceOpenRequest
 import com.leita.leita.study.dto.AttendanceUpdateRequest
-import com.leita.leita.study.dto.AttendanceCloseRequest
 import com.leita.leita.study.dto.StudySessionCreateRequest
 import com.leita.leita.study.dto.StudySessionUpdateRequest
 import com.leita.leita.study.dto.AssignmentDetailResponse
@@ -25,7 +24,6 @@ import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
 
 @Service
 class StudySessionService(
@@ -143,18 +141,6 @@ class StudySessionService(
             status = request.status
         )
         return StudySessionMapper.toAttendanceResponse(attendance)
-    }
-
-    @Transactional
-    fun closeAttendance(
-        sessionId: Long,
-        request: AttendanceCloseRequest?
-    ): AttendanceResponse {
-        return updateAttendance(sessionId, AttendanceUpdateRequest(
-            closeTime = request?.closeTime,
-            lateThresholdMinutes = null,
-            status = AttendanceStatus.CLOSED
-        ))
     }
 
     @Transactional
