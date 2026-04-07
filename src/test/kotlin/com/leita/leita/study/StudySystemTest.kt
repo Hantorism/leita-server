@@ -132,14 +132,12 @@ class StudySystemTest {
         // 7. 과제 생성
         println("\n7️⃣ 과제 생성")
         val assignment = session.createAssignment(
-            title = "1주차 과제 - 기본 자료구조",
             description = "스택, 큐, 해시맵 관련 문제 풀기",
             problemIds = listOf(10001L, 10002L, 10003L, 10004L, 10005L)
         )
 
-        assertEquals("1주차 과제 - 기본 자료구조", assignment.title)
         assertEquals(5, assignment.problemIds.size)
-        println("   ✅ 과제: ${assignment.title}")
+        println("   ✅ 과제 생성 완료")
         println("   ✅ 설명: ${assignment.description}")
         println("   ✅ 문제 개수: ${assignment.problemIds.size}개")
         println("   ✅ 문제 ID: ${assignment.problemIds}")
@@ -182,7 +180,6 @@ class StudySystemTest {
         }
 
         println("\n📝 과제 현황")
-        println("   - ${assignment.title}")
         println("   - 문제: ${assignment.problemIds.size}개")
 
         println("\n✅ 전체 플로우 테스트 성공!")
@@ -271,9 +268,9 @@ class StudySystemTest {
 
         // 2. 중복 과제 방지
         println("\n2️⃣ 중복 과제 방지 (세션당 1개)")
-        session.createAssignment("과제1", null, listOf(10001L))
+        session.createAssignment("과제1", listOf(10001L))
         val exception2 = assertThrows(Exception::class.java) {
-            session.createAssignment("과제2", null, listOf(10002L))
+            session.createAssignment("과제2", listOf(10002L))
         }
         assertNotNull(exception2)
         println("   ✅ 하나의 세션에는 최대 1개의 과제만 생성 가능")
