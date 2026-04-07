@@ -3,7 +3,6 @@ package com.leita.leita.study.controller
 import com.leita.leita.common.dto.BaseResponse
 import com.leita.leita.study.dto.AssignmentCreateRequest
 import com.leita.leita.study.dto.AssignmentUpdateRequest
-import com.leita.leita.study.dto.AttendanceCloseRequest
 import com.leita.leita.study.dto.AttendanceOpenRequest
 import com.leita.leita.study.dto.AttendanceUpdateRequest
 import com.leita.leita.study.dto.StudySessionCreateRequest
@@ -106,15 +105,6 @@ class StudySessionController(
     ): ResponseEntity<BaseResponse<AttendanceResponse>> {
         val response = studySessionService.attend(studySessionId)
         return ResponseEntity.ok(BaseResponse("출석 완료", response))
-    }
-
-    @PostMapping("/{studySessionId}/attendance/close")
-    fun closeAttendance(
-        @PathVariable studySessionId: Long,
-        @RequestBody(required = false) request: AttendanceCloseRequest?
-    ): ResponseEntity<BaseResponse<AttendanceResponse>> {
-        val response = studySessionService.closeAttendance(studySessionId, request)
-        return ResponseEntity.ok(BaseResponse("출석 종료 완료", response))
     }
 
     @GetMapping("/{studySessionId}/assignment")
