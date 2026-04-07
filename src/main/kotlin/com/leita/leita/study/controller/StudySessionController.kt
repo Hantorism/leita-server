@@ -1,17 +1,7 @@
 package com.leita.leita.study.controller
 
 import com.leita.leita.common.dto.BaseResponse
-import com.leita.leita.study.dto.AssignmentCreateRequest
-import com.leita.leita.study.dto.AssignmentUpdateRequest
-import com.leita.leita.study.dto.AttendanceOpenRequest
-import com.leita.leita.study.dto.AttendanceUpdateRequest
-import com.leita.leita.study.dto.StudySessionCreateRequest
-import com.leita.leita.study.dto.StudySessionUpdateRequest
-import com.leita.leita.study.dto.AssignmentDetailResponse
-import com.leita.leita.study.dto.AssignmentResponse
-import com.leita.leita.study.dto.AttendanceResponse
-import com.leita.leita.study.dto.StudySessionDetailResponse
-import com.leita.leita.study.dto.StudySessionsResponse
+import com.leita.leita.study.dto.*
 import com.leita.leita.study.service.StudySessionService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -105,6 +95,16 @@ class StudySessionController(
     ): ResponseEntity<BaseResponse<AttendanceResponse>> {
         val response = studySessionService.attend(studySessionId)
         return ResponseEntity.ok(BaseResponse("출석 완료", response))
+    }
+
+    @PutMapping("/{studySessionId}/attendance/members/{memberId}")
+    fun updateMemberAttendanceStatus(
+        @PathVariable studySessionId: Long,
+        @PathVariable memberId: Long,
+        @RequestBody request: MemberAttendanceUpdateRequest
+    ): ResponseEntity<BaseResponse<AttendanceResponse>> {
+        val response = studySessionService.updateMemberAttendanceStatus(studySessionId, memberId, request)
+        return ResponseEntity.ok(BaseResponse("멤버 출석 상태 수정 완료", response))
     }
 
     @GetMapping("/{studySessionId}/assignment")

@@ -3,20 +3,9 @@ package com.leita.leita.study.service
 import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.jwt.JwtUtils
 import com.leita.leita.study.controller.StudySessionMapper
-import com.leita.leita.study.dto.AssignmentCreateRequest
-import com.leita.leita.study.dto.AssignmentUpdateRequest
-import com.leita.leita.study.dto.AttendanceOpenRequest
-import com.leita.leita.study.dto.AttendanceUpdateRequest
-import com.leita.leita.study.dto.StudySessionCreateRequest
-import com.leita.leita.study.dto.StudySessionUpdateRequest
-import com.leita.leita.study.dto.AssignmentDetailResponse
-import com.leita.leita.study.dto.AssignmentResponse
-import com.leita.leita.study.dto.AttendanceResponse
-import com.leita.leita.study.dto.StudySessionDetailResponse
-import com.leita.leita.study.dto.StudySessionsResponse
-import com.leita.leita.study.domain.AttendanceStatus
-import com.leita.leita.study.domain.Study
-import com.leita.leita.study.domain.StudySession
+import com.leita.leita.study.domain.*
+import com.leita.leita.study.dto.*
+import com.leita.leita.study.repository.StudyMemberRepository
 import com.leita.leita.study.repository.StudyRepository
 import com.leita.leita.study.repository.StudySessionRepository
 import org.springframework.data.domain.PageRequest
@@ -29,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional
 class StudySessionService(
     private val studyRepository: StudyRepository,
     private val studySessionRepository: StudySessionRepository,
+    private val studyMemberRepository: StudyMemberRepository,
     private val jwtUtils: JwtUtils
 ) {
 
@@ -152,6 +142,31 @@ class StudySessionService(
 
         val attendance = getOpenAttendance(studySession)
         attendance.attend(user)
+        return StudySessionMapper.toAttendanceResponse(attendance)
+    }
+
+    @Transactional
+    fun updateMemberAttendanceStatus(
+        sessionId: Long,
+        memberId: Long,
+        request: MemberAttendanceUpdateRequest
+    ): AttendanceResponse {
+        val studySession = getStudySessionEntity(sessionId)
+        val study = getStudy(studySession.studyId)
+        study.checkAdminByEmail(jwtUtils.extractEmail())
+
+        val member = studyMemberRepository.findById(memberId)
+            .orElseThrow { CustomException("Member not found", HttpStatus.NOT_FOUND) }
+
+        if (member.study.id != study.id) {
+            throw CustomException("Member does not belong to this study", HttpStatus.BAD_REQUEST)
+        }
+
+        val attendance = getLatestAttendance(studySession)
+        val record = attendance.records.find { it.user.id == member.user.id }
+            ?: throw CustomException("Attendance record not found", HttpStatus.NOT_FOUND)
+
+        record.status = request.status
         return StudySessionMapper.toAttendanceResponse(attendance)
     }
 
