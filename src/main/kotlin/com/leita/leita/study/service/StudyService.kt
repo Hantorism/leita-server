@@ -294,7 +294,7 @@ class StudyService(
             }
             listOf(session)
         } else {
-            studySessionRepository.findAllByStudyIdOrderByStartDateTimeAsc(studyId)
+            studySessionRepository.findAllByStudyIdOrderByStartDateTimeDesc(studyId)
         }
     }
 

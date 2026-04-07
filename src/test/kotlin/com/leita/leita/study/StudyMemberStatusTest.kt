@@ -89,7 +89,7 @@ class StudyMemberStatusTest {
         `when`(studyRepository.findDetailById(100L)).thenReturn(study)
         `when`(userRepository.findById(memberUser.id)).thenReturn(Optional.of(memberUser))
         `when`(jwtUtils.extractEmail()).thenReturn(memberUser.email)
-        `when`(studySessionRepository.findAllByStudyIdOrderByStartDateTimeAsc(100L)).thenReturn(listOf(session))
+        `when`(studySessionRepository.findAllByStudyIdOrderByStartDateTimeDesc(100L)).thenReturn(listOf(session))
         
         // 출석 기록 추가
         val attendance = session.openAttendance(baseTime, baseTime.plusHours(1), 10)
@@ -97,7 +97,7 @@ class StudyMemberStatusTest {
         attendance.attend(memberUser, baseTime.plusMinutes(5)) // PRESENT
 
         // 과제 추가
-        session.createAssignment("과제", "설명", listOf(1001L, 1002L))
+        session.createAssignment("설명", listOf(1001L, 1002L))
         
         // 과제 해결 여부 (1001번만 해결)
         `when`(judgeRepository.findByProblemIdInAndUserIdAndResult(listOf(1001L, 1002L), memberUser.id, Result.CORRECT))
@@ -121,9 +121,9 @@ class StudyMemberStatusTest {
         `when`(studyRepository.findDetailById(100L)).thenReturn(study)
         `when`(userRepository.findById(memberUser.id)).thenReturn(Optional.of(memberUser))
         `when`(jwtUtils.extractEmail()).thenReturn(adminUser.email)
-        `when`(studySessionRepository.findAllByStudyIdOrderByStartDateTimeAsc(100L)).thenReturn(listOf(session))
+        `when`(studySessionRepository.findAllByStudyIdOrderByStartDateTimeDesc(100L)).thenReturn(listOf(session))
         
-        session.createAssignment("과제", "설명", listOf(1001L, 1002L))
+        session.createAssignment("설명", listOf(1001L, 1002L))
         
         // 1001, 1002 모두 해결
         `when`(judgeRepository.findByProblemIdInAndUserIdAndResult(listOf(1001L, 1002L), memberUser.id, Result.CORRECT))

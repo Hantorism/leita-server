@@ -11,7 +11,11 @@ import org.springframework.stereotype.Repository
 interface StudySessionRepository: JpaRepository<StudySession, Long> {
     fun findByStudyIdOrderByStartDateTimeAsc(studyId: Long, pageable: Pageable): Page<StudySession>
 
+    fun findByStudyIdOrderByStartDateTimeDesc(studyId: Long, pageable: Pageable): Page<StudySession>
+
     fun findAllByStudyIdOrderByStartDateTimeAsc(studyId: Long): List<StudySession>
+
+    fun findAllByStudyIdOrderByStartDateTimeDesc(studyId: Long): List<StudySession>
 
     @EntityGraph(attributePaths = ["attendances", "attendances.records", "attendances.records.user", "assignments"])
     fun findDetailById(id: Long): StudySession?
