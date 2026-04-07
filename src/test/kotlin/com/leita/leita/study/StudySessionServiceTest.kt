@@ -3,15 +3,14 @@ package com.leita.leita.study
 import com.leita.leita.common.security.SecurityRole
 import com.leita.leita.common.security.jwt.JwtUtils
 import com.leita.leita.study.dto.AttendanceOpenRequest
+import com.leita.leita.study.dto.MemberAttendanceUpdateRequest
 import com.leita.leita.study.dto.StudySessionCreateRequest
-import com.leita.leita.study.domain.AttendanceRecordStatus
-import com.leita.leita.study.domain.Study
-import com.leita.leita.study.domain.StudyMemberRole
-import com.leita.leita.study.domain.StudySession
+import com.leita.leita.study.domain.*
 import com.leita.leita.study.service.StudySessionService
 import com.leita.leita.user.domain.User
 import com.leita.leita.study.repository.StudyRepository
 import com.leita.leita.study.repository.StudySessionRepository
+import com.leita.leita.study.repository.StudyMemberRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -27,6 +26,7 @@ class StudySessionServiceTest {
 
     private lateinit var studyRepository: StudyRepository
     private lateinit var studySessionRepository: StudySessionRepository
+    private lateinit var studyMemberRepository: StudyMemberRepository
     private lateinit var jwtUtils: JwtUtils
     private lateinit var studySessionService: StudySessionService
 
@@ -38,8 +38,14 @@ class StudySessionServiceTest {
     fun setUp() {
         studyRepository = mock(StudyRepository::class.java)
         studySessionRepository = mock(StudySessionRepository::class.java)
+        studyMemberRepository = mock(StudyMemberRepository::class.java)
         jwtUtils = mock(JwtUtils::class.java)
-        studySessionService = StudySessionService(studyRepository, studySessionRepository, jwtUtils)
+        studySessionService = StudySessionService(
+            studyRepository,
+            studySessionRepository,
+            studyMemberRepository,
+            jwtUtils
+        )
 
         adminUser = createUser(1L, "admin@test.com", "관리자")
         memberUser = createUser(2L, "member@test.com", "멤버")
@@ -139,6 +145,39 @@ class StudySessionServiceTest {
 
         assertThat(memberRecord.status).isEqualTo(AttendanceRecordStatus.PRESENT.name)
         assertThat(memberRecord.attendedAt).isNotNull()
+    }
+
+    @Test
+    fun `관리자는 특정 멤버의 출석 상태를 변경할 수 있다`() {
+        val session = StudySession.create(
+            title = "세션 제목",
+            description = "세션 설명",
+            startDateTime = LocalDateTime.now().minusHours(1),
+            endDateTime = LocalDateTime.now().plusHours(1),
+            studyId = 1L
+        ).apply { id = 40L }
+        val attendance = session.openAttendance(
+            openTime = LocalDateTime.now().minusMinutes(30),
+            closeTime = LocalDateTime.now().plusMinutes(30),
+            lateThresholdMinutes = 15
+        )
+        attendance.registerMember(memberUser)
+
+        val studyMember = StudyMember.create(study, memberUser, StudyMemberRole.MEMBER).apply { id = 100L }
+
+        `when`(studySessionRepository.findDetailById(40L)).thenReturn(session)
+        `when`(studyRepository.findDetailById(1L)).thenReturn(study)
+        `when`(jwtUtils.extractEmail()).thenReturn(adminUser.email)
+        `when`(studyMemberRepository.findById(100L)).thenReturn(java.util.Optional.of(studyMember))
+
+        val response = studySessionService.updateMemberAttendanceStatus(
+            40L,
+            100L,
+            MemberAttendanceUpdateRequest(AttendanceRecordStatus.LATE)
+        )
+
+        val memberRecord = response.records.first { it.userId == memberUser.id }
+        assertThat(memberRecord.status).isEqualTo(AttendanceRecordStatus.LATE.name)
     }
 
     private fun createUser(id: Long, email: String, name: String): User {
