@@ -12,10 +12,15 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        jdbc:
+          time_zone: UTC
+  jackson:
+    time-zone: UTC
+    serialization:
+      write-dates-as-timestamps: false
 
 external-server:
   google: http://localhost:8080
   slack: http://localhost:8080
   github: http://localhost:8080
   judge: http://localhost:8080
-
