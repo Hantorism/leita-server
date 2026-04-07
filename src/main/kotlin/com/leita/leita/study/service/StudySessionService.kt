@@ -33,7 +33,7 @@ class StudySessionService(
         } else {
             pageable = Pageable.unpaged()
         }
-        val sessions = studySessionRepository.findByStudyIdOrderByStartDateTimeAsc(studyId, pageable)
+        val sessions = studySessionRepository.findByStudyIdOrderByStartDateTimeDesc(studyId, pageable)
 
         return StudySessionMapper.toStudySessionsResponse(sessions)
     }
@@ -190,7 +190,6 @@ class StudySessionService(
         study.checkAdminByEmail(jwtUtils.extractEmail())
 
         val assignment = studySession.createAssignment(
-            title = request.title,
             description = request.description,
             problemIds = request.problemIds
         )
@@ -208,7 +207,6 @@ class StudySessionService(
 
         val assignment = getAssignmentEntity(studySession)
         assignment.update(
-            title = request.title,
             description = request.description,
             problemIds = request.problemIds
         )
