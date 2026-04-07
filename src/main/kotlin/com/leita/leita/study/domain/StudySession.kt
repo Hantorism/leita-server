@@ -90,7 +90,6 @@ open class StudySession(
     }
 
     fun createAssignment(
-        title: String,
         description: String?,
         problemIds: List<Long>
     ): Assignment {
@@ -100,7 +99,6 @@ open class StudySession(
 
         val assignment = Assignment.create(
             studySession = this,
-            title = title,
             description = description,
             problemIds = problemIds
         )

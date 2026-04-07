@@ -13,9 +13,6 @@ open class Assignment(
     @JoinColumn(name = "study_session_id", nullable = false)
     open val studySession: StudySession,
 
-    @Column(nullable = false)
-    open var title: String,
-
     @Column(nullable = true)
     open var description: String?,
 
@@ -28,35 +25,29 @@ open class Assignment(
     companion object {
         fun create(
             studySession: StudySession,
-            title: String,
             description: String?,
             problemIds: List<Long>
         ): Assignment {
-            validate(title, problemIds)
+            validate(problemIds)
 
             val assignment = Assignment(
                 studySession = studySession,
-                title = title,
                 description = description
             )
             assignment.problemIds.addAll(problemIds.distinct())
             return assignment
         }
 
-        internal fun validate(title: String, problemIds: List<Long>) {
-            if (title.isBlank()) {
-                throw CustomException("과제 제목은 비어 있을 수 없습니다.", HttpStatus.BAD_REQUEST)
-            }
+        internal fun validate(problemIds: List<Long>) {
             if (problemIds.isEmpty()) {
                 throw CustomException("과제 문제는 최소 1개 이상 필요합니다.", HttpStatus.BAD_REQUEST)
             }
         }
     }
 
-    fun update(title: String, description: String?, problemIds: List<Long>) {
-        validate(title, problemIds)
+    fun update(description: String?, problemIds: List<Long>) {
+        validate(problemIds)
 
-        this.title = title
         this.description = description
         this.problemIds.clear()
         this.problemIds.addAll(problemIds.distinct())
@@ -71,5 +62,3 @@ open class Assignment(
         problemIds.remove(problemId)
     }
 }
-
-

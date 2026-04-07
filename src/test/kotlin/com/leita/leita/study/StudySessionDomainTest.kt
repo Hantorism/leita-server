@@ -1,5 +1,6 @@
 package com.leita.leita.study
 
+import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.SecurityRole
 import com.leita.leita.study.domain.StudySession
 import com.leita.leita.study.domain.AttendanceRecordStatus
@@ -42,7 +43,7 @@ class StudySessionDomainTest {
         val session = StudySession.create("Title", "Description", now.minusHours(1), now.plusHours(2), 1L)
         session.openAttendance(now.minusMinutes(5), now.plusMinutes(30), 10)
 
-        assertThrows(RuntimeException::class.java) {
+        assertThrows(CustomException::class.java) {
             session.openAttendance(now.minusMinutes(1), now.plusMinutes(40), 10)
         }
     }
@@ -53,7 +54,6 @@ class StudySessionDomainTest {
         val session = StudySession.create("Title", "Description", now.minusHours(1), now.plusHours(2), 1L)
 
         val first = session.createAssignment(
-            title = "assignment 1",
             description = null,
             problemIds = listOf(10001L, 10002L)
         )
@@ -61,9 +61,8 @@ class StudySessionDomainTest {
         assertEquals(2, first.problemIds.size)
         assertEquals(1, session.assignments.size)
 
-        assertThrows(RuntimeException::class.java) {
+        assertThrows(CustomException::class.java) {
             session.createAssignment(
-                title = "duplicate assignment",
                 description = null,
                 problemIds = listOf(10003L)
             )
