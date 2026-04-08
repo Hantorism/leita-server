@@ -1,5 +1,6 @@
 package com.leita.leita.study.dto
 
+import com.leita.leita.judge.domain.Result
 import com.leita.leita.study.domain.AssignmentStatus
 import com.leita.leita.study.domain.AttendanceRecordStatus
 import java.time.LocalDateTime
@@ -39,5 +40,11 @@ data class AssignmentDetail(
     val status: AssignmentStatus?,
     val solvedCount: Int,
     val totalCount: Int,
-    val solvedProblemIds: List<Long>
+    val problems: List<AssignmentProblemStatus>
+)
+
+data class AssignmentProblemStatus(
+    val problemId: Long,
+    val title: String,
+    val result: Result?
 )

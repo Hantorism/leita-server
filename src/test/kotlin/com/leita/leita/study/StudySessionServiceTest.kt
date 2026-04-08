@@ -13,6 +13,7 @@ import com.leita.leita.study.repository.StudySessionRepository
 import com.leita.leita.study.repository.StudyMemberRepository
 import com.leita.leita.study.repository.AssignmentRecordRepository
 import com.leita.leita.judge.repository.JudgeRepository
+import com.leita.leita.problem.repository.ProblemRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -31,6 +32,7 @@ class StudySessionServiceTest {
     private lateinit var studyMemberRepository: StudyMemberRepository
     private lateinit var assignmentRecordRepository: AssignmentRecordRepository
     private lateinit var judgeRepository: JudgeRepository
+    private lateinit var problemRepository: ProblemRepository
     private lateinit var jwtUtils: JwtUtils
     private lateinit var studySessionService: StudySessionService
 
@@ -45,6 +47,7 @@ class StudySessionServiceTest {
         studyMemberRepository = mock(StudyMemberRepository::class.java)
         assignmentRecordRepository = mock(AssignmentRecordRepository::class.java)
         judgeRepository = mock(JudgeRepository::class.java)
+        problemRepository = mock(ProblemRepository::class.java)
         jwtUtils = mock(JwtUtils::class.java)
         studySessionService = StudySessionService(
             studyRepository,
@@ -52,6 +55,7 @@ class StudySessionServiceTest {
             studyMemberRepository,
             assignmentRecordRepository,
             judgeRepository,
+            problemRepository,
             jwtUtils
         )
 

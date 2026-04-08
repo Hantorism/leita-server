@@ -12,6 +12,8 @@ import com.leita.leita.study.repository.StudyRepository
 import com.leita.leita.study.repository.StudySessionRepository
 import com.leita.leita.judge.repository.JudgeRepository
 import com.leita.leita.judge.domain.Result
+import com.leita.leita.judge.domain.JudgeType
+import com.leita.leita.problem.repository.ProblemRepository
 import com.leita.leita.user.repository.UserRepository
 import com.leita.leita.util.mail.MailType
 import com.leita.leita.util.mail.MailUtil
@@ -28,6 +30,7 @@ class StudyService(
     private val studyMemberRepository: StudyMemberRepository,
     private val studySessionRepository: StudySessionRepository,
     private val judgeRepository: JudgeRepository,
+    private val problemRepository: ProblemRepository,
     private val userRepository: UserRepository,
     private val jwtUtils: JwtUtils,
     private val mailUtil: MailUtil,
@@ -243,21 +246,40 @@ class StudyService(
 
         val members = getTargetMembers(study, memberId)
         val sessions = getTargetSessions(studyId, studySessionId)
+        
+        val allProblemIds = sessions.flatMap { it.getAssignment()?.problemIds ?: emptyList() }.distinct()
+        val allProblems = if (allProblemIds.isNotEmpty()) problemRepository.findAllById(allProblemIds) else emptyList()
 
         return members.map { member ->
             val assignmentDetails = sessions.mapNotNull { session ->
                 session.getAssignment()?.let { assignment ->
                     val assignmentRecord = assignment.records.find { it.user.id == member.id }
-                    val solvedJudges = judgeRepository.findByProblemIdInAndUserIdAndResult(assignment.problemIds, member.id, Result.CORRECT)
-                    val solvedProblemIds = solvedJudges.map { it.problemId }.distinct()
+                    val judges = judgeRepository.findByProblemIdInAndUserIdAndType(assignment.problemIds, member.id, JudgeType.SUBMIT)
+                    
+                    val problemStatuses = assignment.problemIds.map { pid ->
+                        val problem = allProblems.find { it.id == pid }
+                        val problemJudges = judges.filter { it.problemId == pid }
+                        
+                        val bestResult = if (problemJudges.any { it.result == Result.CORRECT }) {
+                            Result.CORRECT
+                        } else {
+                            problemJudges.maxByOrNull { it.createdAt }?.result
+                        }
+                        
+                        AssignmentProblemStatus(
+                            problemId = pid,
+                            title = problem?.title ?: "Unknown",
+                            result = bestResult
+                        )
+                    }
                     
                     AssignmentDetail(
                         sessionId = session.id,
                         sessionTitle = session.title,
                         status = assignmentRecord?.status,
-                        solvedCount = solvedProblemIds.size,
+                        solvedCount = problemStatuses.count { it.result == Result.CORRECT },
                         totalCount = assignment.problemIds.size,
-                        solvedProblemIds = solvedProblemIds
+                        problems = problemStatuses
                     )
                 }
             }

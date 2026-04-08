@@ -6,6 +6,7 @@ import com.leita.leita.study.controller.StudySessionMapper
 import com.leita.leita.study.domain.*
 import com.leita.leita.study.dto.*
 import com.leita.leita.judge.repository.JudgeRepository
+import com.leita.leita.problem.repository.ProblemRepository
 import com.leita.leita.study.repository.AssignmentRecordRepository
 import com.leita.leita.study.repository.StudyMemberRepository
 import com.leita.leita.study.repository.StudyRepository
@@ -23,6 +24,7 @@ class StudySessionService(
     private val studyMemberRepository: StudyMemberRepository,
     private val assignmentRecordRepository: AssignmentRecordRepository,
     private val judgeRepository: JudgeRepository,
+    private val problemRepository: ProblemRepository,
     private val jwtUtils: JwtUtils
 ) {
 
