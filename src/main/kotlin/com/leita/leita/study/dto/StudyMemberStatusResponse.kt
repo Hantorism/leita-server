@@ -11,7 +11,7 @@ data class SessionStatus(
     val sessionId: Long,
     val sessionTitle: String,
     val attendanceStatus: String?, // AttendanceStatus name
-    val assignmentStatus: Boolean? // All problems solved
+    val assignmentStatus: String? // AssignmentStatus name
 )
 
 data class StudyMemberAttendanceResponse(
@@ -34,8 +34,8 @@ data class StudyMemberAssignmentResponse(
 data class AssignmentDetail(
     val sessionId: Long,
     val sessionTitle: String,
+    val status: String?, // AssignmentStatus name
     val solvedCount: Int,
     val totalCount: Int,
-    val isCompleted: Boolean,
     val solvedProblemIds: List<Long>
 )
