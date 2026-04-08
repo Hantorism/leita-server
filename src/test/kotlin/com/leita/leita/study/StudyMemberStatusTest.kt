@@ -12,12 +12,15 @@ import com.leita.leita.study.service.StudyService
 import com.leita.leita.user.domain.User
 import com.leita.leita.user.repository.UserRepository
 import com.leita.leita.util.mail.MailUtil
+import com.leita.leita.problem.repository.ProblemRepository
+import com.leita.leita.problem.domain.Problem
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.mockito.ArgumentMatchers.anyList
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
@@ -29,6 +32,7 @@ class StudyMemberStatusTest {
     private lateinit var studyMemberRepository: StudyMemberRepository
     private lateinit var studySessionRepository: StudySessionRepository
     private lateinit var judgeRepository: JudgeRepository
+    private lateinit var problemRepository: ProblemRepository
     private lateinit var userRepository: UserRepository
     private lateinit var jwtUtils: JwtUtils
     private lateinit var mailUtil: MailUtil
@@ -45,6 +49,7 @@ class StudyMemberStatusTest {
         studyMemberRepository = mock(StudyMemberRepository::class.java)
         studySessionRepository = mock(StudySessionRepository::class.java)
         judgeRepository = mock(JudgeRepository::class.java)
+        problemRepository = mock(ProblemRepository::class.java)
         userRepository = mock(UserRepository::class.java)
         jwtUtils = mock(JwtUtils::class.java)
         mailUtil = mock(MailUtil::class.java)
@@ -54,6 +59,7 @@ class StudyMemberStatusTest {
             studyMemberRepository,
             studySessionRepository,
             judgeRepository,
+            problemRepository,
             userRepository,
             jwtUtils,
             mailUtil
@@ -127,9 +133,16 @@ class StudyMemberStatusTest {
         val assignment = session.createAssignment("설명", listOf(1001L, 1002L))
         assignment.records.add(AssignmentRecord(assignment, memberUser, AssignmentStatus.COMPLETED))
         
+        // Mock problems
+        val p1 = mock(Problem::class.java).apply { `when`(id).thenReturn(1001L); `when`(title).thenReturn("P1") }
+        val p2 = mock(Problem::class.java).apply { `when`(id).thenReturn(1002L); `when`(title).thenReturn("P2") }
+        `when`(problemRepository.findAllById(anyList())).thenReturn(listOf(p1, p2))
+
         // 1001, 1002 모두 해결
-        `when`(judgeRepository.findByProblemIdInAndUserIdAndResult(listOf(1001L, 1002L), memberUser.id, Result.CORRECT))
-            .thenReturn(listOf(createJudge(1001L, memberUser), createJudge(1002L, memberUser)))
+        val judge1 = createJudge(1001L, memberUser)
+        val judge2 = createJudge(1002L, memberUser)
+        `when`(judgeRepository.findByProblemIdInAndUserIdAndType(listOf(1001L, 1002L), memberUser.id, JudgeType.SUBMIT))
+            .thenReturn(listOf(judge1, judge2))
 
         // when
         val response = studyService.getMemberAssignment(100L, null, memberUser.id)
@@ -140,7 +153,9 @@ class StudyMemberStatusTest {
         assertThat(assignmentDetail.solvedCount).isEqualTo(2)
         assertThat(assignmentDetail.totalCount).isEqualTo(2)
         assertThat(assignmentDetail.status).isEqualTo(AssignmentStatus.COMPLETED)
-        assertThat(assignmentDetail.solvedProblemIds).containsExactlyInAnyOrder(1001L, 1002L)
+        assertThat(assignmentDetail.problems).hasSize(2)
+        assertThat(assignmentDetail.problems.map { it.problemId }).containsExactlyInAnyOrder(1001L, 1002L)
+        assertThat(assignmentDetail.problems.map { it.result }).allMatch { it == Result.CORRECT }
     }
 
     private fun createUser(id: Long, email: String, name: String): User {
