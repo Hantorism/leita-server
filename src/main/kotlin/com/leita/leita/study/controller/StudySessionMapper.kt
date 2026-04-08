@@ -36,7 +36,7 @@ class StudySessionMapper {
                 description = studySession.description,
                 startDateTime = studySession.startDateTime,
                 endDateTime = studySession.endDateTime,
-                attendanceStatus = studySession.attendances.maxByOrNull { it.openTime }?.status?.name,
+                attendanceStatus = studySession.attendances.maxByOrNull { it.openTime }?.status,
                 assignmentCreated = studySession.getAssignment() != null
             )
         }
@@ -68,7 +68,7 @@ class StudySessionMapper {
                 openTime = attendance.openTime,
                 closeTime = attendance.closeTime,
                 lateThresholdMinutes = attendance.lateThresholdMinutes,
-                status = attendance.status.name,
+                status = attendance.status,
                 records = attendance.records
                     .sortedWith(
                         compareByDescending<AttendanceRecord> { it.attendedAt }
@@ -80,7 +80,7 @@ class StudySessionMapper {
                             userId = it.user.id,
                             userName = it.user.name,
                             userEmail = it.user.email,
-                            status = it.status.name,
+                            status = it.status,
                             attendedAt = it.attendedAt
                         )
                     },
@@ -108,7 +108,7 @@ class StudySessionMapper {
             return AssignmentDetailResponse(
                 id = assignment.id,
                 studySessionId = assignment.studySession.id,
-                status = record?.status?.name,
+                status = record?.status,
                 description = assignment.description,
                 problemIds = assignment.problemIds.toList()
             )

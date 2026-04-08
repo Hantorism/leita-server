@@ -1,5 +1,7 @@
 package com.leita.leita.study.dto
 
+import com.leita.leita.study.domain.AssignmentStatus
+import com.leita.leita.study.domain.AttendanceRecordStatus
 import java.time.LocalDateTime
 
 data class StudyMemberStatusResponse(
@@ -10,8 +12,8 @@ data class StudyMemberStatusResponse(
 data class SessionStatus(
     val sessionId: Long,
     val sessionTitle: String,
-    val attendanceStatus: String?, // AttendanceStatus name
-    val assignmentStatus: String? // AssignmentStatus name
+    val attendanceStatus: AttendanceRecordStatus?, 
+    val assignmentStatus: AssignmentStatus?
 )
 
 data class StudyMemberAttendanceResponse(
@@ -22,7 +24,7 @@ data class StudyMemberAttendanceResponse(
 data class AttendanceDetail(
     val sessionId: Long,
     val sessionTitle: String,
-    val status: String?, // AttendanceRecordStatus name
+    val status: AttendanceRecordStatus?,
     val attendedAt: LocalDateTime?
 )
 
@@ -34,7 +36,7 @@ data class StudyMemberAssignmentResponse(
 data class AssignmentDetail(
     val sessionId: Long,
     val sessionTitle: String,
-    val status: String?, // AssignmentStatus name
+    val status: AssignmentStatus?,
     val solvedCount: Int,
     val totalCount: Int,
     val solvedProblemIds: List<Long>
