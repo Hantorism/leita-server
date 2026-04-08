@@ -44,17 +44,20 @@ class StudySessionService(
 
     @Transactional(readOnly = true)
     fun getStudySession(sessionId: Long): StudySessionDetailResponse {
+        val email = jwtUtils.extractEmail()
         val studySession = getStudySessionEntity(sessionId)
         val study = getStudy(studySession.studyId)
-        study.checkMemberByEmail(jwtUtils.extractEmail())
+        study.checkMemberByEmail(email)
 
-        return StudySessionMapper.toStudySessionDetailResponse(studySession)
+        val member = study.studyMembers.find { it.user.email == email }
+        return StudySessionMapper.toStudySessionDetailResponse(studySession, member?.user?.id)
     }
 
     @Transactional
     fun createStudySession(studyId: Long, request: StudySessionCreateRequest): StudySessionDetailResponse {
+        val email = jwtUtils.extractEmail()
         val study = getStudy(studyId)
-        study.checkAdminByEmail(jwtUtils.extractEmail())
+        study.checkAdminByEmail(email)
 
         val studySession = StudySession.create(
             title = request.title,
@@ -64,14 +67,16 @@ class StudySessionService(
             studyId = studyId
         )
         val saved = studySessionRepository.save(studySession)
-        return StudySessionMapper.toStudySessionDetailResponse(saved)
+        val member = study.studyMembers.find { it.user.email == email }
+        return StudySessionMapper.toStudySessionDetailResponse(saved, member?.user?.id)
     }
 
     @Transactional
     fun updateStudySession(sessionId: Long, request: StudySessionUpdateRequest): StudySessionDetailResponse {
+        val email = jwtUtils.extractEmail()
         val studySession = getStudySessionEntity(sessionId)
         val study = getStudy(studySession.studyId)
-        study.checkAdminByEmail(jwtUtils.extractEmail())
+        study.checkAdminByEmail(email)
 
         studySession.update(
             title = request.title,
@@ -79,7 +84,8 @@ class StudySessionService(
             startDateTime = request.startDateTime,
             endDateTime = request.endDateTime
         )
-        return StudySessionMapper.toStudySessionDetailResponse(studySession)
+        val member = study.studyMembers.find { it.user.email == email }
+        return StudySessionMapper.toStudySessionDetailResponse(studySession, member?.user?.id)
     }
 
     @Transactional
@@ -176,12 +182,39 @@ class StudySessionService(
 
     @Transactional(readOnly = true)
     fun getAssignment(sessionId: Long): AssignmentDetailResponse {
+        val email = jwtUtils.extractEmail()
         val studySession = getStudySessionEntity(sessionId)
         val study = getStudy(studySession.studyId)
-        study.checkMemberByEmail(jwtUtils.extractEmail())
+        study.checkMemberByEmail(email)
+
+        val member = study.studyMembers.find { it.user.email == email }
+        val assignment = getAssignmentEntity(studySession)
+        return StudySessionMapper.toAssignmentDetailResponse(assignment, member?.user?.id)
+    }
+
+    @Transactional
+    fun updateMemberAssignmentStatus(
+        sessionId: Long,
+        memberId: Long,
+        request: MemberAssignmentUpdateRequest
+    ): AssignmentDetailResponse {
+        val studySession = getStudySessionEntity(sessionId)
+        val study = getStudy(studySession.studyId)
+        study.checkAdminByEmail(jwtUtils.extractEmail())
+
+        val member = studyMemberRepository.findById(memberId)
+            .orElseThrow { CustomException("Member not found", HttpStatus.NOT_FOUND) }
+
+        if (member.study.id != study.id) {
+            throw CustomException("Member does not belong to this study", HttpStatus.BAD_REQUEST)
+        }
 
         val assignment = getAssignmentEntity(studySession)
-        return StudySessionMapper.toAssignmentDetailResponse(assignment)
+        val record = assignment.records.find { it.user.id == member.user.id }
+            ?: AssignmentRecord(assignment, member.user, request.status).also { assignment.records.add(it) }
+
+        record.updateStatus(request.status)
+        return StudySessionMapper.toAssignmentDetailResponse(assignment, member.user.id)
     }
 
     @Transactional

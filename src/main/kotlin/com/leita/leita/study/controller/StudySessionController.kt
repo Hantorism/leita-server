@@ -107,6 +107,16 @@ class StudySessionController(
         return ResponseEntity.ok(BaseResponse("멤버 출석 상태 수정 완료", response))
     }
 
+    @PutMapping("/{studySessionId}/assignment/members/{memberId}")
+    fun updateMemberAssignmentStatus(
+        @PathVariable studySessionId: Long,
+        @PathVariable memberId: Long,
+        @RequestBody request: MemberAssignmentUpdateRequest
+    ): ResponseEntity<BaseResponse<AssignmentDetailResponse>> {
+        val response = studySessionService.updateMemberAssignmentStatus(studySessionId, memberId, request)
+        return ResponseEntity.ok(BaseResponse("멤버 과제 상태 수정 완료", response))
+    }
+
     @GetMapping("/{studySessionId}/assignment")
     fun getAssignment(
         @PathVariable studySessionId: Long
