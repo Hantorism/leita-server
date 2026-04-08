@@ -112,8 +112,8 @@ class StudyMemberStatusTest {
         val status = response[0]
         assertThat(status.user.id).isEqualTo(memberUser.id)
         assertThat(status.sessions).hasSize(1)
-        assertThat(status.sessions[0].attendanceStatus).isEqualTo(AttendanceRecordStatus.PRESENT.name)
-        assertThat(status.sessions[0].assignmentStatus).isEqualTo(AssignmentStatus.PARTIAL.name) // 하나만 풀었으므로 PARTIAL
+        assertThat(status.sessions[0].attendanceStatus).isEqualTo(AttendanceRecordStatus.PRESENT)
+        assertThat(status.sessions[0].assignmentStatus).isEqualTo(AssignmentStatus.PARTIAL) // 하나만 풀었으므로 PARTIAL
     }
 
     @Test
@@ -139,7 +139,7 @@ class StudyMemberStatusTest {
         val assignmentDetail = response[0].assignments[0]
         assertThat(assignmentDetail.solvedCount).isEqualTo(2)
         assertThat(assignmentDetail.totalCount).isEqualTo(2)
-        assertThat(assignmentDetail.status).isEqualTo(AssignmentStatus.COMPLETED.name)
+        assertThat(assignmentDetail.status).isEqualTo(AssignmentStatus.COMPLETED)
         assertThat(assignmentDetail.solvedProblemIds).containsExactlyInAnyOrder(1001L, 1002L)
     }
 

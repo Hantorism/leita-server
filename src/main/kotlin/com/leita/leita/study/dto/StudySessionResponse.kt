@@ -1,5 +1,6 @@
 package com.leita.leita.study.dto
 
+import com.leita.leita.study.domain.AttendanceStatus
 import java.time.LocalDateTime
 
 data class StudySessionResponse(
@@ -9,6 +10,6 @@ data class StudySessionResponse(
     val description: String?,
     val startDateTime: LocalDateTime,
     val endDateTime: LocalDateTime,
-    val attendanceStatus: String?,
+    val attendanceStatus: AttendanceStatus?,
     val assignmentCreated: Boolean
 )

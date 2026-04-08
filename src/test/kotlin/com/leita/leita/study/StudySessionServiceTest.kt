@@ -124,7 +124,7 @@ class StudySessionServiceTest {
         assertThat(response.records.map { it.userEmail })
             .containsExactlyInAnyOrder(adminUser.email, memberUser.email)
         assertThat(response.records.map { it.status }.distinct())
-            .containsExactly(AttendanceRecordStatus.ABSENT.name)
+            .containsExactly(AttendanceRecordStatus.ABSENT)
     }
 
     @Test
@@ -151,7 +151,7 @@ class StudySessionServiceTest {
         val response = studySessionService.attend(30L)
         val memberRecord = response.records.first { it.userId == memberUser.id }
 
-        assertThat(memberRecord.status).isEqualTo(AttendanceRecordStatus.PRESENT.name)
+        assertThat(memberRecord.status).isEqualTo(AttendanceRecordStatus.PRESENT)
         assertThat(memberRecord.attendedAt).isNotNull()
     }
 
@@ -185,7 +185,7 @@ class StudySessionServiceTest {
         )
 
         val memberRecord = response.records.first { it.userId == memberUser.id }
-        assertThat(memberRecord.status).isEqualTo(AttendanceRecordStatus.LATE.name)
+        assertThat(memberRecord.status).isEqualTo(AttendanceRecordStatus.LATE)
     }
 
     private fun createUser(id: Long, email: String, name: String): User {

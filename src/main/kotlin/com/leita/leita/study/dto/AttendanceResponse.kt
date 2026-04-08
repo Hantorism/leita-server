@@ -1,5 +1,7 @@
 package com.leita.leita.study.dto
 
+import com.leita.leita.study.domain.AttendanceRecordStatus
+import com.leita.leita.study.domain.AttendanceStatus
 import java.time.LocalDateTime
 
 data class AttendanceResponse(
@@ -8,7 +10,7 @@ data class AttendanceResponse(
     val openTime: LocalDateTime,
     val closeTime: LocalDateTime?,
     val lateThresholdMinutes: Int,
-    val status: String,
+    val status: AttendanceStatus,
     val records: List<AttendanceRecordResponse>,
     val attendanceRate: AttendanceRateResponse
 )
@@ -18,7 +20,7 @@ data class AttendanceRecordResponse(
     val userId: Long,
     val userName: String,
     val userEmail: String,
-    val status: String,
+    val status: AttendanceRecordStatus,
     val attendedAt: LocalDateTime?
 )
 

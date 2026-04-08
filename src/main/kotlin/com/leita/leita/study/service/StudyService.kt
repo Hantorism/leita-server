@@ -198,8 +198,8 @@ class StudyService(
                 SessionStatus(
                     sessionId = session.id,
                     sessionTitle = session.title,
-                    attendanceStatus = record?.status?.name,
-                    assignmentStatus = assignmentRecord?.status?.name
+                    attendanceStatus = record?.status,
+                    assignmentStatus = assignmentRecord?.status
                 )
             }
             StudyMemberStatusResponse(
@@ -225,7 +225,7 @@ class StudyService(
                 AttendanceDetail(
                     sessionId = session.id,
                     sessionTitle = session.title,
-                    status = record?.status?.name,
+                    status = record?.status,
                     attendedAt = record?.attendedAt
                 )
             }
@@ -254,7 +254,7 @@ class StudyService(
                     AssignmentDetail(
                         sessionId = session.id,
                         sessionTitle = session.title,
-                        status = assignmentRecord?.status?.name,
+                        status = assignmentRecord?.status,
                         solvedCount = solvedProblemIds.size,
                         totalCount = assignment.problemIds.size,
                         solvedProblemIds = solvedProblemIds
