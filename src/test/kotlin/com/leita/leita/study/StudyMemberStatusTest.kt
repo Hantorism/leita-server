@@ -97,7 +97,8 @@ class StudyMemberStatusTest {
         attendance.attend(memberUser, baseTime.plusMinutes(5)) // PRESENT
 
         // 과제 추가
-        session.createAssignment("설명", listOf(1001L, 1002L))
+        val assignment = session.createAssignment("설명", listOf(1001L, 1002L))
+        assignment.records.add(AssignmentRecord(assignment, memberUser, AssignmentStatus.PARTIAL))
         
         // 과제 해결 여부 (1001번만 해결)
         `when`(judgeRepository.findByProblemIdInAndUserIdAndResult(listOf(1001L, 1002L), memberUser.id, Result.CORRECT))
@@ -112,7 +113,7 @@ class StudyMemberStatusTest {
         assertThat(status.user.id).isEqualTo(memberUser.id)
         assertThat(status.sessions).hasSize(1)
         assertThat(status.sessions[0].attendanceStatus).isEqualTo(AttendanceRecordStatus.PRESENT.name)
-        assertThat(status.sessions[0].assignmentStatus).isFalse() // 하나만 풀었으므로 false
+        assertThat(status.sessions[0].assignmentStatus).isEqualTo(AssignmentStatus.PARTIAL.name) // 하나만 풀었으므로 PARTIAL
     }
 
     @Test
@@ -123,7 +124,8 @@ class StudyMemberStatusTest {
         `when`(jwtUtils.extractEmail()).thenReturn(adminUser.email)
         `when`(studySessionRepository.findAllByStudyIdOrderByStartDateTimeDesc(100L)).thenReturn(listOf(session))
         
-        session.createAssignment("설명", listOf(1001L, 1002L))
+        val assignment = session.createAssignment("설명", listOf(1001L, 1002L))
+        assignment.records.add(AssignmentRecord(assignment, memberUser, AssignmentStatus.COMPLETED))
         
         // 1001, 1002 모두 해결
         `when`(judgeRepository.findByProblemIdInAndUserIdAndResult(listOf(1001L, 1002L), memberUser.id, Result.CORRECT))
@@ -137,7 +139,7 @@ class StudyMemberStatusTest {
         val assignmentDetail = response[0].assignments[0]
         assertThat(assignmentDetail.solvedCount).isEqualTo(2)
         assertThat(assignmentDetail.totalCount).isEqualTo(2)
-        assertThat(assignmentDetail.isCompleted).isTrue()
+        assertThat(assignmentDetail.status).isEqualTo(AssignmentStatus.COMPLETED.name)
         assertThat(assignmentDetail.solvedProblemIds).containsExactlyInAnyOrder(1001L, 1002L)
     }
 

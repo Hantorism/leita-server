@@ -193,16 +193,13 @@ class StudyService(
                 val record = attendance?.records?.find { it.user.id == member.id }
                 
                 val assignment = session.getAssignment()
-                val isAssignmentCompleted = assignment?.let {
-                    val solvedJudges = judgeRepository.findByProblemIdInAndUserIdAndResult(it.problemIds, member.id, Result.CORRECT)
-                    solvedJudges.map { j -> j.problemId }.distinct().size == it.problemIds.size
-                }
+                val assignmentRecord = assignment?.records?.find { it.user.id == member.id }
 
                 SessionStatus(
                     sessionId = session.id,
                     sessionTitle = session.title,
                     attendanceStatus = record?.status?.name,
-                    assignmentStatus = isAssignmentCompleted
+                    assignmentStatus = assignmentRecord?.status?.name
                 )
             }
             StudyMemberStatusResponse(
@@ -250,15 +247,16 @@ class StudyService(
         return members.map { member ->
             val assignmentDetails = sessions.mapNotNull { session ->
                 session.getAssignment()?.let { assignment ->
+                    val assignmentRecord = assignment.records.find { it.user.id == member.id }
                     val solvedJudges = judgeRepository.findByProblemIdInAndUserIdAndResult(assignment.problemIds, member.id, Result.CORRECT)
                     val solvedProblemIds = solvedJudges.map { it.problemId }.distinct()
                     
                     AssignmentDetail(
                         sessionId = session.id,
                         sessionTitle = session.title,
+                        status = assignmentRecord?.status?.name,
                         solvedCount = solvedProblemIds.size,
                         totalCount = assignment.problemIds.size,
-                        isCompleted = solvedProblemIds.size == assignment.problemIds.size,
                         solvedProblemIds = solvedProblemIds
                     )
                 }

@@ -19,7 +19,10 @@ open class Assignment(
     @ElementCollection
     @CollectionTable(name = "assignment_problem", joinColumns = [JoinColumn(name = "assignment_id")])
     @Column(name = "problem_id")
-    open val problemIds: MutableList<Long> = mutableListOf()
+    open val problemIds: MutableList<Long> = mutableListOf(),
+
+    @OneToMany(mappedBy = "assignment", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    open val records: MutableSet<AssignmentRecord> = mutableSetOf()
 ) : BaseEntity() {
 
     companion object {

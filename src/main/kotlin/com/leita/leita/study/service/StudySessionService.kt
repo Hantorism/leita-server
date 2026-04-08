@@ -5,6 +5,8 @@ import com.leita.leita.common.security.jwt.JwtUtils
 import com.leita.leita.study.controller.StudySessionMapper
 import com.leita.leita.study.domain.*
 import com.leita.leita.study.dto.*
+import com.leita.leita.judge.repository.JudgeRepository
+import com.leita.leita.study.repository.AssignmentRecordRepository
 import com.leita.leita.study.repository.StudyMemberRepository
 import com.leita.leita.study.repository.StudyRepository
 import com.leita.leita.study.repository.StudySessionRepository
@@ -19,6 +21,8 @@ class StudySessionService(
     private val studyRepository: StudyRepository,
     private val studySessionRepository: StudySessionRepository,
     private val studyMemberRepository: StudyMemberRepository,
+    private val assignmentRecordRepository: AssignmentRecordRepository,
+    private val judgeRepository: JudgeRepository,
     private val jwtUtils: JwtUtils
 ) {
 
@@ -193,6 +197,9 @@ class StudySessionService(
             description = request.description,
             problemIds = request.problemIds
         )
+        
+        syncAssignmentRecords(study, assignment)
+        
         return StudySessionMapper.toAssignmentResponse(assignment)
     }
 
@@ -210,7 +217,40 @@ class StudySessionService(
             description = request.description,
             problemIds = request.problemIds
         )
+        
+        syncAssignmentRecords(study, assignment)
+        
         return StudySessionMapper.toAssignmentResponse(assignment)
+    }
+
+    private fun syncAssignmentRecords(study: Study, assignment: Assignment) {
+        val activeMembers = study.getAllActiveMembers()
+        val problemIds = assignment.problemIds
+
+        activeMembers.forEach { member ->
+            val record = assignment.records.find { it.user.id == member.id }
+                ?: AssignmentRecord(assignment, member, AssignmentStatus.INCOMPLETE).also { assignment.records.add(it) }
+
+            if (problemIds.isEmpty()) {
+                record.updateStatus(AssignmentStatus.COMPLETED)
+            } else {
+                val correctJudges = judgeRepository.findByProblemIdInAndUserIdAndResult(problemIds, member.id, com.leita.leita.judge.domain.Result.CORRECT)
+                val correctProblemIds = correctJudges.map { it.problemId }.distinct()
+
+                val submitJudges = judgeRepository.findByProblemIdInAndUserIdAndType(problemIds, member.id, com.leita.leita.judge.domain.JudgeType.SUBMIT)
+                val submittedProblemIds = submitJudges.map { it.problemId }.distinct()
+
+                val status = when {
+                    correctProblemIds.size == problemIds.size -> AssignmentStatus.COMPLETED
+                    submittedProblemIds.size == problemIds.size -> AssignmentStatus.PARTIAL
+                    else -> AssignmentStatus.INCOMPLETE
+                }
+                record.updateStatus(status)
+            }
+        }
+        
+        // Remove records for users who are no longer active members (optional, but good for cleanup)
+        assignment.records.removeIf { record -> activeMembers.none { it.id == record.user.id } }
     }
 
     private fun getStudy(studyId: Long): Study {

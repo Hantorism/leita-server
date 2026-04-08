@@ -13,10 +13,12 @@ import com.leita.leita.judge.domain.Result
 import com.leita.leita.judge.util.JudgeUtil
 import com.leita.leita.judge.dto.JudgeWCResponse
 import com.leita.leita.judge.dto.RunWCResponse
+import com.leita.leita.judge.event.ProblemJudgedEvent
 import com.leita.leita.judge.repository.JudgeRepository
 import com.leita.leita.problem.repository.ProblemRepository
 import com.leita.leita.problem.service.ProblemService
 import jakarta.transaction.Transactional
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
@@ -26,7 +28,8 @@ class JudgeService(
     private val judgeRepository: JudgeRepository,
     private val jwtUtils: JwtUtils,
     private val problemService: ProblemService,
-    private val problemRepository: ProblemRepository
+    private val problemRepository: ProblemRepository,
+    private val eventPublisher: ApplicationEventPublisher
 ) {
     @Transactional
     fun submit(problemId: Long, request: SubmitRequest): SubmitResponse {
@@ -42,6 +45,8 @@ class JudgeService(
         submit.updateSubmitInfo(response)
 
         problemService.updateSolved(problemId, response.result === Result.CORRECT)
+        
+        eventPublisher.publishEvent(ProblemJudgedEvent(user.id, problemId))
 
         return JudgeMapper.toSubmitResponse(response)
     }

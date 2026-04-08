@@ -11,4 +11,5 @@ interface JudgeRepository: JpaRepository<Judge, Long> {
     fun findAllByUserIdAndType(userId: Long, type: JudgeType): List<Judge>
     fun findByProblemIdAndUserId(problemId: Long, userId: Long): Judge?
     fun findByProblemIdInAndUserIdAndResult(problemIds: Collection<Long>, userId: Long, result: com.leita.leita.judge.domain.Result): List<Judge>
+    fun findByProblemIdInAndUserIdAndType(problemIds: Collection<Long>, userId: Long, type: JudgeType): List<Judge>
 }
