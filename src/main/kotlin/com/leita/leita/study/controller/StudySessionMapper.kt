@@ -41,7 +41,7 @@ class StudySessionMapper {
             )
         }
 
-        fun toStudySessionDetailResponse(studySession: StudySession): StudySessionDetailResponse {
+        fun toStudySessionDetailResponse(studySession: StudySession, userId: Long? = null): StudySessionDetailResponse {
             return StudySessionDetailResponse(
                 id = studySession.id,
                 studyId = studySession.studyId,
@@ -50,7 +50,7 @@ class StudySessionMapper {
                 startDateTime = studySession.startDateTime,
                 endDateTime = studySession.endDateTime,
                 attendance = studySession.attendances.maxByOrNull { it.openTime }?.let(::toAttendanceResponse),
-                assignment = studySession.getAssignment()?.let(::toAssignmentDetailResponse)
+                assignment = studySession.getAssignment()?.let { toAssignmentDetailResponse(it, userId) }
             )
         }
 
@@ -103,10 +103,12 @@ class StudySessionMapper {
             )
         }
 
-        fun toAssignmentDetailResponse(assignment: Assignment): AssignmentDetailResponse {
+        fun toAssignmentDetailResponse(assignment: Assignment, userId: Long? = null): AssignmentDetailResponse {
+            val record = userId?.let { uid -> assignment.records.find { it.user.id == uid } }
             return AssignmentDetailResponse(
                 id = assignment.id,
                 studySessionId = assignment.studySession.id,
+                status = record?.status?.name,
                 description = assignment.description,
                 problemIds = assignment.problemIds.toList()
             )
