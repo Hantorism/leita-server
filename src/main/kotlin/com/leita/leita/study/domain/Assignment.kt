@@ -4,6 +4,7 @@ import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.domain.BaseEntity
 import jakarta.persistence.*
 import org.springframework.http.HttpStatus
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "assignment")
@@ -15,6 +16,12 @@ open class Assignment(
 
     @Column(nullable = true)
     open var description: String?,
+
+    @Column(nullable = false)
+    open var startDateTime: LocalDateTime = LocalDateTime.now(),
+
+    @Column(nullable = false)
+    open var endDateTime: LocalDateTime,
 
     @ElementCollection
     @CollectionTable(name = "assignment_problem", joinColumns = [JoinColumn(name = "assignment_id")])
@@ -29,13 +36,17 @@ open class Assignment(
         fun create(
             studySession: StudySession,
             description: String?,
-            problemIds: List<Long>
+            problemIds: List<Long>,
+            startDateTime: LocalDateTime? = null,
+            endDateTime: LocalDateTime
         ): Assignment {
             validate(problemIds)
 
             val assignment = Assignment(
                 studySession = studySession,
-                description = description
+                description = description,
+                startDateTime = startDateTime ?: LocalDateTime.now(),
+                endDateTime = endDateTime
             )
             assignment.problemIds.addAll(problemIds.distinct())
             return assignment
@@ -48,10 +59,12 @@ open class Assignment(
         }
     }
 
-    fun update(description: String?, problemIds: List<Long>) {
+    fun update(description: String?, problemIds: List<Long>, startDateTime: LocalDateTime? = null, endDateTime: LocalDateTime) {
         validate(problemIds)
 
         this.description = description
+        this.startDateTime = startDateTime ?: this.startDateTime
+        this.endDateTime = endDateTime
         this.problemIds.clear()
         this.problemIds.addAll(problemIds.distinct())
     }

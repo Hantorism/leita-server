@@ -103,7 +103,7 @@ class StudyMemberStatusTest {
         attendance.attend(memberUser, baseTime.plusMinutes(5)) // PRESENT
 
         // 과제 추가
-        val assignment = session.createAssignment("설명", listOf(1001L, 1002L))
+        val assignment = session.createAssignment("설명", listOf(1001L, 1002L), LocalDateTime.now(), LocalDateTime.now().plusDays(7))
         assignment.records.add(AssignmentRecord(assignment, memberUser, AssignmentStatus.PARTIAL))
         
         // 과제 해결 여부 (1001번만 해결)
@@ -130,7 +130,7 @@ class StudyMemberStatusTest {
         `when`(jwtUtils.extractEmail()).thenReturn(adminUser.email)
         `when`(studySessionRepository.findAllByStudyIdOrderByStartDateTimeDesc(100L)).thenReturn(listOf(session))
         
-        val assignment = session.createAssignment("설명", listOf(1001L, 1002L))
+        val assignment = session.createAssignment("설명", listOf(1001L, 1002L), LocalDateTime.now(), LocalDateTime.now().plusDays(7))
         assignment.records.add(AssignmentRecord(assignment, memberUser, AssignmentStatus.COMPLETED))
         
         // Mock problems
