@@ -7,6 +7,7 @@ import com.leita.leita.study.repository.AssignmentRecordRepository
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 @Component
 class AssignmentRecordUpdater(
@@ -20,6 +21,9 @@ class AssignmentRecordUpdater(
         val records = assignmentRecordRepository.findByUserIdAndProblemId(event.userId, event.problemId)
         
         records.forEach { record ->
+            // endDateTime 이후에는 과제 상태 변동 없음
+            if (LocalDateTime.now().isAfter(record.assignment.endDateTime)) return@forEach
+
             val problemIds = record.assignment.problemIds
             if (problemIds.isEmpty()) return@forEach
             

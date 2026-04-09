@@ -230,7 +230,9 @@ class StudySessionService(
 
         val assignment = studySession.createAssignment(
             description = request.description,
-            problemIds = request.problemIds
+            problemIds = request.problemIds,
+            startDateTime = request.startDateTime,
+            endDateTime = request.endDateTime
         )
         
         syncAssignmentRecords(study, assignment)
@@ -250,7 +252,9 @@ class StudySessionService(
         val assignment = getAssignmentEntity(studySession)
         assignment.update(
             description = request.description,
-            problemIds = request.problemIds
+            problemIds = request.problemIds,
+            startDateTime = request.startDateTime,
+            endDateTime = request.endDateTime
         )
         
         syncAssignmentRecords(study, assignment)

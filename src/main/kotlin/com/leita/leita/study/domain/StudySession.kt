@@ -91,7 +91,9 @@ open class StudySession(
 
     fun createAssignment(
         description: String?,
-        problemIds: List<Long>
+        problemIds: List<Long>,
+        startDateTime: LocalDateTime?,
+        endDateTime: LocalDateTime
     ): Assignment {
         if (assignments.isNotEmpty()) {
             throw CustomException("이미 과제가 존재합니다.", HttpStatus.BAD_REQUEST)
@@ -100,7 +102,9 @@ open class StudySession(
         val assignment = Assignment.create(
             studySession = this,
             description = description,
-            problemIds = problemIds
+            problemIds = problemIds,
+            startDateTime = startDateTime,
+            endDateTime = endDateTime
         )
         assignments.add(assignment)
         return assignment

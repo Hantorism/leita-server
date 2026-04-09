@@ -99,7 +99,9 @@ class StudySessionMapper {
                 id = assignment.id,
                 studySessionId = assignment.studySession.id,
                 description = assignment.description,
-                problemIds = assignment.problemIds.toList()
+                problemIds = assignment.problemIds.toList(),
+                startDateTime = assignment.startDateTime,
+                endDateTime = assignment.endDateTime
             )
         }
 
@@ -110,7 +112,9 @@ class StudySessionMapper {
                 studySessionId = assignment.studySession.id,
                 status = record?.status,
                 description = assignment.description,
-                problemIds = assignment.problemIds.toList()
+                problemIds = assignment.problemIds.toList(),
+                startDateTime = assignment.startDateTime,
+                endDateTime = assignment.endDateTime
             )
         }
     }
