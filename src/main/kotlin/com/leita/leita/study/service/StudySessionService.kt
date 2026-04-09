@@ -2,6 +2,7 @@ package com.leita.leita.study.service
 
 import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.jwt.JwtUtils
+import com.leita.leita.judge.domain.*
 import com.leita.leita.study.controller.StudySessionMapper
 import com.leita.leita.study.domain.*
 import com.leita.leita.study.dto.*
@@ -52,7 +53,8 @@ class StudySessionService(
         study.checkMemberByEmail(email)
 
         val member = study.studyMembers.find { it.user.email == email }
-        return StudySessionMapper.toStudySessionDetailResponse(studySession, member?.user?.id)
+        val problems = studySession.getAssignment()?.let { getAssignmentProblemStatuses(it, member?.user?.id) } ?: emptyList()
+        return StudySessionMapper.toStudySessionDetailResponse(studySession, member?.user?.id, problems)
     }
 
     @Transactional
@@ -87,7 +89,8 @@ class StudySessionService(
             endDateTime = request.endDateTime
         )
         val member = study.studyMembers.find { it.user.email == email }
-        return StudySessionMapper.toStudySessionDetailResponse(studySession, member?.user?.id)
+        val problems = studySession.getAssignment()?.let { getAssignmentProblemStatuses(it, member?.user?.id) } ?: emptyList()
+        return StudySessionMapper.toStudySessionDetailResponse(studySession, member?.user?.id, problems)
     }
 
     @Transactional
@@ -191,7 +194,8 @@ class StudySessionService(
 
         val member = study.studyMembers.find { it.user.email == email }
         val assignment = getAssignmentEntity(studySession)
-        return StudySessionMapper.toAssignmentDetailResponse(assignment, member?.user?.id)
+        val problems = getAssignmentProblemStatuses(assignment, member?.user?.id)
+        return StudySessionMapper.toAssignmentDetailResponse(assignment, member?.user?.id, problems)
     }
 
     @Transactional
@@ -216,7 +220,9 @@ class StudySessionService(
             ?: AssignmentRecord(assignment, member.user, request.status).also { assignment.records.add(it) }
 
         record.updateStatus(request.status)
-        return StudySessionMapper.toAssignmentDetailResponse(assignment, member.user.id)
+        
+        val problems = getAssignmentProblemStatuses(assignment, member.user.id)
+        return StudySessionMapper.toAssignmentDetailResponse(assignment, member.user.id, problems)
     }
 
     @Transactional
@@ -260,6 +266,30 @@ class StudySessionService(
         syncAssignmentRecords(study, assignment)
         
         return StudySessionMapper.toAssignmentResponse(assignment)
+    }
+
+    private fun getAssignmentProblemStatuses(assignment: Assignment, userId: Long?): List<AssignmentProblemStatus> {
+        val problemIds = assignment.problemIds
+        val problems = if (problemIds.isNotEmpty()) problemRepository.findAllById(problemIds) else emptyList()
+        val judges = userId?.let { uid -> 
+            judgeRepository.findByProblemIdInAndUserIdAndType(problemIds, uid, JudgeType.SUBMIT)
+        } ?: emptyList()
+
+        return problemIds.map { pid ->
+            val problem = problems.find { it.id == pid }
+            val problemJudges = judges.filter { it.problemId == pid }
+            val bestResult = if (problemJudges.any { it.result == com.leita.leita.judge.domain.Result.CORRECT }) {
+                com.leita.leita.judge.domain.Result.CORRECT
+            } else {
+                problemJudges.maxByOrNull { it.createdAt }?.result
+            }
+
+            AssignmentProblemStatus(
+                problemId = pid,
+                title = problem?.title ?: "Unknown",
+                result = bestResult
+            )
+        }
     }
 
     private fun syncAssignmentRecords(study: Study, assignment: Assignment) {
