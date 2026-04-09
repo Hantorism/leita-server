@@ -75,30 +75,6 @@ class StudyService(
         studyRepository.deleteById(id)
     }
 
-    @Transactional(readOnly = true)
-    fun getStudyMembers(id: Long, role: StudyMemberRole): List<User> {
-        val study = findStudy(id)
-
-        return when (role) {
-            StudyMemberRole.ADMIN -> study.getAdminUsers()
-            StudyMemberRole.MEMBER -> study.getRegularUsers()
-            StudyMemberRole.PENDING -> study.getPendingUsers()
-        }
-    }
-
-    @Transactional
-    fun changeRole(id: Long, request: StudyRoleChangeRequest) {
-        val adminEmail = jwtUtils.extractEmail()
-        val study = findStudy(id)
-        study.checkAdminByEmail(adminEmail)
-
-        val user = userRepository.findByEmail(request.email)
-            ?: throw CustomException("User not found", HttpStatus.UNAUTHORIZED)
-
-        study.changeRole(user, request.newRole)
-        studyRepository.save(study)
-    }
-
     @Transactional
     fun create(request: StudyCreateRequest): StudyCreateResponse {
         val admin = jwtUtils.extractUser()

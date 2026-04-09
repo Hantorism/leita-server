@@ -8,7 +8,7 @@ data class AssignmentDetailResponse(
     val studySessionId: Long,
     val status: AssignmentStatus?,
     val description: String?,
-    val problemIds: List<Long>,
+    val problems: List<AssignmentProblemStatus>,
     val startDateTime: LocalDateTime,
     val endDateTime: LocalDateTime
 )
