@@ -40,7 +40,23 @@ class StudyService(
     fun getStudies(page: Int, size: Int): StudiesResponse {
         val pageable: Pageable = PageRequest.of(page, size)
         val studies = studyRepository.findAll(pageable)
-        return StudyMapper.toStudiesResponse(studies)
+        
+        val joinedStudyIds = try {
+            val email = jwtUtils.extractEmail()
+            val user = userRepository.findByEmail(email)
+            if (user != null) {
+                studyMemberRepository.findByUserId(user.id)
+                    .filter { it.role == StudyMemberRole.ADMIN || it.role == StudyMemberRole.MEMBER }
+                    .map { it.study.id }
+                    .toSet()
+            } else {
+                emptySet<Long>()
+            }
+        } catch (e: Exception) {
+            emptySet<Long>()
+        }
+
+        return StudyMapper.toStudiesResponse(studies, joinedStudyIds)
     }
 
     @Transactional(readOnly = true)

@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface StudyRepository: JpaRepository<Study, Long> {
-    @EntityGraph(attributePaths = ["studyMembers.user"])
+    @EntityGraph(attributePaths = ["studyMembers", "studyMembers.user"])
+    override fun findAll(pageable: org.springframework.data.domain.Pageable): org.springframework.data.domain.Page<Study>
+
+    @EntityGraph(attributePaths = ["studyMembers", "studyMembers.user"])
     fun findDetailById(id: Long): Study?
 }

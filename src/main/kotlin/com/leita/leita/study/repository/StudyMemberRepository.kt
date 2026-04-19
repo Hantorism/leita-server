@@ -13,6 +13,8 @@ import org.springframework.stereotype.Repository
 interface StudyMemberRepository : JpaRepository<StudyMember, Long> {
     fun findByStudyIdAndUserId(studyId: Long, userId: Long): StudyMember?
 
+    fun findByUserId(userId: Long): List<StudyMember>
+
     fun findByStudyId(studyId: Long): List<StudyMember>
 
     fun findByStudyIdAndRole(studyId: Long, role: StudyMemberRole): List<StudyMember>
