@@ -112,76 +112,30 @@ fun getProblem(problemId: String): ProblemDetailResponse {
     val problem = problemRepository.findProblemByProblemId(problemId)
         ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
-    val problemContent = if (problem.description.problem.startsWith("http")) {
-        try {
-            oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(problem.description.problem))
-        } catch (e: Exception) {
-            "Error loading problem description from storage: ${e.message}"
-        }
-    } else {
-        problem.description.problem
-    }
+    fun getContent(url: String, type: String) = if (url.startsWith("http")) {
+        try { oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(url)) }
+        catch (e: Exception) { "Error loading $type: ${e.message}" }
+    } else url
 
-    val inputContent = if (problem.description.input.startsWith("http")) {
-        try {
-            oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(problem.description.input))
-        } catch (e: Exception) {
-            "Error loading input description from storage: ${e.message}"
-        }
-    } else {
-        problem.description.input
-    }
+    val fetchedDescription = Description(
+        problem = getContent(problem.description.problem, "description"),
+        input = getContent(problem.description.input, "input description"),
+        output = getContent(problem.description.output, "output description")
+    )
 
-    val outputContent = if (problem.description.output.startsWith("http")) {
-        try {
-            oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(problem.description.output))
-        } catch (e: Exception) {
-            "Error loading output description from storage: ${e.message}"
-        }
-    } else {
-        problem.description.output
-    }
-
-        val fetchedDescription = Description(
-            problem = problemContent,
-            input = inputContent,
-            output = outputContent
-        )
-
-        val testCaseDtos = problem.testCases.filter { it.isShow }.map { testCase ->
-            val tcInputContent = if (testCase.input.startsWith("http")) {
-                try {
-                    oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(testCase.input))
-                } catch (e: Exception) {
-                    "Error loading input: ${e.message}"
-                }
-            } else {
-                testCase.input
-            }
-
-            val tcOutputContent = if (testCase.output.startsWith("http")) {
-                try {
-                    oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(testCase.output))
-                } catch (e: Exception) {
-                    "Error loading output: ${e.message}"
-                }
-            } else {
-                testCase.output
-            }
-
-            TestCaseDto(
-                input = tcInputContent,
-                output = tcOutputContent,
-                isShow = testCase.isShow
-            )
-        }
-
-        return ProblemMapper.toProblemDetailResponse(problem).copy(
-            description = fetchedDescription,
-            testCases = testCaseDtos
+    val testCaseDtos = problem.testCases.filter { it.isShow }.map { testCase ->
+        TestCaseDto(
+            input = getContent(testCase.input, "input"),
+            output = getContent(testCase.output, "output"),
+            isShow = testCase.isShow
         )
     }
 
+    return ProblemMapper.toProblemDetailResponse(problem).copy(
+        description = fetchedDescription,
+        testCases = testCaseDtos
+    )
+}
     fun updateSolved(problemId: String, isSolved: Boolean) {
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)

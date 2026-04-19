@@ -7,5 +7,7 @@ data class RunWCRequest(
     val code: String,
     val language: Language,
     val testCases: List<TestCaseDto>,
-    val limit: LimitWCRequest
+    val memoryLimit: Long, // 기존 필드 복구
+    val timeLimit: Long,   // 기존 필드 복구
+    val limit: LimitWCRequest // 새로 추가된 객체
 )
