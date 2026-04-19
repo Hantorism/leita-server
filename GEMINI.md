@@ -10,10 +10,15 @@
 - **문서화 유지**: 도메인의 서비스 정책이나 구조가 변경되면 해당 도메인의 `README.md`를 업데이트합니다.
 - **일관성**: `ARCHITECTURE.md`에 지정된 Kotlin 스타일 및 명명 규칙을 준수합니다.
 - **검증**: 구조적 변경 후에는 `find`를 사용하여 패키지 구조를 확인하고 프로젝트가 정상적으로 빌드되는지 확인합니다.
-- **보안**: `application.properties`의 비밀번호나 환경 변수 정보를 로그나 문서에 노출하지 않습니다.
+- **보안 및 빌드 안정성**: 
+    - `application.properties`의 환경 변수(예: `${VAR}`)는 반드시 기본값(예: `${VAR:default}`)을 제공하여 로컬 개발 및 빌드 환경에서 컨텍스트 로딩 실패를 방지합니다.
+    - 비밀번호나 환경 변수 정보를 로그나 문서에 노출하지 않습니다.
 
-## 도메인 상세 내역
-각 도메인별 정책 및 구현 상세 내용은 도메인 패키지(`src/main/kotlin/com/leita/leita/<domain>/README.md`) 내의 `README.md`를 참고합니다.
+## 데이터 처리 및 스토리지 패턴
+- **Base64 정책**: 테스트케이스(Input/Output) 및 제출된 소스코드는 공백과 줄바꿈 보존을 위해 Base64 인코딩 상태로 Object Storage에 저장합니다.
+- **디코딩 책임**: 서버는 Storage에서 읽어온 Base64 데이터를 그대로(또는 String으로 읽어서) 반환하며, 실제 렌더링을 위한 **디코딩은 클라이언트가 담당**합니다.
+- **스토리지 URL 처리**: `OracleStorageUtil`을 사용하여 URL에서 `objectName`을 추출할 때, 중첩 인코딩(Double Encoding) 방지를 위해 반드시 `java.net.URLDecoder.decode()`를 호출한 후 SDK에 전달해야 합니다.
+- **의존성 관리**: Spring Cloud 관련 의존성(Feign 등)은 버전 충돌 방지를 위해 `build.gradle.kts`에서 Spring Cloud BOM을 통해 관리합니다.
 
 ## 코드 생성 지침
 - Gemini는 코드를 생성하거나 수정할 때 반드시 프로젝트 루트의 `ARCHITECTURE.md`, `GEMINI.md` 및 해당 도메인의 `README.md`를 참고해야 합니다.
