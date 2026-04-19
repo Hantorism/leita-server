@@ -29,7 +29,8 @@ class JudgeService(
     private val jwtUtils: JwtUtils,
     private val problemService: ProblemService,
     private val problemRepository: ProblemRepository,
-    private val eventPublisher: ApplicationEventPublisher
+    private val eventPublisher: ApplicationEventPublisher,
+    private val oracleStorageUtil: com.leita.leita.file.util.OracleStorageUtil
 ) {
     @Transactional
     fun submit(problemId: Long, request: SubmitRequest): SubmitResponse {
@@ -39,6 +40,12 @@ class JudgeService(
 
         val submit = Judge.create(problem.id, user, request.language, JudgeType.SUBMIT)
         val submitId = judgeRepository.save(submit).id
+
+        // ✅ 채점 서버가 업로드할 경로 규칙에 맞게 URL 조립 (업로드는 하지 않음)
+        val extension = request.language.toExtension()
+        val codePath = "submits/$submitId/Main.$extension"
+        val codeUrl = "https://objectstorage.ap-chuncheon-1.oraclecloud.com/n/${oracleStorageUtil.getNamespace()}/b/${oracleStorageUtil.getBucketName()}/o/$codePath"
+        submit.updateCodeUrl(codeUrl)
 
         val response: JudgeWCResponse = judgeUtil.submit(problemId, submitId, request)
         submit.updateSizeOfCode(request.code)
@@ -73,5 +80,16 @@ class JudgeService(
             val user = jwtUtils.extractUser()
             return judgeRepository.findAllByUserIdAndType(user.id, JudgeType.SUBMIT)
         }
+    }
+
+    fun getJudgeDetail(judgeId: Long): com.leita.leita.judge.dto.JudgeDetailResponse {
+        val judge = judgeRepository.findById(judgeId).orElseThrow {
+            CustomException("Judge with id: $judgeId not found", HttpStatus.NOT_FOUND)
+        }
+        val user = jwtUtils.extractUser()
+        if (judge.user.id != user.id) {
+            throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
+        }
+        return JudgeMapper.toJudgeDetailResponse(judge)
     }
 }

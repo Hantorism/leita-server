@@ -51,6 +51,15 @@ class JudgeController(
         return ResponseEntity.ok(wrappedResponse)
     }
 
+    @GetMapping("/{judgeId}")
+    fun getJudgeDetail(
+        @PathVariable judgeId: Long
+    ): ResponseEntity<BaseResponse<com.leita.leita.judge.dto.JudgeDetailResponse>> {
+        val response = judgeService.getJudgeDetail(judgeId)
+        val wrappedResponse: BaseResponse<com.leita.leita.judge.dto.JudgeDetailResponse> = BaseResponse("", response)
+        return ResponseEntity.ok(wrappedResponse)
+    }
+
     @PostMapping("/auto-commit")
     fun addReview(
         @RequestBody request: ReviewRequest

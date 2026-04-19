@@ -75,6 +75,9 @@ class OracleStorageUtil(
         return java.net.URLDecoder.decode(objectName, StandardCharsets.UTF_8)
     }
 
+    fun getNamespace(): String = oracleStorageConfig.namespace
+    fun getBucketName(): String = oracleStorageConfig.bucketName
+
     fun uploadString(objectName: String, content: String): String {
         val bytes = content.toByteArray(StandardCharsets.UTF_8)
         val inputStream = ByteArrayInputStream(bytes)
