@@ -19,13 +19,13 @@ interface ProblemRepository : JpaRepository<Problem, Long> {
                 FROM judge
                 WHERE user_id = :userId
                 GROUP BY problem_id
-            ) j ON p.id = j.problem_id
+            ) j ON p.problem_id = j.problem_id
             WHERE
                 (
                     :search IS NULL OR
                     (
-                        (:search REGEXP '^[0-9]+$' AND p.id = CAST(:search AS UNSIGNED)) OR
-                        (NOT :search REGEXP '^[0-9]+$' AND p.title LIKE CONCAT('%', :search, '%'))
+                        (p.problem_id LIKE CONCAT('%', :search, '%')) OR
+                        (p.title LIKE CONCAT('%', :search, '%'))
                     )
                 )
             AND
@@ -45,13 +45,13 @@ interface ProblemRepository : JpaRepository<Problem, Long> {
                 FROM judge
                 WHERE user_id = :userId
                 GROUP BY problem_id
-            ) j ON p.id = j.problem_id
+            ) j ON p.problem_id = j.problem_id
             WHERE
                 (
                     :search IS NULL OR
                     (
-                        (:search REGEXP '^[0-9]+$' AND p.id = CAST(:search AS UNSIGNED)) OR
-                        (NOT :search REGEXP '^[0-9]+$' AND p.title LIKE CONCAT('%', :search, '%'))
+                        (p.problem_id LIKE CONCAT('%', :search, '%')) OR
+                        (p.title LIKE CONCAT('%', :search, '%'))
                     )
                 )
             AND
@@ -71,7 +71,7 @@ interface ProblemRepository : JpaRepository<Problem, Long> {
     ): Page<Problem>
 
     @EntityGraph(attributePaths = ["testCases"])
-    fun findProblemByProblemId(problemId: Long): Problem?
+    fun findProblemByProblemId(problemId: String): Problem?
 
-    fun existsProblemByProblemId(problemId: Long): Boolean
-}
+    fun existsProblemByProblemId(problemId: String): Boolean
+    }

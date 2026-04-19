@@ -6,7 +6,7 @@ import com.leita.leita.problem.domain.Limit
 import com.leita.leita.problem.domain.Solved
 
 data class ProblemDetailResponse (
-    val problemId: Long,
+    val problemId: String,
     val title: String,
     val authorName: String,
     val description: Description,

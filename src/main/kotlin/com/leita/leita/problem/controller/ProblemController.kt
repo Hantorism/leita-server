@@ -30,14 +30,14 @@ class ProblemController(private val problemService: ProblemService) {
     }
 
     @PatchMapping("/{id}")
-    fun updateProblem(@PathVariable id: Long, @RequestBody request: CreateProblemRequest): ResponseEntity<BaseResponse<CreateProblemResponse>> {
+    fun updateProblem(@PathVariable id: String, @RequestBody request: CreateProblemRequest): ResponseEntity<BaseResponse<CreateProblemResponse>> {
         val response = problemService.updateProblem(id, request)
         val wrappedResponse: BaseResponse<CreateProblemResponse> = BaseResponse("문제 수정 완료", response)
         return ResponseEntity.ok(wrappedResponse)
     }
 
     @DeleteMapping("/{id}")
-    fun deleteProblem(@PathVariable id: Long): ResponseEntity<BaseResponse<DeleteProblemResponse>> {
+    fun deleteProblem(@PathVariable id: String): ResponseEntity<BaseResponse<DeleteProblemResponse>> {
         val response = problemService.deleteProblem(id)
         val wrappedResponse: BaseResponse<DeleteProblemResponse> = BaseResponse("문제 삭제 완료", response)
         return ResponseEntity.ok(wrappedResponse)
@@ -55,7 +55,7 @@ class ProblemController(private val problemService: ProblemService) {
     }
 
     @GetMapping("/{id}")
-    fun getProblem(@PathVariable id: Long): ResponseEntity<BaseResponse<ProblemDetailResponse>> {
+    fun getProblem(@PathVariable id: String): ResponseEntity<BaseResponse<ProblemDetailResponse>> {
         val response = problemService.getProblem(id)
         val wrappedResponse: BaseResponse<ProblemDetailResponse> = BaseResponse("문제 조회 완료", response)
         return ResponseEntity.ok(wrappedResponse)
