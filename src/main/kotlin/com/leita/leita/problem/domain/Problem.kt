@@ -122,9 +122,4 @@ open class Problem(
         this.category.clear()
         this.category.addAll(category)
     }
-
-    fun filterVisibleTestCases(): Problem {
-        this.testCases = this.testCases.filter { it.isShow }.toMutableList()
-        return this
-    }
 }
