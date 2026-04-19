@@ -44,7 +44,7 @@ data class AssignmentDetail(
 )
 
 data class AssignmentProblemStatus(
-    val problemId: Long,
+    val problemId: String,
     val title: String,
     val result: Result?
 )

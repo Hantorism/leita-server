@@ -26,7 +26,7 @@ open class Assignment(
     @ElementCollection
     @CollectionTable(name = "assignment_problem", joinColumns = [JoinColumn(name = "assignment_id")])
     @Column(name = "problem_id")
-    open val problemIds: MutableList<Long> = mutableListOf(),
+    open val problemIds: MutableList<String> = mutableListOf(),
 
     @OneToMany(mappedBy = "assignment", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     open val records: MutableSet<AssignmentRecord> = mutableSetOf()
@@ -36,7 +36,7 @@ open class Assignment(
         fun create(
             studySession: StudySession,
             description: String?,
-            problemIds: List<Long>,
+            problemIds: List<String>,
             startDateTime: LocalDateTime? = null,
             endDateTime: LocalDateTime
         ): Assignment {
@@ -52,14 +52,14 @@ open class Assignment(
             return assignment
         }
 
-        internal fun validate(problemIds: List<Long>) {
+        internal fun validate(problemIds: List<String>) {
             if (problemIds.isEmpty()) {
                 throw CustomException("과제 문제는 최소 1개 이상 필요합니다.", HttpStatus.BAD_REQUEST)
             }
         }
     }
 
-    fun update(description: String?, problemIds: List<Long>, startDateTime: LocalDateTime? = null, endDateTime: LocalDateTime) {
+    fun update(description: String?, problemIds: List<String>, startDateTime: LocalDateTime? = null, endDateTime: LocalDateTime) {
         validate(problemIds)
 
         this.description = description
@@ -69,12 +69,12 @@ open class Assignment(
         this.problemIds.addAll(problemIds.distinct())
     }
 
-    fun addProblem(problemId: Long) {
+    fun addProblem(problemId: String) {
         if (problemIds.contains(problemId)) return
         problemIds.add(problemId)
     }
 
-    fun removeProblem(problemId: Long) {
+    fun removeProblem(problemId: String) {
         problemIds.remove(problemId)
     }
 }

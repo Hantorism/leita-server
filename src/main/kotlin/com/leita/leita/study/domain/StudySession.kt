@@ -91,10 +91,11 @@ open class StudySession(
 
     fun createAssignment(
         description: String?,
-        problemIds: List<Long>,
-        startDateTime: LocalDateTime?,
+        problemIds: List<String>,
+        startDateTime: LocalDateTime? = null,
         endDateTime: LocalDateTime
     ): Assignment {
+
         if (assignments.isNotEmpty()) {
             throw CustomException("이미 과제가 존재합니다.", HttpStatus.BAD_REQUEST)
         }
