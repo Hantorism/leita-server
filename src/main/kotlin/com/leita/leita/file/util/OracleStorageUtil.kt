@@ -60,6 +60,20 @@ class OracleStorageUtil(
         return outputStream.toByteArray()
     }
 
+    fun readString(objectName: String): String {
+        return String(downloadFile(objectName), StandardCharsets.UTF_8)
+    }
+
+    fun extractObjectName(url: String): String {
+        val marker = "/o/"
+        val index = url.indexOf(marker)
+        return if (index != -1) {
+            url.substring(index + marker.length)
+        } else {
+            url
+        }
+    }
+
     fun uploadString(objectName: String, content: String): String {
         val bytes = content.toByteArray(StandardCharsets.UTF_8)
         val inputStream = ByteArrayInputStream(bytes)
