@@ -133,7 +133,7 @@ class StudySystemTest {
         println("\n7️⃣ 과제 생성")
         val assignment = session.createAssignment(
             description = "스택, 큐, 해시맵 관련 문제 풀기",
-            problemIds = listOf(10001L, 10002L, 10003L, 10004L, 10005L),
+            problemIds = listOf("10001", "10002", "10003", "10004", "10005"),
             startDateTime = now,
             endDateTime = now.plusDays(7)
         )
@@ -146,12 +146,12 @@ class StudySystemTest {
 
         // 8. 과제 수정
         println("\n8️⃣ 과제 수정")
-        assignment.addProblem(10006L)
-        assignment.removeProblem(10001L)
+        assignment.addProblem("10006")
+        assignment.removeProblem("10001")
 
         assertEquals(5, assignment.problemIds.size) // 6개에서 1개 제거해서 5개
-        assertTrue(assignment.problemIds.contains(10006L))
-        assertFalse(assignment.problemIds.contains(10001L))
+        assertTrue(assignment.problemIds.contains("10006"))
+        assertFalse(assignment.problemIds.contains("10001"))
         println("   ✅ 문제 추가/제거 완료")
         println("   ✅ 현재 문제: ${assignment.problemIds}")
 
@@ -270,9 +270,9 @@ class StudySystemTest {
 
         // 2. 중복 과제 방지 (세션당 1개)
         println("\n2️⃣ 중복 과제 방지 (세션당 1개)")
-        session.createAssignment("과제1", listOf(10001L), now, now.plusHours(2))
+        session.createAssignment("과제1", listOf("10001"), now, now.plusHours(2))
         val exception2 = assertThrows(Exception::class.java) {
-            session.createAssignment("과제2", listOf(10002L), now, now.plusHours(2))
+            session.createAssignment("과제2", listOf("10002"), now, now.plusHours(2))
         }
 
         assertNotNull(exception2)
