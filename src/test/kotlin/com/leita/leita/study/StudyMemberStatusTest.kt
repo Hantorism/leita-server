@@ -103,12 +103,12 @@ class StudyMemberStatusTest {
         attendance.attend(memberUser, baseTime.plusMinutes(5)) // PRESENT
 
         // 과제 추가
-        val assignment = session.createAssignment("설명", listOf(1001L, 1002L), LocalDateTime.now(), LocalDateTime.now().plusDays(7))
+        val assignment = session.createAssignment("설명", listOf("1001", "1002"), LocalDateTime.now(), LocalDateTime.now().plusDays(7))
         assignment.records.add(AssignmentRecord(assignment, memberUser, AssignmentStatus.PARTIAL))
         
         // 과제 해결 여부 (1001번만 해결)
-        `when`(judgeRepository.findByProblemIdInAndUserIdAndResult(listOf(1001L, 1002L), memberUser.id, Result.CORRECT))
-            .thenReturn(listOf(createJudge(1001L, memberUser)))
+        `when`(judgeRepository.findByProblemIdInAndUserIdAndResult(listOf("1001", "1002"), memberUser.id, Result.CORRECT))
+            .thenReturn(listOf(createJudge("1001", memberUser)))
 
         // when
         val response = studyService.getMemberStatus(100L, null, memberUser.id)
@@ -130,18 +130,18 @@ class StudyMemberStatusTest {
         `when`(jwtUtils.extractEmail()).thenReturn(adminUser.email)
         `when`(studySessionRepository.findAllByStudyIdOrderByStartDateTimeDesc(100L)).thenReturn(listOf(session))
         
-        val assignment = session.createAssignment("설명", listOf(1001L, 1002L), LocalDateTime.now(), LocalDateTime.now().plusDays(7))
+        val assignment = session.createAssignment("설명", listOf("1001", "1002"), LocalDateTime.now(), LocalDateTime.now().plusDays(7))
         assignment.records.add(AssignmentRecord(assignment, memberUser, AssignmentStatus.COMPLETED))
         
         // Mock problems
-        val p1 = mock(Problem::class.java).apply { `when`(id).thenReturn(1001L); `when`(title).thenReturn("P1") }
-        val p2 = mock(Problem::class.java).apply { `when`(id).thenReturn(1002L); `when`(title).thenReturn("P2") }
-        `when`(problemRepository.findAllById(anyList())).thenReturn(listOf(p1, p2))
+        val p1 = mock(Problem::class.java).apply { `when`(problemId).thenReturn("1001"); `when`(title).thenReturn("P1") }
+        val p2 = mock(Problem::class.java).apply { `when`(problemId).thenReturn("1002"); `when`(title).thenReturn("P2") }
+        `when`(problemRepository.findAllByProblemIdIn(anyList())).thenReturn(listOf(p1, p2))
 
         // 1001, 1002 모두 해결
-        val judge1 = createJudge(1001L, memberUser)
-        val judge2 = createJudge(1002L, memberUser)
-        `when`(judgeRepository.findByProblemIdInAndUserIdAndType(listOf(1001L, 1002L), memberUser.id, JudgeType.SUBMIT))
+        val judge1 = createJudge("1001", memberUser)
+        val judge2 = createJudge("1002", memberUser)
+        `when`(judgeRepository.findByProblemIdInAndUserIdAndType(listOf("1001", "1002"), memberUser.id, JudgeType.SUBMIT))
             .thenReturn(listOf(judge1, judge2))
 
         // when
@@ -154,7 +154,7 @@ class StudyMemberStatusTest {
         assertThat(assignmentDetail.totalCount).isEqualTo(2)
         assertThat(assignmentDetail.status).isEqualTo(AssignmentStatus.COMPLETED)
         assertThat(assignmentDetail.problems).hasSize(2)
-        assertThat(assignmentDetail.problems.map { it.problemId }).containsExactlyInAnyOrder(1001L, 1002L)
+        assertThat(assignmentDetail.problems.map { it.problemId }).containsExactlyInAnyOrder("1001", "1002")
         assertThat(assignmentDetail.problems.map { it.result }).allMatch { it == Result.CORRECT }
     }
 
@@ -162,7 +162,7 @@ class StudyMemberStatusTest {
         return User(name, email, null, null, email, SecurityRole.USER).apply { this.id = id }
     }
 
-    private fun createJudge(problemId: Long, user: User): Judge {
+    private fun createJudge(problemId: String, user: User): Judge {
         return Judge(
             problemId = problemId,
             user = user,

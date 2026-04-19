@@ -55,7 +55,7 @@ class StudySessionDomainTest {
 
         val first = session.createAssignment(
             description = null,
-            problemIds = listOf(10001L, 10002L),
+            problemIds = listOf("10001", "10002"),
             startDateTime = now,
             endDateTime = now.plusDays(7)
         )
@@ -66,7 +66,7 @@ class StudySessionDomainTest {
         assertThrows(CustomException::class.java) {
             session.createAssignment(
                 description = null,
-                problemIds = listOf(10003L),
+                problemIds = listOf("10003"),
                 startDateTime = now,
                 endDateTime = now.plusDays(7)
             )
