@@ -8,6 +8,8 @@ import com.leita.leita.judge.dto.SubmitWCRequest
 import com.leita.leita.judge.dto.RunWCRequest
 import com.leita.leita.judge.dto.JudgeWCResponse
 import com.leita.leita.judge.dto.RunWCResponse
+import com.leita.leita.judge.dto.LimitWCRequest
+import com.leita.leita.problem.domain.Limit
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.scheduling.annotation.Async
@@ -21,7 +23,7 @@ class JudgeUtil(
 ) {
 
     @Async
-    fun submit(problemId: Long, submitId: Long, request: SubmitRequest, timeLimitMs: Long): JudgeWCResponse {
+    fun submit(problemId: String, submitId: Long, request: SubmitRequest, limit: Limit): JudgeWCResponse {
         val baseUrl = webClientConfig.judgeBaseUrl
         if (baseUrl.isBlank()) {
             throw CustomException("채점 서버 주소가 설정되지 않았습니다.", HttpStatus.INTERNAL_SERVER_ERROR)
@@ -33,9 +35,10 @@ class JudgeUtil(
                 submitId,
                 code = request.code,
                 language = request.language,
+                limit = LimitWCRequest(limit.memory, limit.time)
             )
 
-            val timeoutSeconds = (timeLimitMs / 1000L) + 10
+            val timeoutSeconds = (limit.time / 1000L) + 10
 
             return webClient.post()
                 .uri(targetUri)
@@ -56,7 +59,7 @@ class JudgeUtil(
     }
 
     @Async
-    fun run(problemId: Long, submitId: Long, request: RunRequest, timeLimitMs: Long): List<RunWCResponse> {
+    fun run(problemId: String, submitId: Long, request: RunRequest, limit: Limit): List<RunWCResponse> {
         val baseUrl = webClientConfig.judgeBaseUrl
         if (baseUrl.isBlank()) {
             throw CustomException("채점 서버 주소가 설정되지 않았습니다.", HttpStatus.INTERNAL_SERVER_ERROR)
@@ -68,9 +71,10 @@ class JudgeUtil(
                 code = request.code,
                 language = request.language,
                 testCases = request.testCases,
+                limit = LimitWCRequest(limit.memory, limit.time)
             )
 
-            val timeoutSeconds = (timeLimitMs / 1000L) + 10
+            val timeoutSeconds = (limit.time / 1000L) + 10
 
             return webClient.post()
                 .uri(targetUri)
