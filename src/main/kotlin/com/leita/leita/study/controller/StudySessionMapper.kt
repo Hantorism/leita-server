@@ -94,11 +94,10 @@ class StudySessionMapper {
         fun toAssignmentResponse(assignment: Assignment): AssignmentResponse {
             return AssignmentResponse(
                 id = assignment.id,
-                studySessionId = assignment.studySession.id,
                 description = assignment.description,
-                problemIds = assignment.problemIds.toList(),
                 startDateTime = assignment.startDateTime,
-                endDateTime = assignment.endDateTime
+                endDateTime = assignment.endDateTime,
+                problemIds = assignment.problemIds.toList()
             )
         }
 

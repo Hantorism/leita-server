@@ -270,13 +270,13 @@ class StudySessionService(
 
     private fun getAssignmentProblemStatuses(assignment: Assignment, userId: Long?): List<AssignmentProblemStatus> {
         val problemIds = assignment.problemIds
-        val problems = if (problemIds.isNotEmpty()) problemRepository.findAllById(problemIds) else emptyList()
+        val problems = if (problemIds.isNotEmpty()) problemRepository.findAllByProblemIdIn(problemIds) else emptyList()
         val judges = userId?.let { uid -> 
             judgeRepository.findByProblemIdInAndUserIdAndType(problemIds, uid, JudgeType.SUBMIT)
         } ?: emptyList()
 
         return problemIds.map { pid ->
-            val problem = problems.find { it.id == pid }
+            val problem = problems.find { it.problemId == pid }
             val problemJudges = judges.filter { it.problemId == pid }
             val bestResult = if (problemJudges.any { it.result == com.leita.leita.judge.domain.Result.CORRECT }) {
                 com.leita.leita.judge.domain.Result.CORRECT

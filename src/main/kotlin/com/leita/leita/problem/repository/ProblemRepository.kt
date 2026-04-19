@@ -73,5 +73,7 @@ interface ProblemRepository : JpaRepository<Problem, Long> {
     @EntityGraph(attributePaths = ["testCases"])
     fun findProblemByProblemId(problemId: String): Problem?
 
+    fun findAllByProblemIdIn(problemIds: Collection<String>): List<Problem>
+
     fun existsProblemByProblemId(problemId: String): Boolean
     }

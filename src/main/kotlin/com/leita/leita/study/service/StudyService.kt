@@ -240,7 +240,9 @@ class StudyService(
         val sessions = getTargetSessions(studyId, studySessionId)
         
         val allProblemIds = sessions.flatMap { it.getAssignment()?.problemIds ?: emptyList() }.distinct()
-        val allProblems = if (allProblemIds.isNotEmpty()) problemRepository.findAllById(allProblemIds) else emptyList()
+        val allProblems = if (allProblemIds.isNotEmpty()) {
+            problemRepository.findAllByProblemIdIn(allProblemIds)
+        } else emptyList()
 
         return members.map { member ->
             val assignmentDetails = sessions.mapNotNull { session ->
@@ -249,7 +251,7 @@ class StudyService(
                     val judges = judgeRepository.findByProblemIdInAndUserIdAndType(assignment.problemIds, member.id, JudgeType.SUBMIT)
                     
                     val problemStatuses = assignment.problemIds.map { pid ->
-                        val problem = allProblems.find { it.id == pid }
+                        val problem = allProblems.find { it.problemId == pid }
                         val problemJudges = judges.filter { it.problemId == pid }
                         
                         val bestResult = if (problemJudges.any { it.result == Result.CORRECT }) {

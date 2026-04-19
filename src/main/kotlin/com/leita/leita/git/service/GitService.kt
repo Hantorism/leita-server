@@ -66,8 +66,8 @@ class GitService(
         val user = jwtUtils.extractUser()
         val judge = judgeRepository.findById(request.submitId)
             .orElseThrow{ throw CustomException("Judge not found", HttpStatus.NOT_FOUND) }
-        val problem = problemRepository.findById(judge.problemId)
-            .orElseThrow{ throw CustomException("Problem not found", HttpStatus.NOT_FOUND) }
+        val problem = problemRepository.findProblemByProblemId(judge.problemId)
+            .let { it ?: throw CustomException("Problem not found", HttpStatus.NOT_FOUND) }
 
         val installationId = user.githubInfo!!.installationId
         val githubUserName = user.githubInfo!!.githubUserName
