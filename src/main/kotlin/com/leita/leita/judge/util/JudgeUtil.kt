@@ -24,10 +24,15 @@ class JudgeUtil(
 
     @Async
     fun submit(problemId: String, submitId: Long, request: SubmitRequest, limit: Limit): JudgeWCResponse {
-        val baseUrl = webClientConfig.judgeBaseUrl
+        var baseUrl = webClientConfig.judgeBaseUrl.trim()
         if (baseUrl.isBlank()) {
             throw CustomException("채점 서버 주소가 설정되지 않았습니다.", HttpStatus.INTERNAL_SERVER_ERROR)
         }
+
+        if (!baseUrl.startsWith("http://") && !baseUrl.startsWith("https://")) {
+            baseUrl = "http://$baseUrl"
+        }
+
         val targetUri = request.language.getUrl(baseUrl) + "/problem/submit/" + problemId
 
         try {
@@ -41,7 +46,7 @@ class JudgeUtil(
             val timeoutSeconds = (limit.time / 1000L) + 10
 
             return webClient.post()
-                .uri(targetUri)
+                .uri(java.net.URI.create(targetUri))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(submitRequest)
                 .retrieve()
@@ -53,17 +58,21 @@ class JudgeUtil(
                 .block()!!
         } catch (ex: Exception) {
             println("Error during judge submit to $targetUri: ${ex.message}")
-            ex.printStackTrace()
             throw CustomException("제출 실패: ${ex.message}", HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
     @Async
     fun run(problemId: String, submitId: Long, request: RunRequest, limit: Limit): List<RunWCResponse> {
-        val baseUrl = webClientConfig.judgeBaseUrl
+        var baseUrl = webClientConfig.judgeBaseUrl.trim()
         if (baseUrl.isBlank()) {
             throw CustomException("채점 서버 주소가 설정되지 않았습니다.", HttpStatus.INTERNAL_SERVER_ERROR)
         }
+
+        if (!baseUrl.startsWith("http://") && !baseUrl.startsWith("https://")) {
+            baseUrl = "http://$baseUrl"
+        }
+
         val targetUri = request.language.getUrl(baseUrl) + "/problem/run/" + problemId
 
         try {
@@ -71,13 +80,15 @@ class JudgeUtil(
                 code = request.code,
                 language = request.language,
                 testCases = request.testCases,
+                memoryLimit = limit.memory,
+                timeLimit = limit.time,
                 limit = LimitWCRequest(limit.memory, limit.time)
             )
 
             val timeoutSeconds = (limit.time / 1000L) + 10
 
             return webClient.post()
-                .uri(targetUri)
+                .uri(java.net.URI.create(targetUri))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(runRequest)
                 .retrieve()
@@ -90,7 +101,6 @@ class JudgeUtil(
                 .block()!!
         } catch (ex: Exception) {
             println("Error during judge run to $targetUri: ${ex.message}")
-            ex.printStackTrace()
             throw CustomException("제출 실패: ${ex.message}", HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }

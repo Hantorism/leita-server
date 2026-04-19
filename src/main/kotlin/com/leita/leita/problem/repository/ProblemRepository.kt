@@ -12,7 +12,9 @@ import org.springframework.stereotype.Repository
 interface ProblemRepository : JpaRepository<Problem, Long> {
     @Query(
         value = """
-            SELECT p.*
+            SELECT p.id, p.title, p.user_id, p.description_problem, p.description_input, p.description_output, 
+                   p.limit_memory, p.limit_time, p.source, p.solved_success_count, p.solved_total_count, 
+                   p.solved_rate, p.problem_id, p.created_at, p.updated_at
             FROM problem p
             LEFT JOIN (
                 SELECT problem_id, MAX(CASE WHEN result = 'CORRECT' THEN 1 ELSE 0 END) AS is_solved
