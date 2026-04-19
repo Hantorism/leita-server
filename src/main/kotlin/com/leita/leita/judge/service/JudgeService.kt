@@ -33,12 +33,12 @@ class JudgeService(
     private val oracleStorageUtil: com.leita.leita.file.util.OracleStorageUtil
 ) {
     @Transactional
-    fun submit(problemId: Long, request: SubmitRequest): SubmitResponse {
+    fun submit(problemId: String, request: SubmitRequest): SubmitResponse {
         val user = jwtUtils.extractUser()
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
-        val submit = Judge.create(problem.id, user, request.language, JudgeType.SUBMIT)
+        val submit = Judge.create(problem.problemId, user, request.language, JudgeType.SUBMIT)
         val submitId = judgeRepository.save(submit).id
 
         // ✅ 채점 서버가 업로드할 경로 규칙에 맞게 URL 조립 (업로드는 하지 않음)
@@ -47,7 +47,7 @@ class JudgeService(
         val codeUrl = "https://objectstorage.ap-chuncheon-1.oraclecloud.com/n/${oracleStorageUtil.getNamespace()}/b/${oracleStorageUtil.getBucketName()}/o/$codePath"
         submit.updateCodeUrl(codeUrl)
 
-        val response: JudgeWCResponse = judgeUtil.submit(problemId, submitId, request, problem.limit.time)
+        val response: JudgeWCResponse = judgeUtil.submit(problemId, submitId, request, problem.limit)
         submit.updateSizeOfCode(request.code)
         submit.updateSubmitInfo(response)
 
@@ -59,23 +59,23 @@ class JudgeService(
     }
 
     @Transactional
-    fun run(problemId: Long, request: RunRequest): List<RunResponse> {
+    fun run(problemId: String, request: RunRequest): List<RunResponse> {
         val user = jwtUtils.extractUser()
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
-        val run = Judge.create(problem.id, user, request.language, JudgeType.RUN)
+        val run = Judge.create(problem.problemId, user, request.language, JudgeType.RUN)
         val submitId = judgeRepository.save(run).id
 
-        val response: List<RunWCResponse> = judgeUtil.run(problemId, submitId, request, problem.limit.time)
+        val response: List<RunWCResponse> = judgeUtil.run(problemId, submitId, request, problem.limit)
         return JudgeMapper.toRunResponse(response)
     }
 
-    fun getJudges(problemId: Long?): List<Judge> {
+    fun getJudges(problemId: String?): List<Judge> {
         if(problemId != null) {
             val problem = problemRepository.findProblemByProblemId(problemId)
                 ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
-            return judgeRepository.findAllByProblemIdAndType(problem.id, JudgeType.SUBMIT)
+            return judgeRepository.findAllByProblemIdAndType(problem.problemId, JudgeType.SUBMIT)
         } else {
             val user = jwtUtils.extractUser()
             return judgeRepository.findAllByUserIdAndType(user.id, JudgeType.SUBMIT)
