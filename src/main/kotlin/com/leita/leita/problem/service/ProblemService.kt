@@ -113,6 +113,28 @@ class ProblemService(
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
+        val problemContent = try {
+            oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(problem.description.problem))
+        } catch (e: Exception) {
+            "Error loading problem description: ${e.message}"
+        }
+        val inputDescContent = try {
+            oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(problem.description.input))
+        } catch (e: Exception) {
+            "Error loading input description: ${e.message}"
+        }
+        val outputDescContent = try {
+            oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(problem.description.output))
+        } catch (e: Exception) {
+            "Error loading output description: ${e.message}"
+        }
+
+        val fetchedDescription = Description(
+            problem = problemContent,
+            input = inputDescContent,
+            output = outputDescContent
+        )
+
         val visibleTestCases = problem.filterVisibleTestCases()
         val testCaseDtos = visibleTestCases.testCases.map { testCase ->
             val inputContent = try {
@@ -132,7 +154,10 @@ class ProblemService(
             )
         }
 
-        return ProblemMapper.toProblemDetailResponse(visibleTestCases).copy(testCases = testCaseDtos)
+        return ProblemMapper.toProblemDetailResponse(visibleTestCases).copy(
+            description = fetchedDescription,
+            testCases = testCaseDtos
+        )
     }
 
     fun updateSolved(problemId: Long, isSolved: Boolean) {
@@ -143,7 +168,7 @@ class ProblemService(
     }
 
     private fun uploadDescription(problemId: Long, description: Description): Description {
-        val basePath = "problems/$problemId/description"
+        val basePath = "problems/$problemId/descriptions"
         return Description.create(
             oracleStorageUtil.uploadString("$basePath/problem.html", description.problem),
             oracleStorageUtil.uploadString("$basePath/input.html", description.input),
