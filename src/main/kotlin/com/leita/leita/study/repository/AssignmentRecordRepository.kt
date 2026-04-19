@@ -11,5 +11,5 @@ interface AssignmentRecordRepository : JpaRepository<AssignmentRecord, Long> {
     fun findByAssignmentIdAndUserId(assignmentId: Long, userId: Long): AssignmentRecord?
     
     @Query("SELECT ar FROM AssignmentRecord ar JOIN ar.assignment a JOIN a.problemIds p WHERE ar.user.id = :userId AND p = :problemId")
-    fun findByUserIdAndProblemId(userId: Long, problemId: Long): List<AssignmentRecord>
+    fun findByUserIdAndProblemId(userId: Long, problemId: String): List<AssignmentRecord>
 }

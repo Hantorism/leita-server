@@ -86,7 +86,7 @@ open class Problem(
         }
 
         fun generateProblemId(): String {
-            val randomVal = Random.nextInt(0, 0xFFFF)
+            val randomVal = Random.nextInt(0, 0xffff)
             return String.format("%04x", randomVal)
         }
 
