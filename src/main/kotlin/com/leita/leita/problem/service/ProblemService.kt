@@ -113,7 +113,16 @@ class ProblemService(
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
-        return ProblemMapper.toProblemDetailResponse(problem.filterVisibleTestCases())
+        val visibleTestCases = problem.filterVisibleTestCases()
+        val testCaseDtos = visibleTestCases.testCases.map { testCase ->
+            TestCaseDto(
+                input = oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(testCase.input)),
+                output = oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(testCase.output)),
+                isShow = testCase.isShow
+            )
+        }
+
+        return ProblemMapper.toProblemDetailResponse(visibleTestCases).copy(testCases = testCaseDtos)
     }
 
     fun updateSolved(problemId: Long, isSolved: Boolean) {
