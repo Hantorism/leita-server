@@ -6,6 +6,6 @@ import com.leita.leita.judge.domain.Language
 data class RunWCRequest(
     val code: String,
     val language: Language,
-    val testCases: List<TestCaseDto>
+    val testCases: List<TestCaseDto>,
+    val limit: LimitWCRequest
 )
-
