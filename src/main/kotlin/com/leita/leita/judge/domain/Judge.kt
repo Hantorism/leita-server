@@ -33,6 +33,10 @@ open class Judge(
     @Column(nullable = true)
     open var sizeOfCode: Long? = null,
 
+    @Nullable
+    @Column(nullable = true)
+    open var codeUrl: String? = null,
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     open val type: JudgeType
@@ -60,6 +64,10 @@ open class Judge(
 
     fun updateSizeOfCode(code: String) {
         this.sizeOfCode = Base64.getDecoder().decode(code).size.toLong()
+    }
+
+    fun updateCodeUrl(codeUrl: String) {
+        this.codeUrl = codeUrl
     }
 
     fun updateSubmitInfo(response: JudgeWCResponse) {
