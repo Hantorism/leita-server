@@ -22,7 +22,13 @@ class JudgeUtil(
 ) {
 
     @Async
-    fun submit(problemId: Long, submitId: Long, request: SubmitRequest): JudgeWCResponse {
+    fun submit(problemId: Long, submitId: Long, request: SubmitRequest, timeLimitMs: Long): JudgeWCResponse {
+        val baseUrl = webClientConfig.judgeBaseUrl
+        if (baseUrl.isBlank()) {
+            throw CustomException("채점 서버 주소가 설정되지 않았습니다.", HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+        val targetUri = request.language.getUrl(baseUrl) + "/problem/submit/" + problemId
+
         try {
             val submitRequest = SubmitWCRequest(
                 submitId,
@@ -30,24 +36,34 @@ class JudgeUtil(
                 language = request.language,
             )
 
+            val timeoutSeconds = (timeLimitMs / 1000L) + 10
+
             return webClient.post()
-                .uri(request.language.getUrl(webClientConfig.judgeBaseUrl) + "/problem/submit/" + problemId)
+                .uri(targetUri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(submitRequest)
                 .retrieve()
                 .bodyToMono(JudgeWCResponse::class.java)
+                .timeout(java.time.Duration.ofSeconds(timeoutSeconds))
                 .doOnSuccess {
-                    println("Judge server responded: ${request.language.getUrl(webClientConfig.judgeBaseUrl) + "/problem/submit/" + problemId} / $it")
+                    println("Judge server responded: $targetUri / $it")
                 }
                 .block()!!
         } catch (ex: Exception) {
-            println(ex.message)
-            throw CustomException("제출 실패", HttpStatus.INTERNAL_SERVER_ERROR)
+            println("Error during judge submit to $targetUri: ${ex.message}")
+            ex.printStackTrace()
+            throw CustomException("제출 실패: ${ex.message}", HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
     @Async
-    fun run(problemId: Long, submitId: Long, request: RunRequest): List<RunWCResponse> {
+    fun run(problemId: Long, submitId: Long, request: RunRequest, timeLimitMs: Long): List<RunWCResponse> {
+        val baseUrl = webClientConfig.judgeBaseUrl
+        if (baseUrl.isBlank()) {
+            throw CustomException("채점 서버 주소가 설정되지 않았습니다.", HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+        val targetUri = request.language.getUrl(baseUrl) + "/problem/run/" + problemId
+
         try {
             val runRequest = RunWCRequest(
                 code = request.code,
@@ -55,20 +71,24 @@ class JudgeUtil(
                 testCases = request.testCases,
             )
 
+            val timeoutSeconds = (timeLimitMs / 1000L) + 10
+
             return webClient.post()
-                .uri(request.language.getUrl(webClientConfig.judgeBaseUrl) + "/problem/run/" + problemId)
+                .uri(targetUri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(runRequest)
                 .retrieve()
                 .bodyToMono(Array<RunWCResponse>::class.java)
                 .map { it.toList() }
+                .timeout(java.time.Duration.ofSeconds(timeoutSeconds))
                 .doOnSuccess {
-                    println("Judge server responded: ${request.language.getUrl(webClientConfig.judgeBaseUrl) + "/problem/run/" + problemId} / $it")
+                    println("Judge server responded: $targetUri / $it")
                 }
                 .block()!!
         } catch (ex: Exception) {
-            println(ex.message)
-            throw CustomException("제출 실패", HttpStatus.INTERNAL_SERVER_ERROR)
+            println("Error during judge run to $targetUri: ${ex.message}")
+            ex.printStackTrace()
+            throw CustomException("제출 실패: ${ex.message}", HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 }

@@ -47,7 +47,7 @@ class JudgeService(
         val codeUrl = "https://objectstorage.ap-chuncheon-1.oraclecloud.com/n/${oracleStorageUtil.getNamespace()}/b/${oracleStorageUtil.getBucketName()}/o/$codePath"
         submit.updateCodeUrl(codeUrl)
 
-        val response: JudgeWCResponse = judgeUtil.submit(problemId, submitId, request)
+        val response: JudgeWCResponse = judgeUtil.submit(problemId, submitId, request, problem.limit.time)
         submit.updateSizeOfCode(request.code)
         submit.updateSubmitInfo(response)
 
@@ -67,7 +67,7 @@ class JudgeService(
         val run = Judge.create(problem.id, user, request.language, JudgeType.RUN)
         val submitId = judgeRepository.save(run).id
 
-        val response: List<RunWCResponse> = judgeUtil.run(problemId, submitId, request)
+        val response: List<RunWCResponse> = judgeUtil.run(problemId, submitId, request, problem.limit.time)
         return JudgeMapper.toRunResponse(response)
     }
 
