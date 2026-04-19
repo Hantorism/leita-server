@@ -9,4 +9,6 @@ data class StudyResponse(
     val requirement: String,
     val startDate: LocalDate,
     val endDate: LocalDate,
+    val isJoined: Boolean = false,
+    val memberCount: Int = 0
 )
