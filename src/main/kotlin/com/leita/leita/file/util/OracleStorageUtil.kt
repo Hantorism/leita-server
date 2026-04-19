@@ -41,7 +41,7 @@ class OracleStorageUtil(
             .build()
 
         val response = objectStorage.createPreauthenticatedRequest(request)
-        return "https://" + oracleStorageConfig.namespace + ".objectstorage." + oracleStorageConfig.region + ".oci.customer-oci.com" + response.preauthenticatedRequest.accessUri
+        return "https://objectstorage.ap-chuncheon-1.oraclecloud.com" + response.preauthenticatedRequest.accessUri
     }
 
     fun downloadFile(objectName: String): ByteArray {
