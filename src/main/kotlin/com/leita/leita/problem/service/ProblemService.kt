@@ -115,9 +115,19 @@ class ProblemService(
 
         val visibleTestCases = problem.filterVisibleTestCases()
         val testCaseDtos = visibleTestCases.testCases.map { testCase ->
+            val inputContent = try {
+                oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(testCase.input))
+            } catch (e: Exception) {
+                "Error loading input: ${e.message}"
+            }
+            val outputContent = try {
+                oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(testCase.output))
+            } catch (e: Exception) {
+                "Error loading output: ${e.message}"
+            }
             TestCaseDto(
-                input = oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(testCase.input)),
-                output = oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(testCase.output)),
+                input = inputContent,
+                output = outputContent,
                 isShow = testCase.isShow
             )
         }

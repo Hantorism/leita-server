@@ -67,11 +67,12 @@ class OracleStorageUtil(
     fun extractObjectName(url: String): String {
         val marker = "/o/"
         val index = url.indexOf(marker)
-        return if (index != -1) {
+        val objectName = if (index != -1) {
             url.substring(index + marker.length)
         } else {
             url
         }
+        return java.net.URLDecoder.decode(objectName, StandardCharsets.UTF_8)
     }
 
     fun uploadString(objectName: String, content: String): String {
