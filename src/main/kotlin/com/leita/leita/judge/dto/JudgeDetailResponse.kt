@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 
 data class JudgeDetailResponse(
     val id: Long,
-    val problemId: Long,
+    val problemId: String,
     val result: Result?,
     val used: UsedInfo?,
     val sizeOfCode: Long?,

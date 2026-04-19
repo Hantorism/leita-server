@@ -13,7 +13,7 @@ import java.util.*
 open class Judge(
 
     @Column(nullable = false)
-    open val problemId: Long,
+    open val problemId: String,
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -44,7 +44,7 @@ open class Judge(
 
     companion object {
         fun create(
-            problemId: Long,
+            problemId: String,
             user: User,
             language: Language,
             type: JudgeType

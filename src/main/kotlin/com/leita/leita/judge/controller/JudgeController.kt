@@ -26,30 +26,31 @@ class JudgeController(
 ) {
     @PostMapping("/submit/{problemId}")
     fun submit(
-        @PathVariable problemId: Long, @RequestBody request: SubmitRequest
+        @PathVariable problemId: String, @RequestBody request: SubmitRequest
     ): ResponseEntity<BaseResponse<SubmitResponse>> {
         val response = judgeService.submit(problemId, request)
-        val wrappedResponse: BaseResponse<SubmitResponse> = BaseResponse("제출 완료", response)
+        val wrappedResponse: BaseResponse<SubmitResponse> = BaseResponse("채점 요청 완료", response)
         return ResponseEntity.ok(wrappedResponse)
     }
 
     @PostMapping("/run/{problemId}")
     fun run(
-        @PathVariable problemId: Long, @RequestBody request: RunRequest
+        @PathVariable problemId: String, @RequestBody request: RunRequest
     ): ResponseEntity<BaseResponse<List<RunResponse>>> {
         val response = judgeService.run(problemId, request)
-        val wrappedResponse: BaseResponse<List<RunResponse>> = BaseResponse("제출 완료", response)
+        val wrappedResponse: BaseResponse<List<RunResponse>> = BaseResponse("코드 실행 완료", response)
         return ResponseEntity.ok(wrappedResponse)
     }
 
     @GetMapping
     fun getJudges(
-        @RequestParam(required = false) problemId: Long?
+        @RequestParam(required = false) problemId: String?
     ): ResponseEntity<BaseResponse<List<Judge>>> {
         val response = judgeService.getJudges(problemId)
         val wrappedResponse: BaseResponse<List<Judge>> = BaseResponse("", response)
         return ResponseEntity.ok(wrappedResponse)
     }
+
 
     @GetMapping("/{judgeId}")
     fun getJudgeDetail(
