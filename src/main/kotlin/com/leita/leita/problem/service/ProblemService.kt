@@ -52,7 +52,7 @@ class ProblemService(
         return CreateProblemResponse(problemId)
     }
 
-    fun updateProblem(problemId: Long, request: CreateProblemRequest): CreateProblemResponse {
+    fun updateProblem(problemId: String, request: CreateProblemRequest): CreateProblemResponse {
         val user = jwtUtils.extractUser()
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
@@ -73,7 +73,7 @@ class ProblemService(
         return CreateProblemResponse(problemId)
     }
 
-    fun deleteProblem(problemId: Long): DeleteProblemResponse {
+    fun deleteProblem(problemId: String): DeleteProblemResponse {
         val user = jwtUtils.extractUser()
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
@@ -109,7 +109,7 @@ class ProblemService(
         return ProblemMapper.toProblemsResponse(problems)
     }
 
-    fun getProblem(problemId: Long): ProblemDetailResponse {
+    fun getProblem(problemId: String): ProblemDetailResponse {
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
@@ -160,14 +160,14 @@ class ProblemService(
         )
     }
 
-    fun updateSolved(problemId: Long, isSolved: Boolean) {
+    fun updateSolved(problemId: String, isSolved: Boolean) {
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
         problem.solved.updateSolved(isSolved)
         problemRepository.save(problem.filterVisibleTestCases())
     }
 
-    private fun uploadDescription(problemId: Long, description: Description): Description {
+    private fun uploadDescription(problemId: String, description: Description): Description {
         val basePath = "problems/$problemId/descriptions"
         return Description.create(
             oracleStorageUtil.uploadString("$basePath/problem.html", description.problem),
@@ -176,7 +176,7 @@ class ProblemService(
         )
     }
 
-    private fun uploadTestCases(problemId: Long, testCases: List<TestCaseDto>): List<TestCase> {
+    private fun uploadTestCases(problemId: String, testCases: List<TestCaseDto>): List<TestCase> {
         val basePath = "problems/$problemId/testcases"
         return testCases.mapIndexed { index, dto ->
             val inputUrl = oracleStorageUtil.uploadString("$basePath/$index.in", dto.input)
@@ -185,7 +185,7 @@ class ProblemService(
         }
     }
 
-    private fun deleteProblemFiles(problemId: Long) {
+    private fun deleteProblemFiles(problemId: String) {
         val basePath = "problems/$problemId/"
         oracleStorageUtil.deleteFolder(basePath)
     }

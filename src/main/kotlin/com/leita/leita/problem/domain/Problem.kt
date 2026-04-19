@@ -48,8 +48,8 @@ open class Problem(
     @Column(name = "category")
     open var category: MutableList<String> = mutableListOf(),
 
-    @Column(nullable = false)
-    open val problemId: Long
+    @Column(nullable = false, unique = true)
+    open val problemId: String
 
 ) : BaseEntity() {
 
@@ -62,7 +62,7 @@ open class Problem(
             testCases: List<TestCase>,
             source: String,
             category: List<String>,
-            problemId: Long = generateProblemId()
+            problemId: String = generateProblemId()
         ): Problem {
             if(testCases.size < 5) {
                 throw CustomException("테스트 케이스는 최소 5개 이상이어야 합니다.", HttpStatus.BAD_REQUEST)
@@ -85,15 +85,16 @@ open class Problem(
             return problem
         }
 
-        fun generateProblemId(): Long {
-            return Random.nextInt(10000, 100000).toLong()
+        fun generateProblemId(): String {
+            val randomVal = Random.nextInt(0, 0xFFFF)
+            return String.format("%04x", randomVal)
         }
 
-        fun generateProblemId(excludeProblemId: Long): Long {
+        fun generateProblemId(excludeProblemId: String): String {
             val maxAttempts = 10
             repeat(maxAttempts) {
-                val problemId = Random.nextInt(10000, 100000).toLong()
-                if(!problemId.equals(excludeProblemId)) {
+                val problemId = generateProblemId()
+                if(problemId != excludeProblemId) {
                     return problemId
                 }
             }
