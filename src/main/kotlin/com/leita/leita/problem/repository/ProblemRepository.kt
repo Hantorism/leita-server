@@ -22,11 +22,9 @@ interface ProblemRepository : JpaRepository<Problem, Long> {
             ) j ON p.problem_id = j.problem_id
             WHERE
                 (
-                    :search IS NULL OR
-                    (
-                        (p.problem_id LIKE CONCAT('%', :search, '%')) OR
-                        (p.title LIKE CONCAT('%', :search, '%'))
-                    )
+                    :search IS NULL OR :search = '' OR
+                    p.problem_id LIKE CONCAT('%', :search, '%') OR
+                    p.title LIKE CONCAT('%', :search, '%')
                 )
             AND
                 (
@@ -35,7 +33,6 @@ interface ProblemRepository : JpaRepository<Problem, Long> {
                     (:filter = 'UNSOLVED' AND (j.is_solved IS NULL OR j.is_solved = 0))
                 )
             ORDER BY p.id DESC
-            LIMIT :#{#pageable.pageSize} OFFSET :#{#pageable.offset}
         """,
         countQuery = """
             SELECT COUNT(*)
@@ -48,11 +45,9 @@ interface ProblemRepository : JpaRepository<Problem, Long> {
             ) j ON p.problem_id = j.problem_id
             WHERE
                 (
-                    :search IS NULL OR
-                    (
-                        (p.problem_id LIKE CONCAT('%', :search, '%')) OR
-                        (p.title LIKE CONCAT('%', :search, '%'))
-                    )
+                    :search IS NULL OR :search = '' OR
+                    p.problem_id LIKE CONCAT('%', :search, '%') OR
+                    p.title LIKE CONCAT('%', :search, '%')
                 )
             AND
                 (

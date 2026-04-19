@@ -25,9 +25,9 @@ class ProblemMapper {
                 authorName = problem.author.name,
                 description = problem.description,
                 limit = problem.limit,
-                testCases = problem.testCases.map {
-                    testCase -> TestCaseDto.fromDomain(testCase)
-                },
+                testCases = problem.testCases
+                    .filter { it.isShow }
+                    .map { testCase -> TestCaseDto.fromDomain(testCase) },
                 source = problem.source,
                 solved = problem.solved,
                 category = problem.category,

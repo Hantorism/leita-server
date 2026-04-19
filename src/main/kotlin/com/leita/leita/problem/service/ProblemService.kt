@@ -104,57 +104,79 @@ class ProblemService(
             filter = filter?.name,
             pageable = pageable
         )
-        problems.forEach { it.filterVisibleTestCases() }
 
         return ProblemMapper.toProblemsResponse(problems)
     }
 
-    fun getProblem(problemId: String): ProblemDetailResponse {
-        val problem = problemRepository.findProblemByProblemId(problemId)
-            ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
+fun getProblem(problemId: String): ProblemDetailResponse {
+    val problem = problemRepository.findProblemByProblemId(problemId)
+        ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
-        val problemContent = try {
+    val problemContent = if (problem.description.problem.startsWith("http")) {
+        try {
             oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(problem.description.problem))
         } catch (e: Exception) {
-            "Error loading problem description: ${e.message}"
+            "Error loading problem description from storage: ${e.message}"
         }
-        val inputDescContent = try {
+    } else {
+        problem.description.problem
+    }
+
+    val inputContent = if (problem.description.input.startsWith("http")) {
+        try {
             oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(problem.description.input))
         } catch (e: Exception) {
-            "Error loading input description: ${e.message}"
+            "Error loading input description from storage: ${e.message}"
         }
-        val outputDescContent = try {
+    } else {
+        problem.description.input
+    }
+
+    val outputContent = if (problem.description.output.startsWith("http")) {
+        try {
             oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(problem.description.output))
         } catch (e: Exception) {
-            "Error loading output description: ${e.message}"
+            "Error loading output description from storage: ${e.message}"
         }
+    } else {
+        problem.description.output
+    }
 
         val fetchedDescription = Description(
             problem = problemContent,
-            input = inputDescContent,
-            output = outputDescContent
+            input = inputContent,
+            output = outputContent
         )
 
-        val visibleTestCases = problem.filterVisibleTestCases()
-        val testCaseDtos = visibleTestCases.testCases.map { testCase ->
-            val inputContent = try {
-                oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(testCase.input))
-            } catch (e: Exception) {
-                "Error loading input: ${e.message}"
+        val testCaseDtos = problem.testCases.filter { it.isShow }.map { testCase ->
+            val tcInputContent = if (testCase.input.startsWith("http")) {
+                try {
+                    oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(testCase.input))
+                } catch (e: Exception) {
+                    "Error loading input: ${e.message}"
+                }
+            } else {
+                testCase.input
             }
-            val outputContent = try {
-                oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(testCase.output))
-            } catch (e: Exception) {
-                "Error loading output: ${e.message}"
+
+            val tcOutputContent = if (testCase.output.startsWith("http")) {
+                try {
+                    oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(testCase.output))
+                } catch (e: Exception) {
+                    "Error loading output: ${e.message}"
+                }
+            } else {
+                testCase.output
             }
+
             TestCaseDto(
-                input = inputContent,
-                output = outputContent,
+                input = tcInputContent,
+                output = tcOutputContent,
                 isShow = testCase.isShow
             )
         }
 
-        return ProblemMapper.toProblemDetailResponse(visibleTestCases).copy(
+        return ProblemMapper.toProblemDetailResponse(problem).copy(
             description = fetchedDescription,
             testCases = testCaseDtos
         )
@@ -164,7 +186,7 @@ class ProblemService(
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
         problem.solved.updateSolved(isSolved)
-        problemRepository.save(problem.filterVisibleTestCases())
+        problemRepository.save(problem)
     }
 
     private fun uploadDescription(problemId: String, description: Description): Description {
