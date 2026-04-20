@@ -164,6 +164,7 @@ class StudyService(
 
         return pendingPage.map {
             StudyMemberResponse(
+                memberId = it.id,
                 userId = it.user.id,
                 name = it.user.name,
                 email = it.user.email,

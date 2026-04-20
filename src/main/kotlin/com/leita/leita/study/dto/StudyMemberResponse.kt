@@ -4,6 +4,7 @@ import com.leita.leita.study.domain.StudyMemberRole
 import java.time.LocalDateTime
 
 data class StudyMemberResponse(
+    val memberId: Long,
     val userId: Long,
     val name: String,
     val email: String,

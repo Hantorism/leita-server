@@ -21,6 +21,7 @@ class StudyMapper {
                 endDate = study.endDate,
                 members = study.studyMembers.map {
                     StudyMemberResponse(
+                        memberId = it.id,
                         userId = it.user.id,
                         name = it.user.name,
                         email = it.user.email,
@@ -62,7 +63,7 @@ class StudyMapper {
 
         fun toStudyCreateResponse(study: Study): StudyCreateResponse {
             return StudyCreateResponse(
-                id = study.id ?: throw IllegalStateException("Study ID must not be null after persistence"),
+                id = study.id,
                 title = study.title
             )
         }
