@@ -4,25 +4,23 @@ import com.leita.leita.common.dto.TestCaseDto
 import com.leita.leita.common.exception.CustomException
 import com.leita.leita.common.security.jwt.JwtUtils
 import com.leita.leita.problem.controller.ProblemMapper
-import com.leita.leita.problem.dto.CreateProblemRequest
-import com.leita.leita.problem.dto.Filter
-import com.leita.leita.problem.dto.CreateProblemResponse
-import com.leita.leita.problem.dto.DeleteProblemResponse
-import com.leita.leita.problem.dto.ProblemDetailResponse
-import com.leita.leita.problem.dto.ProblemsResponse
+import com.leita.leita.problem.dto.*
 import com.leita.leita.problem.domain.Description
 import com.leita.leita.problem.domain.Problem
 import com.leita.leita.problem.domain.TestCase
 import com.leita.leita.file.util.OracleStorageUtil
 import com.leita.leita.problem.repository.ProblemRepository
+import com.leita.leita.judge.repository.JudgeRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 
 @Service
 class ProblemService(
     private val problemRepository: ProblemRepository,
+    private val judgeRepository: JudgeRepository,
     private val jwtUtils: JwtUtils,
     private val oracleStorageUtil: OracleStorageUtil,
 ) {
@@ -108,34 +106,53 @@ class ProblemService(
         return ProblemMapper.toProblemsResponse(problems)
     }
 
-fun getProblem(problemId: String): ProblemDetailResponse {
-    val problem = problemRepository.findProblemByProblemId(problemId)
-        ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
+    fun getPopularProblems(period: PopularPeriod, limit: Int): List<ProblemDetailResponse> {
+        val problemIds = when (period) {
+            PopularPeriod.ALL -> judgeRepository.findPopularProblemIdsAllTime(limit)
+            PopularPeriod.WEEK -> judgeRepository.findPopularProblemIdsSince(LocalDateTime.now().minusWeeks(1), limit)
+            PopularPeriod.MONTH -> judgeRepository.findPopularProblemIdsSince(LocalDateTime.now().minusMonths(1), limit)
+        }
 
-    fun getContent(url: String, type: String) = if (url.startsWith("http")) {
-        try { oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(url)) }
-        catch (e: Exception) { "Error loading $type: ${e.message}" }
-    } else url
+        if (problemIds.isEmpty()) return emptyList()
 
-    val fetchedDescription = Description(
-        problem = getContent(problem.description.problem, "description"),
-        input = getContent(problem.description.input, "input description"),
-        output = getContent(problem.description.output, "output description")
-    )
+        val problems = problemRepository.findAllByProblemIdIn(problemIds)
 
-    val testCaseDtos = problem.testCases.filter { it.isShow }.map { testCase ->
-        TestCaseDto(
-            input = getContent(testCase.input, "input"),
-            output = getContent(testCase.output, "output"),
-            isShow = testCase.isShow
+        // judgeRepository에서 돌려준 순서(인기순)대로 다시 정렬
+        val problemMap = problems.associateBy { it.problemId }
+        val sortedProblems = problemIds.mapNotNull { problemMap[it] }
+
+        return sortedProblems.map { ProblemMapper.toProblemDetailResponse(it) }
+    }
+
+    fun getProblem(problemId: String): ProblemDetailResponse {
+        val problem = problemRepository.findProblemByProblemId(problemId)
+            ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
+
+        fun getContent(url: String, type: String) = if (url.startsWith("http")) {
+            try { oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(url)) }
+            catch (e: Exception) { "Error loading $type: ${e.message}" }
+        } else url
+
+        val fetchedDescription = Description(
+            problem = getContent(problem.description.problem, "description"),
+            input = getContent(problem.description.input, "input description"),
+            output = getContent(problem.description.output, "output description")
+        )
+
+        val testCaseDtos = problem.testCases.filter { it.isShow }.map { testCase ->
+            TestCaseDto(
+                input = getContent(testCase.input, "input"),
+                output = getContent(testCase.output, "output"),
+                isShow = testCase.isShow
+            )
+        }
+
+        return ProblemMapper.toProblemDetailResponse(problem).copy(
+            description = fetchedDescription,
+            testCases = testCaseDtos
         )
     }
 
-    return ProblemMapper.toProblemDetailResponse(problem).copy(
-        description = fetchedDescription,
-        testCases = testCaseDtos
-    )
-}
     fun updateSolved(problemId: String, isSolved: Boolean) {
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)

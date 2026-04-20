@@ -1,23 +1,10 @@
 package com.leita.leita.problem.controller
 
 import com.leita.leita.common.dto.BaseResponse
-import com.leita.leita.problem.dto.CreateProblemRequest
-import com.leita.leita.problem.dto.Filter
-import com.leita.leita.problem.dto.CreateProblemResponse
-import com.leita.leita.problem.dto.DeleteProblemResponse
-import com.leita.leita.problem.dto.ProblemDetailResponse
-import com.leita.leita.problem.dto.ProblemsResponse
+import com.leita.leita.problem.dto.*
 import com.leita.leita.problem.service.ProblemService
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/problem")
@@ -51,6 +38,16 @@ class ProblemController(private val problemService: ProblemService) {
     ): ResponseEntity<BaseResponse<ProblemsResponse>> {
         val response = problemService.getProblems(page, size, search, filter)
         val wrappedResponse: BaseResponse<ProblemsResponse> = BaseResponse("문제 조회 완료", response)
+        return ResponseEntity.ok(wrappedResponse)
+    }
+
+    @GetMapping("/popular")
+    fun getPopularProblems(
+        @RequestParam(defaultValue = "ALL") period: PopularPeriod,
+        @RequestParam(defaultValue = "10") limit: Int
+    ): ResponseEntity<BaseResponse<List<ProblemDetailResponse>>> {
+        val response = problemService.getPopularProblems(period, limit)
+        val wrappedResponse = BaseResponse("인기 문제 조회 완료", response)
         return ResponseEntity.ok(wrappedResponse)
     }
 
