@@ -7,7 +7,10 @@ import com.leita.leita.common.security.SecurityRole
 import com.leita.leita.common.domain.BaseEntity
 import jakarta.persistence.Access
 import jakarta.persistence.AccessType
+import jakarta.persistence.AttributeOverride
+import jakarta.persistence.AttributeOverrides
 import jakarta.persistence.Column
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -28,7 +31,11 @@ open class User(
     @Column(nullable = true)
     open var profileImage: String?,
 
-    @Column(nullable = true)
+    @Embedded
+    @AttributeOverrides(
+        AttributeOverride(name = "githubUserName", column = Column(name = "github_user_name", nullable = true)),
+        AttributeOverride(name = "installationId", column = Column(name = "installation_id", nullable = true))
+    )
     open var githubInfo: GithubInfo?,
 
     @JsonIgnore
@@ -39,7 +46,18 @@ open class User(
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     open var role: SecurityRole,
+
+    @Column(nullable = true)
+    open var mainLanguage: String? = null,
+
+    @Column(nullable = true)
+    open var department: String? = null,
 ) : BaseEntity() {
+
+    fun updateInfo(mainLanguage: String?, department: String?) {
+        this.mainLanguage = mainLanguage
+        this.department = department
+    }
 
     fun addGithubApps(installationId: Long, githubUserName: String): User {
         this.githubInfo = GithubInfo(githubUserName, installationId)

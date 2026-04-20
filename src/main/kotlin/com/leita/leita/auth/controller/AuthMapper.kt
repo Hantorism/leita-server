@@ -10,6 +10,11 @@ class AuthMapper {
                 email = user.email,
                 name = user.name,
                 role = user.role,
+                profileImage = user.profileImage,
+                mainLanguage = user.mainLanguage,
+                department = user.department,
+                isGithubLinked = user.githubInfo != null,
+                githubUserName = user.githubInfo?.githubUserName
             )
         }
     }

@@ -6,7 +6,9 @@ import com.leita.leita.auth.dto.JwtResponse
 import com.leita.leita.common.dto.BaseResponse
 import com.leita.leita.auth.service.AuthService
 import org.springframework.http.ResponseEntity
+import com.leita.leita.auth.dto.UpdateInfoRequest
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -27,6 +29,13 @@ class AuthController(private val authService: AuthService) {
     fun info(): ResponseEntity<BaseResponse<InfoResponse>> {
         val response = authService.info()
         val wrappedResponse: BaseResponse<InfoResponse> = BaseResponse("유저 정보", response)
+        return ResponseEntity.ok(wrappedResponse)
+    }
+
+    @PatchMapping("/info")
+    fun updateInfo(@RequestBody request: UpdateInfoRequest): ResponseEntity<BaseResponse<InfoResponse>> {
+        val response = authService.updateInfo(request)
+        val wrappedResponse: BaseResponse<InfoResponse> = BaseResponse("유저 정보 수정 완료", response)
         return ResponseEntity.ok(wrappedResponse)
     }
 }

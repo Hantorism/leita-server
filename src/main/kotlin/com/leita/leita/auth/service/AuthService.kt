@@ -10,6 +10,9 @@ import com.leita.leita.util.google.GoogleOAuthUtil
 import com.leita.leita.user.repository.UserRepository
 import org.springframework.stereotype.Service
 
+import com.leita.leita.auth.dto.UpdateInfoRequest
+import org.springframework.transaction.annotation.Transactional
+
 @Service
 class AuthService(
     private val userRepository: UserRepository,
@@ -29,6 +32,14 @@ class AuthService(
 
     fun info(): InfoResponse {
         val user = jwtUtils.extractUser()
+        return AuthMapper.toInfoResponse(user)
+    }
+
+    @Transactional
+    fun updateInfo(request: UpdateInfoRequest): InfoResponse {
+        val user = jwtUtils.extractUser()
+        user.updateInfo(request.mainLanguage, request.department)
+        userRepository.save(user)
         return AuthMapper.toInfoResponse(user)
     }
 
