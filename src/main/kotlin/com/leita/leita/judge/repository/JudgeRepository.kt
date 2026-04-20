@@ -9,11 +9,11 @@ import java.time.LocalDateTime
 
 @Repository
 interface JudgeRepository : JpaRepository<Judge, Long> {
-    fun findAllByProblemIdAndType(problemId: String, type: JudgeType): List<Judge>
+    fun findAllByProblemIdAndTypeOrderByCreatedAtDesc(problemId: String, type: JudgeType): List<Judge>
 
-    fun findAllByUserIdAndType(userId: Long, type: JudgeType): List<Judge>
+    fun findAllByUserIdAndTypeOrderByCreatedAtDesc(userId: Long, type: JudgeType): List<Judge>
 
-    fun findAllByType(type: JudgeType): List<Judge>
+    fun findAllByTypeOrderByCreatedAtDesc(type: JudgeType): List<Judge>
 
     fun findByProblemIdAndUserId(problemId: String, userId: Long): Judge?
 
