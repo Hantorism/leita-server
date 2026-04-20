@@ -54,7 +54,9 @@ open class User(
     open var department: String? = null,
 ) : BaseEntity() {
 
-    fun updateInfo(mainLanguage: String?, department: String?) {
+    fun updateInfo(name: String?, profileImage: String?, mainLanguage: String?, department: String?) {
+        name?.let { this.name = it }
+        profileImage?.let { this.profileImage = it }
         this.mainLanguage = mainLanguage
         this.department = department
     }
