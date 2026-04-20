@@ -19,7 +19,7 @@ interface ProblemRepository : JpaRepository<Problem, Long> {
             LEFT JOIN (
                 SELECT problem_id, MAX(CASE WHEN result = 'CORRECT' THEN 1 ELSE 0 END) AS is_solved
                 FROM judge
-                WHERE user_id = :userId
+                WHERE (:userId IS NULL OR user_id = :userId)
                 GROUP BY problem_id
             ) j ON p.problem_id = j.problem_id
             WHERE
@@ -30,11 +30,12 @@ interface ProblemRepository : JpaRepository<Problem, Long> {
                 )
             AND
                 (
-                    :filter IS NULL OR
-                    (:filter = 'SOLVED' AND j.is_solved = 1) OR
-                    (:filter = 'UNSOLVED' AND (j.is_solved IS NULL OR j.is_solved = 0))
+                    :filter IS NULL OR :filter = 'ALL' OR
+                    (:filter = 'SOLVED' AND j.is_solved = 1 AND :userId IS NOT NULL) OR
+                    (:filter = 'UNSOLVED' AND (j.is_solved IS NULL OR j.is_solved = 0 OR :userId IS NULL))
                 )
             ORDER BY p.id DESC
+            LIMIT :#{#pageable.pageSize} OFFSET :#{#pageable.offset}
         """,
         countQuery = """
             SELECT COUNT(*)
@@ -42,7 +43,7 @@ interface ProblemRepository : JpaRepository<Problem, Long> {
             LEFT JOIN (
                 SELECT problem_id, MAX(CASE WHEN result = 'CORRECT' THEN 1 ELSE 0 END) AS is_solved
                 FROM judge
-                WHERE user_id = :userId
+                WHERE (:userId IS NULL OR user_id = :userId)
                 GROUP BY problem_id
             ) j ON p.problem_id = j.problem_id
             WHERE
@@ -53,9 +54,9 @@ interface ProblemRepository : JpaRepository<Problem, Long> {
                 )
             AND
                 (
-                    :filter IS NULL OR
-                    (:filter = 'SOLVED' AND j.is_solved = 1) OR
-                    (:filter = 'UNSOLVED' AND (j.is_solved IS NULL OR j.is_solved = 0))
+                    :filter IS NULL OR :filter = 'ALL' OR
+                    (:filter = 'SOLVED' AND j.is_solved = 1 AND :userId IS NOT NULL) OR
+                    (:filter = 'UNSOLVED' AND (j.is_solved IS NULL OR j.is_solved = 0 OR :userId IS NULL))
                 )
         """,
         nativeQuery = true

@@ -38,7 +38,7 @@ class ProblemMigrationTest(
             val newId = try {
                 if (oldId.length == 4 && oldId.all { it.isDigit() || it in 'a'..'f' || it in 'A'..'F' }) oldId.lowercase()
                 else String.format("%04x", oldId.toLong())
-            } catch (e: Exception) { oldId }
+            } catch (_: Exception) { oldId }
 
             println("Migrating: $oldId -> $newId")
             val basePath = "problems/$newId"
@@ -46,7 +46,7 @@ class ProblemMigrationTest(
             try {
                 // 1. 원본 텍스트 추출 (URL이면 다운로드, 텍스트면 유지)
                 fun getRaw(v: String) = if (v.startsWith("http")) {
-                    try { oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(v)) } catch (e: Exception) { v }
+                    try { oracleStorageUtil.readString(oracleStorageUtil.extractObjectName(v)) } catch (_: Exception) { v }
                 } else v
 
                 // 2. 새로운 경로로 업로드
@@ -73,7 +73,7 @@ class ProblemMigrationTest(
                     problem.limit,
                     migratedTestCases,
                     problem.source,
-                    problem.category
+                    problem.category.toList() // ✅ 리스트 복사본을 넘겨서 clear() 부작용 방지
                 )
 
                 problemRepository.save(problem)

@@ -42,7 +42,7 @@ class GitService(
         if(user.githubInfo == null) {
             throw CustomException("Github Apps 조회 실패", HttpStatus.BAD_REQUEST)
         }
-        val installationId = user.githubInfo!!.installationId
+        val installationId = user.githubInfo!!.installationId!!
 
         try {
             val response: InstallationRepositoriesResponse = githubUtil.getInstallationRepositories(installationId)
@@ -69,8 +69,8 @@ class GitService(
         val problem = problemRepository.findProblemByProblemId(judge.problemId)
             .let { it ?: throw CustomException("Problem not found", HttpStatus.NOT_FOUND) }
 
-        val installationId = user.githubInfo!!.installationId
-        val githubUserName = user.githubInfo!!.githubUserName
+        val installationId = user.githubInfo!!.installationId!!
+        val githubUserName = user.githubInfo!!.githubUserName!!
 
         val reviewContent = """
             # [${problem.problemId}] ${problem.title}

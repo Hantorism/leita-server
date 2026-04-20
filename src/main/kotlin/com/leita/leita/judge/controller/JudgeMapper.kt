@@ -7,6 +7,7 @@ import com.leita.leita.judge.dto.RunWCResponse
 
 import com.leita.leita.judge.dto.JudgeDetailResponse
 import com.leita.leita.judge.domain.Judge
+import com.leita.leita.study.dto.UserBriefResponse
 
 class JudgeMapper {
     companion object {
@@ -25,8 +26,18 @@ class JudgeMapper {
                 used = judge.used,
                 sizeOfCode = judge.sizeOfCode,
                 codeUrl = judge.codeUrl,
-                createdAt = judge.createdAt
+                createdAt = judge.createdAt,
+                user = UserBriefResponse(
+                    id = judge.user.id,
+                    name = judge.user.name,
+                    email = judge.user.email,
+                    profileImage = judge.user.profileImage
+                )
             )
+        }
+
+        fun toJudgeDetailResponses(judges: List<Judge>): List<JudgeDetailResponse> {
+            return judges.map { toJudgeDetailResponse(it) }
         }
 
         fun toRunResponse(responses: List<RunWCResponse>): List<RunResponse> {

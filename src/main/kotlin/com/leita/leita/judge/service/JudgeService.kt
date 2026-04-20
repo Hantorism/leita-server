@@ -71,15 +71,19 @@ class JudgeService(
         return JudgeMapper.toRunResponse(response)
     }
 
-    fun getJudges(problemId: String?): List<Judge> {
+    fun getJudges(problemId: String?, userOnly: Boolean): List<Judge> {
         if(problemId != null) {
             val problem = problemRepository.findProblemByProblemId(problemId)
                 ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
             return judgeRepository.findAllByProblemIdAndType(problem.problemId, JudgeType.SUBMIT)
-        } else {
+        }
+        
+        if (userOnly) {
             val user = jwtUtils.extractUser()
             return judgeRepository.findAllByUserIdAndType(user.id, JudgeType.SUBMIT)
         }
+        
+        return judgeRepository.findAllByType(JudgeType.SUBMIT)
     }
 
     fun getJudgeDetail(judgeId: Long): com.leita.leita.judge.dto.JudgeDetailResponse {

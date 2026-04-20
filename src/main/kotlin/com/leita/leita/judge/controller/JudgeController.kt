@@ -44,10 +44,12 @@ class JudgeController(
 
     @GetMapping
     fun getJudges(
-        @RequestParam(required = false) problemId: String?
-    ): ResponseEntity<BaseResponse<List<Judge>>> {
-        val response = judgeService.getJudges(problemId)
-        val wrappedResponse: BaseResponse<List<Judge>> = BaseResponse("", response)
+        @RequestParam(required = false) problemId: String?,
+        @RequestParam(required = false, defaultValue = "false") userOnly: Boolean
+    ): ResponseEntity<BaseResponse<List<com.leita.leita.judge.dto.JudgeDetailResponse>>> {
+        val response = judgeService.getJudges(problemId, userOnly)
+        val wrappedResponse: BaseResponse<List<com.leita.leita.judge.dto.JudgeDetailResponse>> = 
+            BaseResponse("", JudgeMapper.toJudgeDetailResponses(response))
         return ResponseEntity.ok(wrappedResponse)
     }
 
