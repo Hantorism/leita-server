@@ -38,7 +38,7 @@ class AuthService(
     @Transactional
     fun updateInfo(request: UpdateInfoRequest): InfoResponse {
         val user = jwtUtils.extractUser()
-        user.updateInfo(request.mainLanguage, request.department)
+        user.updateInfo(request.name, request.profileImage, request.mainLanguage, request.department)
         userRepository.save(user)
         return AuthMapper.toInfoResponse(user)
     }
