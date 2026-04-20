@@ -30,7 +30,7 @@ class OracleStorageUtil(
         val details = CreatePreauthenticatedRequestDetails.builder()
             .name("par-for-$objectName-${System.currentTimeMillis()}")
             .objectName(objectName)
-            .accessType(CreatePreauthenticatedRequestDetails.AccessType.ObjectRead)
+            .accessType(CreatePreauthenticatedRequestDetails.AccessType.ObjectWrite)
             .timeExpires(expirationTime)
             .build()
 
@@ -42,6 +42,10 @@ class OracleStorageUtil(
 
         val response = objectStorage.createPreauthenticatedRequest(request)
         return "https://objectstorage.ap-chuncheon-1.oraclecloud.com" + response.preauthenticatedRequest.accessUri
+    }
+
+    fun getPublicUrl(objectName: String): String {
+        return "https://objectstorage.ap-chuncheon-1.oraclecloud.com/n/${oracleStorageConfig.namespace}/b/${oracleStorageConfig.bucketName}/o/${objectName}"
     }
 
     fun downloadFile(objectName: String): ByteArray {
