@@ -19,7 +19,7 @@ open class Study(
     open var description: String,
 
     @Column(nullable = true)
-    open var requirement: String,
+    open var requirement: String?,
 
     @Column(nullable = true)
     open var startDate: LocalDate,
@@ -36,16 +36,13 @@ open class Study(
         fun create(
             title: String,
             description: String,
-            requirement: String,
+            requirement: String?,
             startDate: LocalDate,
             endDate: LocalDate,
             admin: User,
         ): Study {
             if (description.isBlank()) {
                 throw CustomException("스터디 설명은 필수입니다.", HttpStatus.BAD_REQUEST)
-            }
-            if (requirement.isBlank()) {
-                throw CustomException("스터디 참여 조건은 필수입니다.", HttpStatus.BAD_REQUEST)
             }
             validateDateTimeRange(startDate, endDate)
 
@@ -177,15 +174,12 @@ open class Study(
     fun update(
         title: String,
         description: String,
-        requirement: String,
+        requirement: String?,
         startDate: LocalDate,
         endDate: LocalDate,
     ) {
         if (description.isBlank()) {
             throw CustomException("스터디 설명은 필수입니다.", HttpStatus.BAD_REQUEST)
-        }
-        if (requirement.isBlank()) {
-            throw CustomException("스터디 참여 조건은 필수입니다.", HttpStatus.BAD_REQUEST)
         }
         validateDateTimeRange(startDate, endDate)
 

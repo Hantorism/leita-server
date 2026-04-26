@@ -6,6 +6,8 @@ import com.leita.leita.study.controller.StudyMapper
 import com.leita.leita.study.dto.*
 import com.leita.leita.study.domain.Study
 import com.leita.leita.study.domain.StudyMemberRole
+import com.leita.leita.study.domain.AttendanceRecordStatus
+import com.leita.leita.study.domain.AssignmentStatus
 import com.leita.leita.user.domain.User
 import com.leita.leita.study.repository.StudyMemberRepository
 import com.leita.leita.study.repository.StudyRepository
@@ -283,6 +285,92 @@ class StudyService(
                 assignments = assignmentDetails
             )
         }
+    }
+
+    @Transactional(readOnly = true)
+    fun getMyRole(studyId: Long): StudyRoleResponse {
+        val user = jwtUtils.extractUser()
+        val study = findStudy(studyId)
+        val studyMember = study.studyMembers.find { it.user.id == user.id }
+        return StudyRoleResponse(studyMember?.role)
+    }
+
+    @Transactional(readOnly = true)
+    fun getCompletionStatus(studyId: Long): StudyCompletionResponse {
+        val currentUser = jwtUtils.extractUser()
+        val study = findStudy(studyId)
+        val currentUserMember = study.studyMembers.find { it.user.id == currentUser.id }
+            ?: throw CustomException("Permission denied", HttpStatus.FORBIDDEN)
+
+        val reqText = study.requirement
+        val hasRequirement = !reqText.isNullOrBlank()
+        
+        val attThreshold = extractPercentage(reqText, "출석")
+        val asgThreshold = extractPercentage(reqText, "과제")
+
+        // Admin sees everyone, Member sees only themselves
+        val regularMembers = study.studyMembers.filter { it.role in listOf(StudyMemberRole.ADMIN, StudyMemberRole.MEMBER) }
+        val targetMembers = if (currentUserMember.role == StudyMemberRole.ADMIN) {
+            regularMembers.filter { it.role == StudyMemberRole.MEMBER }.map { it.user }
+        } else {
+            listOf(currentUser)
+        }
+
+        val sessions = studySessionRepository.findAllByStudyIdOrderByStartDateTimeAsc(study.id)
+        val totalSessions = sessions.size
+        val sessionsWithAssignments = sessions.filter { it.getAssignment() != null }
+        val totalAssignments = sessionsWithAssignments.size
+
+        val memberCompletions = targetMembers.map { member ->
+            // Calculate Attendance
+            val attendedCount = sessions.count { session ->
+                val attendance = session.attendances.firstOrNull()
+                attendance?.records?.any { it.user.id == member.id && (it.status == AttendanceRecordStatus.PRESENT || it.status == AttendanceRecordStatus.LATE) } == true
+            }
+            val attendanceRate = if (totalSessions > 0) (attendedCount * 100 / totalSessions) else 0
+
+            // Calculate Assignments
+            val completedAssignments = sessionsWithAssignments.count { session ->
+                val assignment = session.getAssignment()
+                val record = assignment?.records?.find { it.user.id == member.id }
+                record?.status == AssignmentStatus.COMPLETED
+            }
+            val assignmentRate = if (totalAssignments > 0) (completedAssignments * 100 / totalAssignments) else 0
+
+            val isCompleted = hasRequirement && attendanceRate >= attThreshold && assignmentRate >= asgThreshold
+
+            MemberCompletionResponse(
+                userId = member.id,
+                name = member.name,
+                email = member.email,
+                attendanceCount = attendedCount,
+                totalSessions = totalSessions,
+                attendanceRate = attendanceRate,
+                completedAssignments = completedAssignments,
+                totalAssignments = totalAssignments,
+                assignmentRate = assignmentRate,
+                isCompleted = isCompleted
+            )
+        }
+
+        return StudyCompletionResponse(
+            hasRequirement = hasRequirement,
+            requirement = reqText,
+            attendanceThreshold = attThreshold,
+            assignmentThreshold = asgThreshold,
+            memberCompletions = memberCompletions
+        )
+    }
+
+    private fun extractPercentage(text: String?, keyword: String): Int {
+        if (text.isNullOrBlank()) return 80
+        val regex = Regex("${keyword}.*?(\\d{1,3})%", RegexOption.IGNORE_CASE)
+        val match = regex.find(text)
+        if (match != null) return match.groupValues.getOrNull(1)?.toInt() ?: 80
+        
+        val generalRegex = Regex("(\\d{1,3})%")
+        val generalMatch = generalRegex.find(text)
+        return generalMatch?.groupValues?.getOrNull(1)?.toInt() ?: 80
     }
 
     private fun findStudy(id: Long): Study = studyRepository.findDetailById(id)
