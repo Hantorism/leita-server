@@ -42,6 +42,15 @@ interface GithubClient {
         @PathVariable("branch") branch: String
     ): GithubRefResponse
 
+    @GetMapping("/repos/{owner}/{repo}/contents/{path}")
+    @Headers("Accept: application/vnd.github+json")
+    fun getContent(
+        @RequestHeader("Authorization") token: String,
+        @PathVariable("owner") owner: String,
+        @PathVariable("repo") repo: String,
+        @PathVariable("path") path: String
+    ): Any
+
     @PostMapping("/repos/{owner}/{repo}/git/trees")
     @Headers("Accept: application/vnd.github+json")
     fun createTree(

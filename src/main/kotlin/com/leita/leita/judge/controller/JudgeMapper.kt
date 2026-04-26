@@ -11,8 +11,9 @@ import com.leita.leita.study.dto.UserBriefResponse
 
 class JudgeMapper {
     companion object {
-        fun toSubmitResponse(response: JudgeWCResponse): SubmitResponse {
+        fun toSubmitResponse(response: JudgeWCResponse, submitId: Long): SubmitResponse {
             return SubmitResponse (
+                    submitId = submitId,
                     result = response.result,
                     error = response.error,
                 )

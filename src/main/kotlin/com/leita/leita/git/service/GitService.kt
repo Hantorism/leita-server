@@ -8,17 +8,21 @@ import com.leita.leita.util.cache.CacheUtil
 import com.leita.leita.git.util.GithubUtil
 import com.leita.leita.git.dto.InstallationRepositoriesResponse
 import com.leita.leita.file.util.OracleStorageUtil
+import com.leita.leita.git.util.GithubClient
 import com.leita.leita.judge.repository.JudgeRepository
 import com.leita.leita.problem.repository.ProblemRepository
 import com.leita.leita.user.repository.UserRepository
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import java.util.Base64
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Service
 class GitService(
     private val judgeRepository: JudgeRepository,
     private val githubUtil: GithubUtil,
+    private val githubClient: GithubClient,
     private val jwtUtils: JwtUtils,
     private val userRepository: UserRepository,
     private val problemRepository: ProblemRepository,
@@ -93,13 +97,32 @@ class GitService(
         val codeEncodedContent = oracleStorageUtil.downloadFile("submits/${judge.id}/Main.${judge.used?.language?.toExtension()}")
         val codeContent = Base64.getDecoder().decode(codeEncodedContent)
 
+        val extension = judge.used?.language?.toExtension()
         val reviewFileName = "${problem.problemId}/review.md"
-        val codeFileName = "${problem.problemId}/${problem.problemId}.${judge.used?.language?.toExtension()}"
+        val codeFileName = "${problem.problemId}/${problem.problemId}.$extension"
 
-        val filesToCommit = mapOf(
+        val filesToCommit = mutableMapOf(
             reviewFileName to reviewContent,
             codeFileName to String(codeContent)
         )
+
+        // Check if file already exists to decide whether to add history
+        val token = githubUtil.getInstallationAccessToken(installationId)
+        val exists = try {
+            githubClient.getContent("Bearer $token", githubUserName, request.repositoryName, problem.problemId)
+            true
+        } catch (_: Exception) {
+            false
+        }
+
+        if (exists) {
+            val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
+            val historyReviewFileName = "${problem.problemId}/$timestamp/review.md"
+            val historyCodeFileName = "${problem.problemId}/$timestamp/${problem.problemId}.$extension"
+            
+            filesToCommit[historyReviewFileName] = reviewContent
+            filesToCommit[historyCodeFileName] = String(codeContent)
+        }
 
         githubUtil.commitMultipleFiles(
             installationId,

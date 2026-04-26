@@ -38,10 +38,11 @@ class JudgeService(
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
-        val submit = Judge.create(problem.problemId, user, request.language, JudgeType.SUBMIT)
-        val submitId = judgeRepository.save(submit).id
+        var submit = Judge.create(problem.problemId, user, request.language, JudgeType.SUBMIT)
+        submit = judgeRepository.saveAndFlush(submit)
+        val submitId = submit.id
 
-        // ✅ 채점 서버가 업로드할 경로 규칙에 맞게 URL 조립 (업로드는 하지 않음)
+        // ✅ 채점 서버가 업로드할 경로 규칙에 맞게 URL 조립
         val extension = request.language.toExtension()
         val codePath = "submits/$submitId/Main.$extension"
         val codeUrl = "https://objectstorage.ap-chuncheon-1.oraclecloud.com/n/${oracleStorageUtil.getNamespace()}/b/${oracleStorageUtil.getBucketName()}/o/$codePath"
@@ -55,7 +56,7 @@ class JudgeService(
         
         eventPublisher.publishEvent(ProblemJudgedEvent(user.id, problemId))
 
-        return JudgeMapper.toSubmitResponse(response)
+        return JudgeMapper.toSubmitResponse(response, submitId)
     }
 
     @Transactional
