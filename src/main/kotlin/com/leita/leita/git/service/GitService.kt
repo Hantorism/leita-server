@@ -98,30 +98,46 @@ class GitService(
         val codeContent = Base64.getDecoder().decode(codeEncodedContent)
 
         val extension = judge.used?.language?.toExtension()
-        val reviewFileName = "${problem.problemId}/review.md"
+        val readmeFileName = "${problem.problemId}/README.md"
         val codeFileName = "${problem.problemId}/${problem.problemId}.$extension"
 
         val filesToCommit = mutableMapOf(
-            reviewFileName to reviewContent,
+            readmeFileName to reviewContent,
             codeFileName to String(codeContent)
         )
 
-        // Check if file already exists to decide whether to add history
+        // 깃허브 연동 정보 및 토큰 준비
         val token = githubUtil.getInstallationAccessToken(installationId)
-        val exists = try {
-            githubClient.getContent("Bearer $token", githubUserName, request.repositoryName, problem.problemId)
-            true
-        } catch (_: Exception) {
-            false
-        }
+        
+        // 이전 성공 제출 기록 찾기 (현재 제출 제외)
+        val previousJudge = judgeRepository.findFirstByUserIdAndProblemIdAndResultAndIdNotOrderByCreatedAtDesc(
+            user.id, problem.problemId, com.leita.leita.judge.domain.Result.CORRECT, judge.id
+        )
 
-        if (exists) {
-            val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
-            val historyReviewFileName = "${problem.problemId}/$timestamp/review.md"
-            val historyCodeFileName = "${problem.problemId}/$timestamp/${problem.problemId}.$extension"
-            
-            filesToCommit[historyReviewFileName] = reviewContent
-            filesToCommit[historyCodeFileName] = String(codeContent)
+        if (previousJudge != null) {
+            // 이전에 풀었던 기록이 있다면, 현재 깃허브 루트에 있는 파일들을 아카이브 폴더로 이동시킴
+            try {
+                // 1. 기존 README.md 내용 가져오기
+                val oldReadmeResponse = githubClient.getContent("Bearer $token", githubUserName, request.repositoryName, readmeFileName) as? Map<*, *>
+                val oldReadmeBase64 = oldReadmeResponse?.get("content") as? String
+                
+                // 2. 기존 소스코드 내용 가져오기
+                val oldCodeResponse = githubClient.getContent("Bearer $token", githubUserName, request.repositoryName, codeFileName) as? Map<*, *>
+                val oldCodeBase64 = oldCodeResponse?.get("content") as? String
+
+                if (oldReadmeBase64 != null && oldCodeBase64 != null) {
+                    val prevTimestamp = previousJudge.createdAt.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
+                    
+                    // 정규표현식으로 줄바꿈 제거 후 디코딩 (GitHub API 응답 특성 대응)
+                    val decodedReadme = String(Base64.getMimeDecoder().decode(oldReadmeBase64.replace("\n", "")))
+                    val decodedCode = String(Base64.getMimeDecoder().decode(oldCodeBase64.replace("\n", "")))
+
+                    filesToCommit["${problem.problemId}/$prevTimestamp/README.md"] = decodedReadme
+                    filesToCommit["${problem.problemId}/$prevTimestamp/${problem.problemId}.$extension"] = decodedCode
+                }
+            } catch (_: Exception) {
+                // 파일이 없거나 에러 발생 시 아카이브 생략 (최초 업로드로 간주)
+            }
         }
 
         githubUtil.commitMultipleFiles(

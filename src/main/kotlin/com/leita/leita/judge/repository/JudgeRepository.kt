@@ -13,6 +13,14 @@ interface JudgeRepository : JpaRepository<Judge, Long> {
 
     fun findAllByUserIdAndTypeOrderByCreatedAtDesc(userId: Long, type: JudgeType): List<Judge>
 
+    fun findFirstByUserIdAndProblemIdAndResultAndIdNotOrderByCreatedAtDesc(
+        userId: Long, 
+        problemId: String, 
+        result: Result, 
+        id: Long
+    ): Judge?
+    }
+
     fun findAllByTypeOrderByCreatedAtDesc(type: JudgeType): List<Judge>
 
     fun findByProblemIdAndUserId(problemId: String, userId: Long): Judge?
