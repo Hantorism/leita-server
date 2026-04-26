@@ -4,5 +4,6 @@ data class UpdateInfoRequest(
     val name: String?,
     val profileImage: String?,
     val mainLanguage: String?,
-    val department: String?
+    val department: String?,
+    val githubRepository: String?
 )

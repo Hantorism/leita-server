@@ -12,5 +12,7 @@ data class InfoResponse(
     val department: String?,
     val isGithubLinked: Boolean,
     @get:JsonProperty("githubUserName")
-    val githubUserName: String?
+    val githubUserName: String?,
+    @get:JsonProperty("githubRepository")
+    val githubRepository: String?
 )

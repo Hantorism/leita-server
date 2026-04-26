@@ -6,4 +6,5 @@ import jakarta.persistence.Embeddable
 data class GithubInfo(
     var githubUserName: String? = null,
     var installationId: Long? = null,
+    var githubRepository: String? = null,
 )
