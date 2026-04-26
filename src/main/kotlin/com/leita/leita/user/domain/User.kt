@@ -34,7 +34,8 @@ open class User(
     @Embedded
     @AttributeOverrides(
         AttributeOverride(name = "githubUserName", column = Column(name = "github_user_name", nullable = true)),
-        AttributeOverride(name = "installationId", column = Column(name = "installation_id", nullable = true))
+        AttributeOverride(name = "installationId", column = Column(name = "installation_id", nullable = true)),
+        AttributeOverride(name = "githubRepository", column = Column(name = "github_repository", nullable = true))
     )
     open var githubInfo: GithubInfo?,
 
@@ -54,11 +55,16 @@ open class User(
     open var department: String? = null,
 ) : BaseEntity() {
 
-    fun updateInfo(name: String?, profileImage: String?, mainLanguage: String?, department: String?) {
+    fun updateInfo(name: String?, profileImage: String?, mainLanguage: String?, department: String?, githubRepository: String?) {
         name?.let { this.name = it }
         profileImage?.let { this.profileImage = it }
         this.mainLanguage = mainLanguage
         this.department = department
+        githubRepository?.let {
+            if (this.githubInfo != null) {
+                this.githubInfo!!.githubRepository = it
+            }
+        }
     }
 
     fun addGithubApps(installationId: Long, githubUserName: String): User {

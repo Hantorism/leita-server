@@ -14,7 +14,8 @@ class AuthMapper {
                 mainLanguage = user.mainLanguage,
                 department = user.department,
                 isGithubLinked = user.githubInfo != null,
-                githubUserName = user.githubInfo?.githubUserName
+                githubUserName = user.githubInfo?.githubUserName,
+                githubRepository = user.githubInfo?.githubRepository
             )
         }
     }
