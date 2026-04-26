@@ -51,6 +51,20 @@ class StudyController(
         return ResponseEntity.ok(wrappedResponse)
     }
 
+    @GetMapping("/{id}/my-role")
+    fun getMyRole(@PathVariable id: Long): ResponseEntity<BaseResponse<StudyRoleResponse>> {
+        val response = studyService.getMyRole(id)
+        val wrappedResponse = BaseResponse("내 역할 조회 완료", response)
+        return ResponseEntity.ok(wrappedResponse)
+    }
+
+    @GetMapping("/{id}/completion")
+    fun getCompletionStatus(@PathVariable id: Long): ResponseEntity<BaseResponse<StudyCompletionResponse>> {
+        val response = studyService.getCompletionStatus(id)
+        val wrappedResponse = BaseResponse("수료 현황 조회 완료", response)
+        return ResponseEntity.ok(wrappedResponse)
+    }
+
     @PostMapping
     fun createStudy(@RequestBody request: StudyCreateRequest): ResponseEntity<BaseResponse<StudyCreateResponse>> {
         val response = studyService.create(request)
