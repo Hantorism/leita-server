@@ -102,7 +102,7 @@ class ProblemMigrationTest(
                 e.printStackTrace()
             }
         }
-        println("\n=== [마이그레이션 완료: 총 $count개] ===\n")
+        println("\n=== [마이그레이션 완료: 총 ${count}개] ===\n")
     }
 
     private fun syncExternalIdsDirectly(oldId: String, newId: String) {
