@@ -43,7 +43,7 @@ class JudgeUtil(
                 limit = LimitWCRequest(limit.memory, limit.time)
             )
 
-            val timeoutSeconds = (limit.time / 1000L) + 10
+            val timeoutSeconds = (limit.time / 1000L) + 60
 
             return webClient.post()
                 .uri(java.net.URI.create(targetUri))
@@ -85,7 +85,7 @@ class JudgeUtil(
                 limit = LimitWCRequest(limit.memory, limit.time)
             )
 
-            val timeoutSeconds = (limit.time / 1000L) + 10
+            val timeoutSeconds = (limit.time / 1000L) + 60
 
             return webClient.post()
                 .uri(java.net.URI.create(targetUri))
