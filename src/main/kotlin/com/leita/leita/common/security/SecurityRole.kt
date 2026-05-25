@@ -4,5 +4,6 @@ import lombok.Getter
 
 @Getter
 enum class SecurityRole(val key: String) {
-    USER("ROLE_USER")
+    USER("ROLE_USER"),
+    ADMIN("ROLE_ADMIN")
 }
