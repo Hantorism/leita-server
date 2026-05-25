@@ -26,7 +26,8 @@ class SecurityConfig(
             .httpBasic { it.disable() }
             .formLogin { it.disable() }
             .authorizeHttpRequests {
-                it.requestMatchers(*ApiPaths.AUTHENTICATED_ENDPOINTS).authenticated()
+                it.requestMatchers("/admin/**").hasRole("ADMIN")
+                it.requestMatchers("/auth/info").authenticated()
                 it.anyRequest().permitAll()
             }
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter::class.java)
