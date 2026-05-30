@@ -10,9 +10,9 @@ data class SubmitResponse(
 
     @get:JsonProperty("result")
     @field:JsonProperty("result")
-    val result: Result,
+    val result: Result?,
 
     @get:JsonProperty("error")
     @field:JsonProperty("error")
-    val error: String
+    val error: String?
 )

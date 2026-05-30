@@ -5,6 +5,7 @@ import com.leita.leita.problem.domain.Description
 import com.leita.leita.problem.repository.ProblemRepository
 import jakarta.persistence.EntityManager
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Disabled
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.Commit
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional
     ]
 )
 @ActiveProfiles("dev")
+@Disabled("마이그레이션 테스트는 수동으로만 실행합니다.")
 class ProblemMigrationTest(
     @Autowired private val problemRepository: ProblemRepository,
     @Autowired private val oracleStorageUtil: OracleStorageUtil,
