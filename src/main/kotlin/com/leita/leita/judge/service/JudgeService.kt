@@ -39,6 +39,7 @@ class JudgeService(
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
         var submit = Judge.create(problem.problemId, user, request.language, JudgeType.SUBMIT)
+        submit.result = Result.PENDING
         submit = judgeRepository.saveAndFlush(submit)
         val submitId = submit.id
 
@@ -46,17 +47,31 @@ class JudgeService(
         val extension = request.language.toExtension()
         val codePath = "submits/$submitId/Main.$extension"
         val codeUrl = "https://objectstorage.ap-chuncheon-1.oraclecloud.com/n/${oracleStorageUtil.getNamespace()}/b/${oracleStorageUtil.getBucketName()}/o/$codePath"
-        submit.updateCodeUrl(codeUrl)
-
-        val response: JudgeWCResponse = judgeUtil.submit(problemId, submitId, request, problem.limit)
-        submit.updateSizeOfCode(request.code)
-        submit.updateSubmitInfo(response)
-
-        problemService.updateSolved(problemId, response.result === Result.CORRECT)
         
-        eventPublisher.publishEvent(ProblemJudgedEvent(user.id, problemId))
+        submit.updateCodeUrl(codeUrl)
+        submit.updateSizeOfCode(request.code)
+        judgeRepository.save(submit)
 
-        return JudgeMapper.toSubmitResponse(response, submitId)
+        // 외부 채점 서버에 요청 (ack만 수신)
+        judgeUtil.submit(problemId, submitId, request, problem.limit)
+
+        return SubmitResponse(submitId = submitId, result = Result.PENDING, error = "")
+    }
+
+    @Transactional
+    fun completeJudge(submitId: Long, response: JudgeWCResponse) {
+        val submit = judgeRepository.findById(submitId).orElseThrow {
+            CustomException("Judge with id: $submitId not found", HttpStatus.NOT_FOUND)
+        }
+
+        if (submit.result != null && submit.result != Result.PENDING) return
+
+        submit.updateSubmitInfo(response)
+        judgeRepository.save(submit)
+
+        problemService.updateSolved(submit.problemId, response.result === Result.CORRECT)
+        
+        eventPublisher.publishEvent(ProblemJudgedEvent(submit.user.id, submit.problemId))
     }
 
     @Transactional

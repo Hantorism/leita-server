@@ -2,6 +2,7 @@ package com.leita.leita.judge.util
 
 import com.leita.leita.common.config.WebClientConfig
 import com.leita.leita.common.exception.CustomException
+import com.leita.leita.judge.dto.JudgeReceiptResponse
 import com.leita.leita.judge.dto.SubmitRequest
 import com.leita.leita.judge.dto.RunRequest
 import com.leita.leita.judge.dto.SubmitWCRequest
@@ -23,7 +24,7 @@ class JudgeUtil(
 ) {
 
     @Async
-    fun submit(problemId: String, submitId: Long, request: SubmitRequest, limit: Limit): JudgeWCResponse {
+    fun submit(problemId: String, submitId: Long, request: SubmitRequest, limit: Limit): JudgeReceiptResponse {
         var baseUrl = webClientConfig.judgeBaseUrl.trim()
         if (baseUrl.isBlank()) {
             throw CustomException("채점 서버 주소가 설정되지 않았습니다.", HttpStatus.INTERNAL_SERVER_ERROR)
@@ -50,7 +51,7 @@ class JudgeUtil(
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(submitRequest)
                 .retrieve()
-                .bodyToMono(JudgeWCResponse::class.java)
+                .bodyToMono(JudgeReceiptResponse::class.java)
                 .timeout(java.time.Duration.ofSeconds(timeoutSeconds))
                 .doOnSuccess {
                     println("Judge server responded: $targetUri / $it")
