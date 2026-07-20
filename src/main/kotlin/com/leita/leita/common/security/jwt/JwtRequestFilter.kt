@@ -41,9 +41,11 @@ class JwtRequestFilter(
         chain.doFilter(request, response)
     }
 
+    private val pathMatcher = org.springframework.util.AntPathMatcher()
+
     private fun isAuthenticated(path: String): Boolean {
-        return ApiPaths.AUTHENTICATED_ENDPOINTS.any { regex ->
-            path.matches(regex.toRegex())
+        return ApiPaths.AUTHENTICATED_ENDPOINTS.any { pattern ->
+            pathMatcher.match(pattern, path)
         } && SecurityContextHolder.getContext().authentication == null && !jwtUtil.isTokenExpired
     }
 }
