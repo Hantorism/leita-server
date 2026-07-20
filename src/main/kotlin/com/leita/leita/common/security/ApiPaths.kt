@@ -3,10 +3,10 @@ package com.leita.leita.common.security
 object ApiPaths {
     val AUTHENTICATED_ENDPOINTS: Array<String> = arrayOf(
         "/auth/info",
-        "/admin/.*",
+        "/admin/**",
         "/qna/my",
         "/qna",
-        "/qna/.*"
+        "/qna/**"
     )
 
     val SWAGGER_ENDPOINTS: Array<String> = arrayOf(

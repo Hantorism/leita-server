@@ -13,7 +13,6 @@ import com.leita.leita.judge.dto.LimitWCRequest
 import com.leita.leita.problem.domain.Limit
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 
@@ -23,7 +22,6 @@ class JudgeUtil(
     private val webClientConfig: WebClientConfig
 ) {
 
-    @Async
     fun submit(problemId: String, submitId: Long, request: SubmitRequest, limit: Limit): JudgeReceiptResponse {
         var baseUrl = webClientConfig.judgeBaseUrl.trim()
         if (baseUrl.isBlank()) {
@@ -63,7 +61,6 @@ class JudgeUtil(
         }
     }
 
-    @Async
     fun run(problemId: String, submitId: Long, request: RunRequest, limit: Limit): List<RunWCResponse> {
         var baseUrl = webClientConfig.judgeBaseUrl.trim()
         if (baseUrl.isBlank()) {

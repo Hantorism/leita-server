@@ -39,17 +39,19 @@ class RedisConfig(
     ): StreamMessageListenerContainer<String, MapRecord<String, String, String>> {
         val groupName = "leita-app-group"
 
-        try {
-            // makeStream = true creates the stream automatically if it doesn't exist
-            connectionFactory.connection.streamCommands().xGroupCreate(
-                streamKey.toByteArray(),
-                groupName,
-                ReadOffset.latest(),
-                true
-            )
-        } catch (e: Exception) {
-            // Already exists or creation failed
-            println("Redis Stream consumer group creation message: ${e.message}")
+        connectionFactory.connection.use { connection ->
+            try {
+                // makeStream = true creates the stream automatically if it doesn't exist
+                connection.streamCommands().xGroupCreate(
+                    streamKey.toByteArray(),
+                    groupName,
+                    ReadOffset.latest(),
+                    true
+                )
+            } catch (e: Exception) {
+                // Already exists or creation failed
+                println("Redis Stream consumer group creation message: ${e.message}")
+            }
         }
 
         val options = StreamMessageListenerContainerOptions.builder()
