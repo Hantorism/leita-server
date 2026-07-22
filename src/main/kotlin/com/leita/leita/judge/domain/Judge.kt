@@ -21,7 +21,7 @@ open class Judge(
 
     @Nullable
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
+    @Column(nullable = true, length = 50)
     open var result: Result? = null,
 
     @Nullable
@@ -37,7 +37,7 @@ open class Judge(
     @Column(nullable = true)
     open var codeUrl: String? = null,
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
     open val type: JudgeType
 ) : BaseEntity() {

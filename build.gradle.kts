@@ -42,6 +42,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.hibernate:hibernate-core:6.5.0.Final")
 	implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
+	implementation("org.flywaydb:flyway-core")
+	implementation("org.flywaydb:flyway-mysql")
 
 	implementation("org.springframework.boot:spring-boot-starter-mail")
 
