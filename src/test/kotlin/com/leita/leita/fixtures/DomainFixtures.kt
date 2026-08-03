@@ -6,13 +6,16 @@ import com.leita.leita.problem.domain.Description
 import com.leita.leita.problem.domain.Limit
 import com.leita.leita.problem.domain.TestCase
 
+import com.leita.leita.user.domain.Affiliation
+
 class DummyUser: User(
     name = "홍길동",
     email = "hong@example.com",
     profileImage = "https://example.com/profile.jpg",
     githubInfo = null,
     sub = "google-oauth-sub-123456",
-    role = SecurityRole.USER
+    role = SecurityRole.USER,
+    affiliation = Affiliation("더미소속", "dummy.com")
 )
 
 class DummyDescription : Description(

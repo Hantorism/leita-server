@@ -53,6 +53,10 @@ open class User(
 
     @Column(nullable = true)
     open var department: String? = null,
+
+    @jakarta.persistence.ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
+    @jakarta.persistence.JoinColumn(name = "affiliation_id", nullable = false)
+    open var affiliation: Affiliation? = null
 ) : BaseEntity() {
 
     fun updateInfo(name: String?, profileImage: String?, mainLanguage: String?, department: String?, githubRepository: String?) {
@@ -73,22 +77,16 @@ open class User(
     }
 
     companion object {
-        fun oauthLogin(oAuthUserInfo: OAuthUserInfo): User {
-            isAjouEmail(oAuthUserInfo.email)
+        fun oauthLogin(oAuthUserInfo: OAuthUserInfo, affiliation: Affiliation): User {
             return User(
                 name = oAuthUserInfo.name,
                 email = oAuthUserInfo.email,
                 profileImage = oAuthUserInfo.picture,
                 githubInfo = null,
                 sub = oAuthUserInfo.sub,
-                role = SecurityRole.USER
+                role = SecurityRole.USER,
+                affiliation = affiliation
             )
-        }
-
-        private fun isAjouEmail(email: String) {
-            if(!email.endsWith("@ajou.ac.kr")) {
-                throw CustomException("Use only Ajou Univ. email address", HttpStatus.BAD_REQUEST)
-            }
         }
     }
 
