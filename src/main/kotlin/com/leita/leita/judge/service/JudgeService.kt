@@ -15,6 +15,7 @@ import com.leita.leita.judge.dto.JudgeWCResponse
 import com.leita.leita.judge.dto.RunWCResponse
 import com.leita.leita.judge.event.ProblemJudgedEvent
 import com.leita.leita.judge.repository.JudgeRepository
+import com.leita.leita.judge.repository.LanguageRepository
 import com.leita.leita.problem.repository.ProblemRepository
 import com.leita.leita.problem.service.ProblemService
 import jakarta.transaction.Transactional
@@ -27,6 +28,7 @@ class JudgeService(
     private val judgeUtil: JudgeUtil,
     private val judgeRepository: JudgeRepository,
     private val jwtUtils: JwtUtils,
+    private val languageRepository: LanguageRepository,
     private val problemService: ProblemService,
     private val problemRepository: ProblemRepository,
     private val eventPublisher: ApplicationEventPublisher,
@@ -38,13 +40,16 @@ class JudgeService(
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
-        var submit = Judge.create(problem.problemId, user, request.language, JudgeType.SUBMIT)
+        val langEntity = languageRepository.findByCode(request.language.lowercase())
+            ?: throw CustomException("지원하지 않는 언어입니다: ${request.language}", HttpStatus.BAD_REQUEST)
+
+        var submit = Judge.create(problem.problemId, user, langEntity.code, JudgeType.SUBMIT)
         submit.result = Result.PENDING
         submit = judgeRepository.saveAndFlush(submit)
         val submitId = submit.id
 
         // ✅ 채점 서버가 업로드할 경로 규칙에 맞게 URL 조립
-        val extension = request.language.toExtension()
+        val extension = langEntity.extension
         val codePath = "submits/$submitId/Main.$extension"
         val codeUrl = "https://objectstorage.ap-chuncheon-1.oraclecloud.com/n/${oracleStorageUtil.getNamespace()}/b/${oracleStorageUtil.getBucketName()}/o/$codePath"
         
@@ -80,7 +85,10 @@ class JudgeService(
         val problem = problemRepository.findProblemByProblemId(problemId)
             ?: throw CustomException("Problem with id: $problemId not found", HttpStatus.NOT_FOUND)
 
-        val run = Judge.create(problem.problemId, user, request.language, JudgeType.RUN)
+        val langEntity = languageRepository.findByCode(request.language.lowercase())
+            ?: throw CustomException("지원하지 않는 언어입니다: ${request.language}", HttpStatus.BAD_REQUEST)
+
+        val run = Judge.create(problem.problemId, user, langEntity.code, JudgeType.RUN)
         val submitId = judgeRepository.save(run).id
 
         val response: List<RunWCResponse> = judgeUtil.run(problemId, submitId, request, problem.limit)

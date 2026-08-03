@@ -18,9 +18,12 @@ import java.util.Base64
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+import com.leita.leita.judge.repository.LanguageRepository
+
 @Service
 class GitService(
     private val judgeRepository: JudgeRepository,
+    private val languageRepository: LanguageRepository,
     private val githubUtil: GithubUtil,
     private val githubClient: GithubClient,
     private val jwtUtils: JwtUtils,
@@ -94,10 +97,12 @@ class GitService(
             ```
         """.trimIndent()
 
-        val codeEncodedContent = oracleStorageUtil.downloadFile("submits/${judge.id}/Main.${judge.used?.language?.toExtension()}")
+        val langEntity = judge.used?.language?.let { languageRepository.findByCode(it.lowercase()) }
+        val extension = langEntity?.extension ?: "txt"
+
+        val codeEncodedContent = oracleStorageUtil.downloadFile("submits/${judge.id}/Main.$extension")
         val codeContent = Base64.getDecoder().decode(codeEncodedContent)
 
-        val extension = judge.used?.language?.toExtension()
         val readmeFileName = "${problem.problemId}/README.md"
         val codeFileName = "${problem.problemId}/${problem.problemId}.$extension"
 

@@ -4,11 +4,11 @@ import com.leita.leita.common.security.SecurityRole
 import com.leita.leita.common.security.jwt.JwtUtils
 import com.leita.leita.judge.domain.*
 import com.leita.leita.judge.repository.JudgeRepository
-import com.leita.leita.study.domain.*
 import com.leita.leita.study.repository.StudyMemberRepository
 import com.leita.leita.study.repository.StudyRepository
 import com.leita.leita.study.repository.StudySessionRepository
 import com.leita.leita.study.service.StudyService
+import com.leita.leita.study.domain.*
 import com.leita.leita.user.domain.User
 import com.leita.leita.user.repository.UserRepository
 import com.leita.leita.util.mail.MailUtil
@@ -167,7 +167,7 @@ class StudyMemberStatusTest {
             problemId = problemId,
             user = user,
             result = Result.CORRECT,
-            used = UsedInfo(0, 0, Language.PYTHON),
+            used = UsedInfo(0, 0, "python"),
             type = JudgeType.SUBMIT
         )
     }

@@ -13,6 +13,5 @@ open class UsedInfo(
     val time: Long?,
 
     @Column(name = "used_language")
-    @Enumerated(EnumType.STRING)
-    val language: Language
+    val language: String
 )
