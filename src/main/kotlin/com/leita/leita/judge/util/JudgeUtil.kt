@@ -32,7 +32,7 @@ class JudgeUtil(
             baseUrl = "http://$baseUrl"
         }
 
-        val targetUri = request.language.getUrl(baseUrl) + "/problem/submit/" + problemId
+        val targetUri = baseUrl.replace("{LANGUAGE}", request.language.lowercase()) + "/problem/submit/" + problemId
 
         try {
             val submitRequest = SubmitWCRequest(
@@ -71,7 +71,7 @@ class JudgeUtil(
             baseUrl = "http://$baseUrl"
         }
 
-        val targetUri = request.language.getUrl(baseUrl) + "/problem/run/" + problemId
+        val targetUri = baseUrl.replace("{LANGUAGE}", request.language.lowercase()) + "/problem/run/" + problemId
 
         try {
             val runRequest = RunWCRequest(

@@ -1,38 +1,27 @@
 package com.leita.leita.judge.domain
 
-import lombok.Getter
+import com.leita.leita.common.domain.BaseEntity
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Table
 
-@Getter
-enum class Language(val code: String) {
-    C("c"),
-    CPP("cpp"),
-    JAVA("java"),
-    PYTHON("python"),
-    JAVASCRIPT("javascript"),
-    GO("go"),
-    KOTLIN("kotlin"),
-    SWIFT("swift"),
-    CS("cs"),
-    TYPESCRIPT("typescript"),
-    RUST("rust");
+@Entity
+@Table(name = "languages")
+class Language(
+    @Column(nullable = false, unique = true)
+    var name: String,
 
+    @Column(nullable = false, unique = true)
+    var code: String,
+
+    @Column(nullable = false)
+    var extension: String
+) : BaseEntity() {
     fun getUrl(baseUrl: String): String {
         return baseUrl.replace("{LANGUAGE}", this.code)
     }
 
     fun toExtension(): String {
-        return when (this) {
-            C -> "c"
-            CPP -> "cpp"
-            JAVA -> "java"
-            PYTHON -> "py"
-            JAVASCRIPT -> "js"
-            GO -> "go"
-            KOTLIN -> "kt"
-            SWIFT -> "swift"
-            CS -> "cs"
-            TYPESCRIPT -> "ts"
-            RUST -> "rs"
-        }
+        return this.extension
     }
 }

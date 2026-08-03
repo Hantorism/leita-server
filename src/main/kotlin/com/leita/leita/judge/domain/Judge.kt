@@ -46,7 +46,7 @@ open class Judge(
         fun create(
             problemId: String,
             user: User,
-            language: Language,
+            language: String,
             type: JudgeType
         ): Judge {
             return Judge(
