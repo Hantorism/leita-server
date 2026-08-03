@@ -11,7 +11,10 @@ enum class Language(val code: String) {
     JAVASCRIPT("javascript"),
     GO("go"),
     KOTLIN("kotlin"),
-    SWIFT("swift");
+    SWIFT("swift"),
+    CS("cs"),
+    TYPESCRIPT("typescript"),
+    RUST("rust");
 
     fun getUrl(baseUrl: String): String {
         return baseUrl.replace("{LANGUAGE}", this.code)
@@ -27,6 +30,9 @@ enum class Language(val code: String) {
             GO -> "go"
             KOTLIN -> "kt"
             SWIFT -> "swift"
+            CS -> "cs"
+            TYPESCRIPT -> "ts"
+            RUST -> "rs"
         }
     }
 }
