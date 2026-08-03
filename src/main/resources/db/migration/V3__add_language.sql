@@ -24,6 +24,3 @@ INSERT IGNORE INTO languages (created_at, updated_at, name, code, extension) VAL
 (NOW(), NOW(), 'C#', 'cs', 'cs'),
 (NOW(), NOW(), 'TypeScript', 'typescript', 'ts'),
 (NOW(), NOW(), 'Rust', 'rust', 'rs');
-
--- Modify judge table used_language column type from ENUM to VARCHAR(255)
-ALTER TABLE judge MODIFY COLUMN used_language VARCHAR(255) NULL;
